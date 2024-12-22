@@ -64,13 +64,7 @@ public class LeftBlueParkAuto extends LinearOpMode{
         driveByTime(-0.1, 0, 0, 0.7);
         sleep(50);
 
-        rotate(-90);
-        sleep(50);
-
-        driveByTime(0, -0.5, 0, 1);
-        sleep(50);
-
-        rotate(0);
+        driveByTime(0,0.5,0, 2);
         sleep(1000);
 
 

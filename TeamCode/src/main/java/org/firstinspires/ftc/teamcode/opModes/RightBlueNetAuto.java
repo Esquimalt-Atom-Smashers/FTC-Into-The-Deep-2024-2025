@@ -67,18 +67,12 @@ public class RightBlueNetAuto extends LinearOpMode{
         driveByTime(-0.1, 0, 0, 1);
         sleep(50);
 
-        rotate(90);
+        driveByTime(0, 0.5, 0, 1.5);
         sleep(50);
 
-        driveByTime(0, 0.5, 0, 1);
+        driveByTime(0, -0.5, 0, 4.5);
         sleep(50);
-
-        rotate(-90);
-        sleep(50);
-
-        driveByTime(0, -0.5, 0, 4);
-
-        rotate(0);
+        driveByTime(0.1, 0, 0, 1.5);
         sleep(1000);
 
 
