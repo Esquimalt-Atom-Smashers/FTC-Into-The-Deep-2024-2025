@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 @TeleOp(name = "RoadRunnerTest", group = "Real")
 public class RoadRunnerTeleOpTest extends OpMode{
     private MecanumDrive driveBase;
+    private Boolean goingOrigin;
     @Override
     public void init() {
         driveBase = new MecanumDrive(this.hardwareMap, new Pose2d(0, 0, 0));
@@ -32,7 +33,7 @@ public class RoadRunnerTeleOpTest extends OpMode{
         telemetry.addData("heading (deg)", Math.toDegrees(driveBase.pose.heading.toDouble()));
         telemetry.update();
 
-        if(gamepad1.a) {
+        if(goingOrigin) {
             Actions.runBlocking(
                     driveBase.actionBuilder(currentPosition)
                             .splineToConstantHeading( new Vector2d(0, 0), 0)
