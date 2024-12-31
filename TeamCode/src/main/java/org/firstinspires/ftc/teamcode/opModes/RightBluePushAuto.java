@@ -12,15 +12,21 @@ import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 public final class RightBluePushAuto extends LinearOpMode {
     @Override
     public void runOpMode()  {
-        Pose2d beginPose = new Pose2d(0, 0, 0);
+        //Pose2d beginPose = new Pose2d(-12,65 , 3*Math.PI/2);
+        Pose2d beginPose = new Pose2d(-12,65 , Math.toRadians(270));
         MecanumDrive drive = new MecanumDrive(hardwareMap, beginPose);
 
         waitForStart();
 
         Actions.runBlocking(
             drive.actionBuilder(beginPose)
-                .splineTo(new Vector2d(10, 10), Math.PI / 2)
-                .splineTo(new Vector2d(0, 20), Math.PI)
+
+                    .strafeToConstantHeading( new Vector2d( -12, 60) )
+                .strafeToConstantHeading( new Vector2d( -48, 60) )
+                    .strafeToConstantHeading(new Vector2d(-36,30))
+                    .splineToConstantHeading(new Vector2d(-42,15),Math.toRadians(180))
+                    .splineToConstantHeading(new Vector2d(-48,24),Math.toRadians(90))
+
                 .build());
     }
 }
