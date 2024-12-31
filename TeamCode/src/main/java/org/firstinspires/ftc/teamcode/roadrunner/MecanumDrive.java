@@ -294,7 +294,7 @@ public final class MecanumDrive {
 
         @Override
         public boolean run(@NonNull TelemetryPacket p) {
-            double correctionTime = 2;
+            double correctionTime = 0.5;
             double t;
             if (beginTs < 0) {
                 beginTs = Actions.now();
