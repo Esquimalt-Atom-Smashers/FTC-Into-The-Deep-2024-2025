@@ -26,11 +26,20 @@ public final class LeftBluePushAuto extends LinearOpMode {
         Actions.runBlocking(
                 drive.actionBuilder(beginPose)
 
-                        .strafeToConstantHeading( new Vector2d(62, 55))
+                        .strafeToConstantHeading( new Vector2d(62,55))
 
                         .strafeToConstantHeading(new Vector2d(35,35))
-                        .splineToConstantHeading(new Vector2d(45, 20),Math.toRadians(90))
-                        .splineToConstantHeading(new Vector2d(58, 64) , Math.toRadians(90))
+                        .splineToConstantHeading(new Vector2d(45,20),Math.toRadians(90))
+                        .splineToConstantHeading(new Vector2d(58,64) , Math.toRadians(90))
+
+                        .strafeToConstantHeading(new Vector2d(35,35))
+                        .splineToConstantHeading(new Vector2d(54,20), Math.toRadians(90))
+                        .strafeToConstantHeading(new Vector2d(54,64))
+
+                        .setTangent(270)
+                        .strafeToConstantHeading(new Vector2d(35,35))
+                        .splineToLinearHeading(new Pose2d(63,20,180), Math.toRadians(90))
+                        .strafeToConstantHeading(new Vector2d(54,64))
                         .build());
     }
 
