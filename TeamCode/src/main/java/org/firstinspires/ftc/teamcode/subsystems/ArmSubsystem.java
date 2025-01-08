@@ -1,36 +1,41 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+@Config
 public class ArmSubsystem extends SubsystemBase {
     //Constants
-    public static final String ELBOW_MOTOR_NAME = "";
-    public static final String LINEAR_SLIDE_MOTOR_NAME = "";
-    public static final String SLIDE_LIMIT_SWITCH_NAME = "";
-    public static final double ELBOW_P = 0;
-    public static final double ELBOW_I = 0;
-    public static final double ELBOW_D = 0;
-    public static final double SLIDE_P = 0;
-    public static final double SLIDE_I = 0;
-    public static final double SLIDE_D = 0;
-    public static final int SLIDE_MAX_POSITION = 0;
-    public static final int ELBOW_MAX_POSITION = 0;
+    public static final String ELBOW_MOTOR_NAME = "elbowMotor";
+    public static final String LINEAR_SLIDE_MOTOR_NAME = "slideMotor";
+    //public static final String SLIDE_LIMIT_SWITCH_NAME = "";
+    public static final DcMotor.Direction ELBOW_DIRECTION = DcMotor.Direction.FORWARD;
+    public static final DcMotorEx.Direction LINEAR_SLIDE_DIRECTION = DcMotor.Direction.REVERSE;
+    public static double ELBOW_P = 0;
+    public static double ELBOW_I = 0;
+    public static double ELBOW_D = 0;
+    public static double SLIDE_P = 0;
+    public static double SLIDE_I = 0;
+    public static double SLIDE_D = 0;
+    public static final int SLIDE_MAX_POSITION = 1550;
+    public static final int ELBOW_MAX_POSITION = 690;
     public static final int SLIDE_MIN_POSITION = 0;
     public static final int ELBOW_MIN_POSITION = 0;
 
     //Hardware Components
     private final DcMotorEx elbowMotor;
     private final DcMotorEx linearSlideMotor;
-    private final DigitalChannel slideLimitSwitch;
+    //private final DigitalChannel slideLimitSwitch;
 
     //Additional Elements
     private final PIDController elbowController;
@@ -43,7 +48,7 @@ public class ArmSubsystem extends SubsystemBase {
 
     public enum ArmPosition {
         INTAKE_POSITION(0, 0),
-        OUTTAKE_POSITION(0, 0);
+        OUTTAKE_POSITION(690, 1550);
         public final int elbowPos;
         public final int slidePos;
         ArmPosition(int elbowPos, int slidePos) {
@@ -57,9 +62,12 @@ public class ArmSubsystem extends SubsystemBase {
 
         elbowMotor = opMode.hardwareMap.get(DcMotorEx.class, ELBOW_MOTOR_NAME);
         linearSlideMotor = opMode.hardwareMap.get(DcMotorEx.class, LINEAR_SLIDE_MOTOR_NAME);
-        slideLimitSwitch = opMode.hardwareMap.get(DigitalChannel.class, SLIDE_LIMIT_SWITCH_NAME);
+        //slideLimitSwitch = opMode.hardwareMap.get(DigitalChannel.class, SLIDE_LIMIT_SWITCH_NAME);
 
         //Motor Initialization
+        elbowMotor.setDirection(ELBOW_DIRECTION);
+        linearSlideMotor.setDirection(LINEAR_SLIDE_DIRECTION);
+
         elbowMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         linearSlideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         elbowMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -67,7 +75,7 @@ public class ArmSubsystem extends SubsystemBase {
         elbowMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         linearSlideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        slideLimitSwitch.setMode(DigitalChannel.Mode.INPUT);
+        //slideLimitSwitch.setMode(DigitalChannel.Mode.INPUT);
 
         elbowController = new PIDController(ELBOW_P, ELBOW_I, ELBOW_D);
         linearSlideController = new PIDController(SLIDE_P, SLIDE_I, SLIDE_D);
@@ -91,7 +99,8 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
     public void setTargetLinearSlidePosition(int target) {
-        targetLinearSlidePosition = isLimitSwitchPressed() && target <= linearSlideMotor.getCurrentPosition() ? SLIDE_MIN_POSITION : Range.clip(target, SLIDE_MIN_POSITION, SLIDE_MAX_POSITION);
+        //targetLinearSlidePosition = isLimitSwitchPressed() && target <= linearSlideMotor.getCurrentPosition() ? SLIDE_MIN_POSITION : Range.clip(target, SLIDE_MIN_POSITION, SLIDE_MAX_POSITION);
+        targetLinearSlidePosition = Range.clip(target, SLIDE_MIN_POSITION, SLIDE_MAX_POSITION);
     }
 
     public void setTargetArmPosition(int elbowTarget, int linearTarget) {
@@ -112,9 +121,9 @@ public class ArmSubsystem extends SubsystemBase {
         targetElbowPosition += input;
     }
 
-    private boolean isLimitSwitchPressed() {
-        return !slideLimitSwitch.getState(); //true for pressed and false for not pressed
-    }
+//    private boolean isLimitSwitchPressed() {
+//        return !slideLimitSwitch.getState(); //true for pressed and false for not pressed
+//    }
 
     private void runElbowPID() {
         double power = elbowController.calculate(elbowMotor.getCurrentPosition(), targetElbowPosition);
