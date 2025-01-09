@@ -18,7 +18,7 @@ public class SampleOpMode extends OpMode {
     public void loop() {
         if(gamepad1.dpad_up) armSubsystem.setTargetArmPosition(ArmSubsystem.ArmPosition.OUTTAKE_POSITION);
         if(gamepad1.dpad_down) armSubsystem.setTargetArmPosition(ArmSubsystem.ArmPosition.INTAKE_POSITION);
-        if(gamepad1.right_stick_y > 0.1) armSubsystem.addToLinearSlideTarget((int) (gamepad1.right_stick_y * 25));
+        if(Math.abs(gamepad1.right_stick_y) > 0.1) armSubsystem.addToLinearSlideTarget((int) (gamepad1.right_stick_y * -25));
 
         armSubsystem.update();
     }

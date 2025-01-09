@@ -21,13 +21,13 @@ public class ArmSubsystem extends SubsystemBase {
     //public static final String SLIDE_LIMIT_SWITCH_NAME = "";
     public static final DcMotor.Direction ELBOW_DIRECTION = DcMotor.Direction.FORWARD;
     public static final DcMotorEx.Direction LINEAR_SLIDE_DIRECTION = DcMotor.Direction.REVERSE;
-    public static double ELBOW_P = 0;
+    public static double ELBOW_P = 0.013;
     public static double ELBOW_I = 0;
-    public static double ELBOW_D = 0;
-    public static double SLIDE_P = 0;
+    public static double ELBOW_D = 0.0001;
+    public static double SLIDE_P = 0.0065;
     public static double SLIDE_I = 0;
-    public static double SLIDE_D = 0;
-    public static final int SLIDE_MAX_POSITION = 1550;
+    public static double SLIDE_D = 0.00015;
+    public static final int SLIDE_MAX_POSITION = 2340;
     public static final int ELBOW_MAX_POSITION = 690;
     public static final int SLIDE_MIN_POSITION = 0;
     public static final int ELBOW_MIN_POSITION = 0;
@@ -48,7 +48,7 @@ public class ArmSubsystem extends SubsystemBase {
 
     public enum ArmPosition {
         INTAKE_POSITION(0, 0),
-        OUTTAKE_POSITION(690, 1550);
+        OUTTAKE_POSITION(690, 2340);
         public final int elbowPos;
         public final int slidePos;
         ArmPosition(int elbowPos, int slidePos) {
@@ -162,8 +162,11 @@ public class ArmSubsystem extends SubsystemBase {
             firstCall = false;
         }
 
-        telemetry.addData("Elbow Position:", elbowMotor.getCurrentPosition());
-        telemetry.addData("Linear Slide Position:", linearSlideMotor.getCurrentPosition());
+        telemetry.addData("Elbow Position", elbowMotor.getCurrentPosition());
+        telemetry.addData("Linear Slide Position", linearSlideMotor.getCurrentPosition());
+        telemetry.addData("Arm Target", targetElbowPosition);
+        telemetry.addData("Slide Target", targetLinearSlidePosition);
+
         runElbowPID();
         runLinearSlidePID();
     }
