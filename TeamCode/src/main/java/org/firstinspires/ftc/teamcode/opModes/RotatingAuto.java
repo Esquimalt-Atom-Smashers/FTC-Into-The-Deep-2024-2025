@@ -62,16 +62,10 @@ public class RotatingAuto extends LinearOpMode{
         telemetry.update();
 
         rotate(92);
-        telemetry.update();
-        sleep(100);
 
-        rotate(-179);
-        telemetry.update();
-        sleep(100);
+        rotate(-170);
 
         rotate(0);
-        telemetry.update();
-        sleep(1000);
 
 
     }
@@ -104,23 +98,25 @@ public class RotatingAuto extends LinearOpMode{
         double startingHeading = getHeading();
 
         double angleDifference = targetDegree - startingHeading;
+        if (angleDifference > 180){ angleDifference -= 360;
+        } else if (angleDifference < -180) { angleDifference += 360;}
 
-        if ( Math.abs(angleDifference) < 180 && (180-targetDegree))  {
+        if (angleDifference > 0)  {
             //turn counter-clockwise
             while (Math.abs(getHeading() - targetDegree) > 40) {
-                drive(0, 0, 0.6);
+                drive(0, 0, 0.5);
             }
             while (Math.abs(getHeading() - targetDegree) >= 1) {
-                drive(0, 0, 0.2);
+                drive(0, 0, 0.1);
             }
             drive(0, 0, 0);
         } else {
             //turn clockwise
             while (Math.abs(getHeading() - targetDegree) > 40) {
-                drive(0, 0, -0.6);
+                drive(0, 0, -0.5);
             }
             while (Math.abs(getHeading() - targetDegree) >= 1) {
-                drive(0, 0, -0.2);
+                drive(0, 0, -0.1);
             }
             drive(0, 0, 0);
         }
