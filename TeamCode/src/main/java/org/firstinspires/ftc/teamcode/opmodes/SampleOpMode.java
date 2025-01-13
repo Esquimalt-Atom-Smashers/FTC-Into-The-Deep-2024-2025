@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
+import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -16,10 +17,10 @@ public class SampleOpMode extends OpMode {
 
     @Override
     public void loop() {
-        if(gamepad1.dpad_up) armSubsystem.setTargetArmPosition(ArmSubsystem.ArmPosition.OUTTAKE_POSITION);
+        if(gamepad1.dpad_up) armSubsystem.setTargetArmPosition(ArmSubsystem.ArmPosition.HIGH_OUTTAKE_POSITION);
         if(gamepad1.dpad_down) armSubsystem.setTargetArmPosition(ArmSubsystem.ArmPosition.INTAKE_POSITION);
         if(Math.abs(gamepad1.right_stick_y) > 0.1) armSubsystem.addToLinearSlideTarget((int) (gamepad1.right_stick_y * -25));
 
-        armSubsystem.update();
+        CommandScheduler.getInstance().run();
     }
 }

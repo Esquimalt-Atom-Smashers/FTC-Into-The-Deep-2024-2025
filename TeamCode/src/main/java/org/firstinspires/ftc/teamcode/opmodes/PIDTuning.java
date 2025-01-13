@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
+import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -26,6 +27,6 @@ public class PIDTuning extends OpMode {
         if(gamepad1.dpad_left) slideTarget -= 1;
 
         armSubsystem.setTargetArmPosition(armTarget, slideTarget);
-        armSubsystem.update();
+        CommandScheduler.getInstance().run();
     }
 }

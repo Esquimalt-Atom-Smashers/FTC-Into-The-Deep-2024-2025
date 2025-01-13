@@ -1,19 +1,15 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-@Config
 public class ArmSubsystem extends SubsystemBase {
     //Constants
     public static final String ELBOW_MOTOR_NAME = "elbowMotor";
@@ -21,12 +17,12 @@ public class ArmSubsystem extends SubsystemBase {
     //public static final String SLIDE_LIMIT_SWITCH_NAME = "";
     public static final DcMotor.Direction ELBOW_DIRECTION = DcMotor.Direction.FORWARD;
     public static final DcMotorEx.Direction LINEAR_SLIDE_DIRECTION = DcMotor.Direction.REVERSE;
-    public static double ELBOW_P = 0.013;
-    public static double ELBOW_I = 0;
-    public static double ELBOW_D = 0.0001;
-    public static double SLIDE_P = 0.0065;
-    public static double SLIDE_I = 0;
-    public static double SLIDE_D = 0.00015;
+    public static final double ELBOW_P = 0.013;
+    public static final double ELBOW_I = 0;
+    public static final double ELBOW_D = 0.0001;
+    public static final double SLIDE_P = 0.0065;
+    public static final double SLIDE_I = 0;
+    public static final double SLIDE_D = 0.00015;
     public static final int SLIDE_MAX_POSITION = 2340;
     public static final int ELBOW_MAX_POSITION = 690;
     public static final int SLIDE_MIN_POSITION = 0;
@@ -48,9 +44,12 @@ public class ArmSubsystem extends SubsystemBase {
 
     public enum ArmPosition {
         INTAKE_POSITION(0, 0),
-        OUTTAKE_POSITION(690, 2340);
+        HIGH_OUTTAKE_POSITION(690, 2340),
+        LOW_OUTTAKE_POSITION(690, 980); //Check positions
+
         public final int elbowPos;
         public final int slidePos;
+
         ArmPosition(int elbowPos, int slidePos) {
             this.elbowPos = elbowPos;
             this.slidePos = slidePos;
@@ -76,6 +75,8 @@ public class ArmSubsystem extends SubsystemBase {
         linearSlideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         //slideLimitSwitch.setMode(DigitalChannel.Mode.INPUT);
+
+        setTargetArmPosition(ELBOW_MIN_POSITION, SLIDE_MIN_POSITION);
 
         elbowController = new PIDController(ELBOW_P, ELBOW_I, ELBOW_D);
         linearSlideController = new PIDController(SLIDE_P, SLIDE_I, SLIDE_D);
@@ -152,10 +153,8 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
     private boolean firstCall = true;
-    /**
-     * This method must be run periodically!
-     */
-    public void update() {
+    @Override
+    public void periodic() {
         if(firstCall) {
             elbowTimer.reset();
             linearSlideTimer.reset();
