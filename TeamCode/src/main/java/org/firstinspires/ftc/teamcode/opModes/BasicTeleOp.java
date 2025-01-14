@@ -59,11 +59,6 @@ public class BasicTeleOp extends OpMode{
         timer = new ElapsedTime();
         timer.reset();
 
-        //servo = hardwareMap.get(Servo.class, "servo");
-
-
-//        servo.setPosition(0);
-//        telemetry.addData("servo pos", 0);
     }
 
     public void loop(){
