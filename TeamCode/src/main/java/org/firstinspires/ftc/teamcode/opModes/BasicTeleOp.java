@@ -67,7 +67,7 @@ public class BasicTeleOp extends OpMode{
     }
 
     public void loop(){
-        drive(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, fieldCentric);
+        drive(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
 
         if (gamepad1.dpad_right) {
             if (fieldCentric) {
@@ -81,6 +81,10 @@ public class BasicTeleOp extends OpMode{
             }
         }
 
+        if (gamepad1.dpad_up) {
+            rotate(0);
+        }
+
         if (gamepad1.back) {imu.resetYaw();}
 
         //speed toggle
@@ -91,19 +95,6 @@ public class BasicTeleOp extends OpMode{
                 else {speedMultiplier = 1;}
             }
         }
-//        if(gamepad1.dpad_right) {
-//            // move to 0 degrees.
-//            servo.setPosition(0);
-//            telemetry.addData("servo pos", 0);
-//        } else if (gamepad1.dpad_up) {
-//            // move to 90 degrees.
-//            servo.setPosition(0.5);
-//            telemetry.addData("servo pos", 0.5);
-//        } else if (gamepad1.dpad_left) {
-//            // move to 180 degrees.
-//            servo.setPosition(1);
-//            telemetry.addData("servo pos", 1);
-//        }
         heading = getHeading();
 
         telemetry.addData("heading", heading);
@@ -115,7 +106,7 @@ public class BasicTeleOp extends OpMode{
         telemetry.update();
     }
 
-    private void drive(double forward, double strafe, double turn, boolean fieldCentricBool){
+    private void drive(double forward, double strafe, double turn){
         final double DEADZONE = 0.1;
 
         forward = Math.abs(forward) >= DEADZONE ? forward : 0;
@@ -138,6 +129,34 @@ public class BasicTeleOp extends OpMode{
             frontLeftMotor.setPower (scaleInput(forward + strafe + turn) * speedMultiplier);
             backRightMotor.setPower (scaleInput(forward + strafe - turn) * speedMultiplier);
             backLeftMotor.setPower  (scaleInput(forward - strafe + turn) * speedMultiplier);
+        }
+    }
+
+    private void rotate(double targetDegree){
+        double startingHeading = getHeading();
+
+        double angleDifference = targetDegree - startingHeading;
+        if (angleDifference > 180){ angleDifference -= 360;
+        } else if (angleDifference < -180) { angleDifference += 360;}
+
+        if (angleDifference > 0)  {
+            //turn counter-clockwise
+            while (Math.abs(getHeading() - targetDegree) > 40) {
+                drive(0, 0, 0.5);
+            }
+            while (Math.abs(getHeading() - targetDegree) >= 1) {
+                drive(0, 0, 0.1);
+            }
+            drive(0, 0, 0);
+        } else {
+            //turn clockwise
+            while (Math.abs(getHeading() - targetDegree) > 40) {
+                drive(0, 0, -0.5);
+            }
+            while (Math.abs(getHeading() - targetDegree) >= 1) {
+                drive(0, 0, -0.1);
+            }
+            drive(0, 0, 0);
         }
     }
 

@@ -66,32 +66,32 @@ public final class MecanumDrive {
                 RevHubOrientationOnRobot.UsbFacingDirection.RIGHT;
 
         // drive model parameters
-        public double inPerTick = 0.00106;//rev:theoretical
+        public double inPerTick = 0.000528;//rev:theoretical .000528 bosco number
         public double lateralInPerTick = inPerTick;
-        public double trackWidthTicks = 10552.159152222628;
+        public double trackWidthTicks = 11827;
 
         // feedforward parameters (in tick units)
-        public double kS = 0.66;
-        public double kV = 0.000205;
-        public double kA = 0.00001;
+        public double kS = 0.4515;
+        public double kV = 0.000109;
+        public double kA = 0.000015;
 
         // path profile parameters (in inches)
-        public double maxWheelVel = 55;
-        public double minProfileAccel = -60;
-        public double maxProfileAccel = 60;
+        public double maxWheelVel = 30;
+        public double minProfileAccel = -25;
+        public double maxProfileAccel = 25;
 
         // turn profile parameters (in radians)
         public double maxAngVel = Math.PI; // shared with path
         public double maxAngAccel = Math.PI;
 
         // path controller gains
-        public double axialGain = 1.0;
-        public double lateralGain = 1;
-        public double headingGain = 1; // shared with turn
+        public double axialGain = 1.1;
+        public double lateralGain = 3.0;
+        public double headingGain = 10.0; // shared with turn
 
         public double axialVelGain = 0.1;
         public double lateralVelGain = 0.1;
-        public double headingVelGain = 0.1; // shared with turn
+        public double headingVelGain = 1; // shared with turn
     }
 
     public static Params PARAMS = new Params();
@@ -236,6 +236,11 @@ public final class MecanumDrive {
         rightBack.setDirection(DcMotorSimple.Direction.FORWARD);
         rightFront.setDirection(DcMotorSimple.Direction.FORWARD);
 
+        leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         // TODO: make sure your config has an IMU with this name (can be BNO or BHI)
         //   see https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html
         lazyImu = new LazyImu(hardwareMap, "imu", new RevHubOrientationOnRobot(
@@ -289,6 +294,7 @@ public final class MecanumDrive {
 
         @Override
         public boolean run(@NonNull TelemetryPacket p) {
+            double correctionTime = 0.5;
             double t;
             if (beginTs < 0) {
                 beginTs = Actions.now();
@@ -297,7 +303,7 @@ public final class MecanumDrive {
                 t = Actions.now() - beginTs;
             }
 
-            if (t >= timeTrajectory.duration) {
+            if (t >= timeTrajectory.duration+correctionTime) {//added correction time, should add an exception for if it is at position
                 leftFront.setPower(0);
                 leftBack.setPower(0);
                 rightBack.setPower(0);

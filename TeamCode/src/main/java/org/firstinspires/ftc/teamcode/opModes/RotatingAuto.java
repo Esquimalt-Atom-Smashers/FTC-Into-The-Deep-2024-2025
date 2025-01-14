@@ -13,8 +13,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 
-@Autonomous(name = "LeftBlueParkAuto", group = "Real")
-public class LeftBlueParkAuto extends LinearOpMode{
+@Autonomous(name = "RotatingAuto", group = "Real")
+public class RotatingAuto extends LinearOpMode{
     private IMU imu;
     private DcMotorEx frontRightMotor;
     private DcMotorEx frontLeftMotor;
@@ -61,11 +61,11 @@ public class LeftBlueParkAuto extends LinearOpMode{
         telemetry.addData("heading", getHeading());
         telemetry.update();
 
-        driveByTime(-0.1, 0, 0, 0.7);
-        sleep(50);
+        rotate(92);
 
-        driveByTime(0,0.5,0, 2);
-        sleep(1000);
+        rotate(-170);
+
+        rotate(0);
 
 
     }
@@ -98,23 +98,25 @@ public class LeftBlueParkAuto extends LinearOpMode{
         double startingHeading = getHeading();
 
         double angleDifference = targetDegree - startingHeading;
+        if (angleDifference > 180){ angleDifference -= 360;
+        } else if (angleDifference < -180) { angleDifference += 360;}
 
-        if ( Math.abs(angleDifference) < 180 && (angleDifference) > 0)  {
+        if (angleDifference > 0)  {
             //turn counter-clockwise
             while (Math.abs(getHeading() - targetDegree) > 40) {
-                drive(0, 0, 0.6);
+                drive(0, 0, 0.5);
             }
             while (Math.abs(getHeading() - targetDegree) >= 1) {
-                drive(0, 0, 0.2);
+                drive(0, 0, 0.1);
             }
             drive(0, 0, 0);
         } else {
             //turn clockwise
             while (Math.abs(getHeading() - targetDegree) > 40) {
-                drive(0, 0, -0.6);
+                drive(0, 0, -0.5);
             }
             while (Math.abs(getHeading() - targetDegree) >= 1) {
-                drive(0, 0, -0.2);
+                drive(0, 0, -0.1);
             }
             drive(0, 0, 0);
         }
