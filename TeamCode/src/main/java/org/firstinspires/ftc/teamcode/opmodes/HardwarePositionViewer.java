@@ -15,10 +15,10 @@ public class HardwarePositionViewer extends OpMode {
 
     @Override
     public void init() {
-        armMotor = hardwareMap.get(DcMotorEx.class, "elbowMotor");
-        linearSlideMotor = hardwareMap.get(DcMotorEx.class, "slideMotor");
-        wristServo = hardwareMap.get(Servo.class, "wristServo");
-        clawServo = hardwareMap.get(Servo.class, "clawServo");
+        armMotor = hardwareMap.get(DcMotorEx.class, "sampElbow");
+        linearSlideMotor = hardwareMap.get(DcMotorEx.class, "sampSlide");
+        wristServo = hardwareMap.get(Servo.class, "sampWrist");
+        clawServo = hardwareMap.get(Servo.class, "sampClaw");
 
         armMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         linearSlideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);

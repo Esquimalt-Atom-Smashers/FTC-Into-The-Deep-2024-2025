@@ -27,6 +27,6 @@ public class PIDTuning extends OpMode {
         if(gamepad1.dpad_left) slideTarget -= 1;
 
         armSubsystem.setTargetArmPosition(armTarget, slideTarget);
-        CommandScheduler.getInstance().run();
+        armSubsystem.update();
     }
 }

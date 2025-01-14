@@ -12,8 +12,8 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class ArmSubsystem extends SubsystemBase {
     //Constants
-    public static final String ELBOW_MOTOR_NAME = "elbowMotor";
-    public static final String LINEAR_SLIDE_MOTOR_NAME = "slideMotor";
+    public static final String ELBOW_MOTOR_NAME = "sampElbow";
+    public static final String LINEAR_SLIDE_MOTOR_NAME = "sampSlide";
     //public static final String SLIDE_LIMIT_SWITCH_NAME = "";
     public static final DcMotor.Direction ELBOW_DIRECTION = DcMotor.Direction.FORWARD;
     public static final DcMotorEx.Direction LINEAR_SLIDE_DIRECTION = DcMotor.Direction.REVERSE;
@@ -23,7 +23,7 @@ public class ArmSubsystem extends SubsystemBase {
     public static final double SLIDE_P = 0.0065;
     public static final double SLIDE_I = 0;
     public static final double SLIDE_D = 0.00015;
-    public static final int SLIDE_MAX_POSITION = 2340;
+    public static final int SLIDE_MAX_POSITION = 2300;
     public static final int ELBOW_MAX_POSITION = 690;
     public static final int SLIDE_MIN_POSITION = 0;
     public static final int ELBOW_MIN_POSITION = 0;
@@ -38,13 +38,16 @@ public class ArmSubsystem extends SubsystemBase {
     private final PIDController linearSlideController;
     private int targetElbowPosition;
     private int targetLinearSlidePosition;
+    private double maxLinearPower;
+    private double maxElbowPower;
     private final Telemetry telemetry;
     private final ElapsedTime elbowTimer;
     private final ElapsedTime linearSlideTimer;
+    private boolean updateFirstCall;
 
     public enum ArmPosition {
         INTAKE_POSITION(0, 0),
-        HIGH_OUTTAKE_POSITION(690, 2340),
+        HIGH_OUTTAKE_POSITION(690, 2300),
         LOW_OUTTAKE_POSITION(690, 980); //Check positions
 
         public final int elbowPos;
@@ -77,9 +80,13 @@ public class ArmSubsystem extends SubsystemBase {
         //slideLimitSwitch.setMode(DigitalChannel.Mode.INPUT);
 
         setTargetArmPosition(ELBOW_MIN_POSITION, SLIDE_MIN_POSITION);
+        setElbowMaxPower(1.0);
+        setLinearMaxPower(1.0);
 
         elbowController = new PIDController(ELBOW_P, ELBOW_I, ELBOW_D);
         linearSlideController = new PIDController(SLIDE_P, SLIDE_I, SLIDE_D);
+
+        updateFirstCall = true;
 
         elbowTimer = new ElapsedTime();
         linearSlideTimer = new ElapsedTime();
@@ -89,6 +96,14 @@ public class ArmSubsystem extends SubsystemBase {
 
     public boolean getSlideAtTarget() {
         return linearSlideMotor.getCurrentPosition() + 2 >= targetLinearSlidePosition && linearSlideMotor.getCurrentPosition() - 2 <= targetLinearSlidePosition; //Arbitrary buffer
+    }
+
+    public void setElbowMaxPower(double power) {
+        maxElbowPower = Range.clip(power, -1.0, 1.0);
+    }
+
+    public void setLinearMaxPower(double power) {
+        maxLinearPower = Range.clip(power, -1.0, 1.0);
     }
 
     public boolean getElbowAtTarget() {
@@ -115,11 +130,11 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
     public void addToLinearSlideTarget(int input) {
-        targetLinearSlidePosition += input;
+        setTargetLinearSlidePosition(targetLinearSlidePosition + input);
     }
 
     public void addToElbowTarget(int input) {
-        targetElbowPosition += input;
+        setTargetElbowPosition(targetElbowPosition + input);
     }
 
 //    private boolean isLimitSwitchPressed() {
@@ -127,7 +142,7 @@ public class ArmSubsystem extends SubsystemBase {
 //    }
 
     private void runElbowPID() {
-        double power = elbowController.calculate(elbowMotor.getCurrentPosition(), targetElbowPosition);
+        double power = Range.clip(elbowController.calculate(elbowMotor.getCurrentPosition(), targetElbowPosition), -maxElbowPower, maxElbowPower);
 
         //If the power to the motors has been set above 0.5 for longer than five seconds it will shut off
         if(Math.abs(power) > 0.5) {
@@ -140,7 +155,7 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
     private void runLinearSlidePID() {
-        double power = linearSlideController.calculate(linearSlideMotor.getCurrentPosition(), targetLinearSlidePosition);
+        double power = Range.clip(linearSlideController.calculate(linearSlideMotor.getCurrentPosition(), targetLinearSlidePosition), -maxElbowPower, maxLinearPower);
 
         //If the power to the motors has been set above 0.5 for longer than five seconds it will shut off
         if(Math.abs(power) > 0.5) {
@@ -152,13 +167,11 @@ public class ArmSubsystem extends SubsystemBase {
         }
     }
 
-    private boolean firstCall = true;
-    @Override
-    public void periodic() {
-        if(firstCall) {
+    public void update() {
+        if(updateFirstCall) {
             elbowTimer.reset();
             linearSlideTimer.reset();
-            firstCall = false;
+            updateFirstCall = false;
         }
 
         telemetry.addData("Elbow Position", elbowMotor.getCurrentPosition());

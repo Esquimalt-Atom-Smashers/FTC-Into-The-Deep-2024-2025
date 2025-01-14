@@ -7,8 +7,8 @@ import com.qualcomm.robotcore.util.Range;
 
 public class WristSubsystem extends SubsystemBase {
     //Constants
-    public static final String WRIST_SERVO_NAME = "wristServo";
-    public static final String CLAW_SERVO_NAME = "clawServo";
+    public static final String WRIST_SERVO_NAME = "sampWrist";
+    public static final String CLAW_SERVO_NAME = "sampClaw";
     public static final double CLAW_OPEN_POSITION = 0.5;
     public static final double CLAW_CLOSED_POSITION = 0.1;
 
