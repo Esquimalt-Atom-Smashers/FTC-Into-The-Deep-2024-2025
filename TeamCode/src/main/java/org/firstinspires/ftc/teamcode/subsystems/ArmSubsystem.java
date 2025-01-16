@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import com.arcrobotics.ftclib.command.CommandBase;
+import com.arcrobotics.ftclib.command.RunCommand;
+import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -129,6 +132,42 @@ public class ArmSubsystem extends SubsystemBase {
         setTargetLinearSlidePosition(armPosition.slidePos);
     }
 
+    public SequentialCommandGroup getMoveArmToPositionCommand(ArmPosition position, double maxPower) {
+        double previousElbowMaxPower = maxElbowPower;
+        double previousLinearMaxPower = maxLinearPower;
+
+        if(elbowMotor.getCurrentPosition() <= (position.elbowPos) + 200 && elbowMotor.getCurrentPosition() >= (position.elbowPos - 200)) {
+            return new SequentialCommandGroup(
+                new ArmToPositionCommand(this, position, maxPower),
+                new RunCommand(() -> {
+                    setLinearMaxPower(previousLinearMaxPower);
+                    setElbowMaxPower(previousElbowMaxPower);
+                })
+            );
+        } else {
+            return new SequentialCommandGroup(
+                    new SlideToPositionCommand(this, SLIDE_MIN_POSITION, maxPower),
+                    new ElbowToPositionCommand(this, position.elbowPos, maxPower),
+                    new SlideToPositionCommand(this, position.slidePos, maxPower),
+                    new RunCommand(() -> {
+                        setLinearMaxPower(previousLinearMaxPower);
+                        setElbowMaxPower(previousElbowMaxPower);
+                    })
+            );
+        }
+    }
+
+    public SequentialCommandGroup getMoveArmToPositionCommand(ArmPosition position) {
+        if(elbowMotor.getCurrentPosition() <= position.elbowPos + 200 && elbowMotor.getCurrentPosition() >= position.elbowPos - 200) {
+            return new SequentialCommandGroup(new RunCommand(() -> setTargetArmPosition(position)));
+        } else {
+            return new SequentialCommandGroup(
+                    new SlideToPositionCommand(this, SLIDE_MIN_POSITION),
+                    new ElbowToPositionCommand(this, position.elbowPos),
+                    new SlideToPositionCommand(this, position.slidePos));
+        }
+    }
+
     public void addToLinearSlideTarget(int input) {
         setTargetLinearSlidePosition(targetLinearSlidePosition + input);
     }
@@ -154,6 +193,128 @@ public class ArmSubsystem extends SubsystemBase {
         }
     }
 
+    //Commands
+
+    public static class SlideToPositionCommand extends CommandBase {
+        private final ArmSubsystem armSubsystem;
+        private final int target;
+        private final double maxPower;
+        private double previousMaxPower;
+
+        public SlideToPositionCommand(ArmSubsystem armSubsystem, int target, double maxPower) {
+            this.armSubsystem = armSubsystem;
+            this.target = target;
+            this.maxPower = maxPower;
+            addRequirements(armSubsystem);
+        }
+
+        public SlideToPositionCommand(ArmSubsystem armSubsystem, int target) {
+            this.armSubsystem = armSubsystem;
+            this.target = target;
+            this.maxPower = armSubsystem.maxLinearPower;
+            addRequirements(armSubsystem);
+        }
+
+        @Override
+        public void initialize() {
+            previousMaxPower = armSubsystem.maxLinearPower;
+            armSubsystem.setLinearMaxPower(maxPower);
+            armSubsystem.setTargetLinearSlidePosition(target);
+        }
+
+        @Override
+        public boolean isFinished() {
+            return armSubsystem.getSlideAtTarget();
+        }
+
+        @Override
+        public void end(boolean interrupted) {
+            armSubsystem.setLinearMaxPower(previousMaxPower);
+        }
+    }
+
+    public static class ElbowToPositionCommand extends CommandBase {
+        private final ArmSubsystem armSubsystem;
+        private final int target;
+        private final double maxPower;
+        private double previousMaxPower;
+
+        public ElbowToPositionCommand(ArmSubsystem armSubsystem, int target) {
+            this.armSubsystem = armSubsystem;
+            this.target = target;
+            this.maxPower = armSubsystem.maxElbowPower;
+            addRequirements(armSubsystem);
+        }
+
+        public ElbowToPositionCommand(ArmSubsystem armSubsystem, int target, double maxPower) {
+            this.armSubsystem = armSubsystem;
+            this.target = target;
+            this.maxPower = maxPower;
+            addRequirements(armSubsystem);
+        }
+
+        @Override
+        public void initialize() {
+            previousMaxPower = armSubsystem.maxElbowPower;
+            armSubsystem.setElbowMaxPower(maxPower);
+            armSubsystem.setTargetElbowPosition(target);
+        }
+
+        @Override
+        public boolean isFinished() {
+            return armSubsystem.getElbowAtTarget();
+        }
+
+        @Override
+        public void end(boolean interrupted) {
+            armSubsystem.setElbowMaxPower(previousMaxPower);
+        }
+    }
+
+    public static class ArmToPositionCommand extends CommandBase {
+        private final ArmSubsystem armSubsystem;
+        private final ArmPosition position;
+        private final double elbowMaxPower;
+        private final double linearMaxPower;
+        private double previousElbowMaxPower;
+        private double previousLinearMaxPower;
+
+        public ArmToPositionCommand(ArmSubsystem armSubsystem, ArmPosition position) {
+            this.armSubsystem = armSubsystem;
+            this.position = position;
+            this.elbowMaxPower = armSubsystem.maxElbowPower;
+            this.linearMaxPower = armSubsystem.maxLinearPower;
+            addRequirements(armSubsystem);
+        }
+
+        public ArmToPositionCommand(ArmSubsystem armSubsystem, ArmPosition position, double maxPower) {
+            this.armSubsystem = armSubsystem;
+            this.position = position;
+            this.elbowMaxPower = maxPower;
+            this.linearMaxPower = maxPower;
+            addRequirements(armSubsystem);
+        }
+
+        @Override
+        public void initialize() {
+            previousElbowMaxPower = armSubsystem.maxElbowPower;
+            previousLinearMaxPower = armSubsystem.maxLinearPower;
+            armSubsystem.setElbowMaxPower(elbowMaxPower);
+            armSubsystem.setTargetArmPosition(position);
+        }
+
+        @Override
+        public boolean isFinished() {
+            return armSubsystem.getElbowAtTarget() && armSubsystem.getSlideAtTarget();
+        }
+
+        @Override
+        public void end(boolean interrupted) {
+            armSubsystem.setElbowMaxPower(previousElbowMaxPower);
+            armSubsystem.setLinearMaxPower(previousLinearMaxPower);
+        }
+    }
+
     private void runLinearSlidePID() {
         double power = Range.clip(linearSlideController.calculate(linearSlideMotor.getCurrentPosition(), targetLinearSlidePosition), -maxElbowPower, maxLinearPower);
 
@@ -167,7 +328,8 @@ public class ArmSubsystem extends SubsystemBase {
         }
     }
 
-    public void update() {
+    @Override
+    public void periodic() {
         if(updateFirstCall) {
             elbowTimer.reset();
             linearSlideTimer.reset();

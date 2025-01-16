@@ -29,6 +29,18 @@ public class WristSubsystem extends SubsystemBase {
         }
     }
 
+    public enum ClawPosition {
+        OPEN(CLAW_OPEN_POSITION),
+        CLOSED(CLAW_CLOSED_POSITION);
+
+        public final double position;
+        ClawPosition(double position) {
+            this.position = position;
+        }
+    }
+
+    private ClawPosition clawPosition = ClawPosition.OPEN;
+
     public WristSubsystem(OpMode opMode) {
         wristServo = opMode.hardwareMap.get(Servo.class, WRIST_SERVO_NAME);
         clawServo = opMode.hardwareMap.get(Servo.class, CLAW_SERVO_NAME);
@@ -47,11 +59,24 @@ public class WristSubsystem extends SubsystemBase {
     }
 
     public void closeClaw() {
-        clawServo.setPosition(CLAW_CLOSED_POSITION);
+        clawPosition = ClawPosition.CLOSED;
+        clawServo.setPosition(ClawPosition.CLOSED.position);
     }
 
     public void openClaw() {
-        clawServo.setPosition(CLAW_OPEN_POSITION);
+        clawPosition = ClawPosition.OPEN;
+        clawServo.setPosition(ClawPosition.OPEN.position);
+    }
+
+    public void toggleClaw() {
+        switch(clawPosition) {
+            case OPEN:
+                closeClaw();
+                break;
+            case CLOSED:
+                openClaw();
+                break;
+        }
     }
 
     public double getWristPosition() {
