@@ -25,7 +25,6 @@ public class MainTeleOp extends OpMode {
         wristSubsystem = new WristSubsystem(this);
         driveSubsystem = new DriveSubsystem(this);
 
-        armSubsystem.setElbowMaxPower(0.5);
         driveSubsystem.setUsingRoadRunner(false);
 
         bindOperatorControls();
@@ -34,31 +33,43 @@ public class MainTeleOp extends OpMode {
 
     private void bindOperatorControls() {
         Trigger highPosition = new Trigger(() -> gamepad2.dpad_up);
-        highPosition.whenActive(() -> armSubsystem.getMoveArmToPositionCommand(ArmSubsystem.ArmPosition.HIGH_OUTTAKE_POSITION, 0.3).schedule());
+        highPosition.whenActive(() -> {
+            wristSubsystem.setWristPosition(WristSubsystem.WristPosition.READY);
+            armSubsystem.getMoveArmToPositionCommand(ArmSubsystem.ArmPosition.HIGH_OUTTAKE_POSITION).schedule();
+        });
 
         Trigger intakePosition = new Trigger(() -> gamepad2.dpad_down);
-        intakePosition.whenActive(() -> armSubsystem.getMoveArmToPositionCommand(ArmSubsystem.ArmPosition.INTAKE_POSITION, 0.3).schedule());
+        intakePosition.whenActive(() -> {
+            wristSubsystem.setWristPosition(WristSubsystem.WristPosition.READY);
+            armSubsystem.getMoveArmToPositionCommand(ArmSubsystem.ArmPosition.INTAKE_POSITION).schedule();
+        });
 
         Trigger lowPosition = new Trigger(() -> gamepad2.dpad_right);
-        lowPosition.whenActive(() -> armSubsystem.getMoveArmToPositionCommand(ArmSubsystem.ArmPosition.LOW_OUTTAKE_POSITION, 0.3).schedule());
+        lowPosition.whenActive(() -> {
+            wristSubsystem.setWristPosition(WristSubsystem.WristPosition.READY);
+            armSubsystem.getMoveArmToPositionCommand(ArmSubsystem.ArmPosition.LOW_OUTTAKE_POSITION).schedule();
+        });
 
-        Trigger linearControl = new Trigger(() -> Math.abs(gamepad2.right_stick_y) > 0.1);
+        Trigger linearControl = new Trigger(() -> Math.abs(gamepad2.right_stick_y) > 0);
         linearControl.whileActiveContinuous(() -> armSubsystem.addToLinearSlideTarget((int) (gamepad2.right_stick_y * -15)));
 
-        Trigger elbowControl = new Trigger(() -> Math.abs(gamepad2.left_stick_y) > 0.1);
+        Trigger elbowControl = new Trigger(() -> Math.abs(gamepad2.left_stick_y) > 0);
         elbowControl.whileActiveContinuous(() -> armSubsystem.addToElbowTarget((int) (gamepad2.left_stick_y * -15)));
 
-        Trigger toggleClaw = new Trigger(() -> gamepad2.a);
+        Trigger toggleClaw = new Trigger(() -> gamepad2.right_bumper);
         toggleClaw.whenActive(() -> wristSubsystem.toggleClaw());
 
-        Trigger wristIntake = new Trigger(() -> gamepad2.x);
+        Trigger wristIntake = new Trigger(() -> gamepad2.a);
         wristIntake.whenActive(() -> wristSubsystem.setWristPosition(WristSubsystem.WristPosition.INTAKE));
 
-        Trigger wristOuttake = new Trigger(() -> gamepad2.y);
+        Trigger wristOuttake = new Trigger(() -> gamepad2.y || gamepad2.x);
         wristOuttake.whenActive(() -> wristSubsystem.setWristPosition(WristSubsystem.WristPosition.OUTTAKE));
 
         Trigger wristReady = new Trigger(() -> gamepad2.b);
         wristReady.whenActive(() -> wristSubsystem.setWristPosition(WristSubsystem.WristPosition.READY));
+
+        Trigger resetEncoders = new Trigger(() -> gamepad2.back && gamepad2.start);
+        resetEncoders.whenActive(() -> armSubsystem.resetEncoders());
     }
 
     private void bindDriverControls() {
@@ -69,9 +80,9 @@ public class MainTeleOp extends OpMode {
         Trigger resetGyro = new Trigger(() -> gamepad1.back);
         resetGyro.whenActive(() -> driveSubsystem.resetGyro());
 
-        Trigger speedVariationTrigger = new Trigger(() -> gamepad1.right_trigger > 0.1);
-        speedVariationTrigger.whileActiveContinuous(() -> driveSubsystem.setSpeedMultiplier(Math.abs(gamepad1.right_trigger - 1) * 0.4 + 0.2));
-        speedVariationTrigger.whenInactive(() -> driveSubsystem.setSpeedMultiplier(1));
+        Trigger speedVariationTrigger = new Trigger(() -> gamepad1.right_trigger > 0);
+        speedVariationTrigger.whileActiveContinuous(() -> driveSubsystem.setSpeedMultiplier(gamepad1.right_trigger * 0.8 + 0.2));
+        speedVariationTrigger.whenInactive(() -> driveSubsystem.setSpeedMultiplier(0.2));
     }
 
     @Override

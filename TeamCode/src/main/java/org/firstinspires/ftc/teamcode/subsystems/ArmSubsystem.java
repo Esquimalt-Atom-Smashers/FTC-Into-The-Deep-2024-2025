@@ -46,7 +46,15 @@ public class ArmSubsystem extends SubsystemBase {
     private final Telemetry telemetry;
     private final ElapsedTime elbowTimer;
     private final ElapsedTime linearSlideTimer;
-    private boolean updateFirstCall;
+    private boolean updateFirstCall; //Used to reset the timers on the first call of periodic
+
+    private int previousElbowTarget = 0;
+    private int previousSlideTarget = 0;
+    private int previousElbowPosition = 0;
+    private int previousSlidePosition = 0;
+
+    private int tolerance = 10;
+
 
     public enum ArmPosition {
         INTAKE_POSITION(0, 0),
@@ -77,8 +85,8 @@ public class ArmSubsystem extends SubsystemBase {
         linearSlideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         elbowMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         linearSlideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        elbowMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        linearSlideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        elbowMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        linearSlideMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         //slideLimitSwitch.setMode(DigitalChannel.Mode.INPUT);
 
@@ -98,7 +106,7 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
     public boolean getSlideAtTarget() {
-        return linearSlideMotor.getCurrentPosition() + 2 >= targetLinearSlidePosition && linearSlideMotor.getCurrentPosition() - 2 <= targetLinearSlidePosition; //Arbitrary buffer
+        return Math.abs(linearSlideMotor.getCurrentPosition() - targetLinearSlidePosition) <= tolerance;
     }
 
     public void setElbowMaxPower(double power) {
@@ -110,7 +118,7 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
     public boolean getElbowAtTarget() {
-        return elbowMotor.getCurrentPosition() + 2 >= targetElbowPosition && elbowMotor.getCurrentPosition() - 2 <= targetElbowPosition; //Arbitrary buffer
+        return Math.abs(elbowMotor.getCurrentPosition() - targetElbowPosition) <= tolerance;
     }
 
     public void setTargetElbowPosition(int target) {
@@ -130,6 +138,13 @@ public class ArmSubsystem extends SubsystemBase {
     public void setTargetArmPosition(ArmPosition armPosition) {
         setTargetElbowPosition(armPosition.elbowPos);
         setTargetLinearSlidePosition(armPosition.slidePos);
+    }
+
+    public void resetEncoders() {
+        elbowMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        linearSlideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        elbowMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        linearSlideMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     public SequentialCommandGroup getMoveArmToPositionCommand(ArmPosition position, double maxPower) {
@@ -183,12 +198,16 @@ public class ArmSubsystem extends SubsystemBase {
     private void runElbowPID() {
         double power = Range.clip(elbowController.calculate(elbowMotor.getCurrentPosition(), targetElbowPosition), -maxElbowPower, maxElbowPower);
 
-        //If the power to the motors has been set above 0.5 for longer than five seconds it will shut off
-        if(Math.abs(power) > 0.5) {
-            if(elbowTimer.seconds() > 3) elbowMotor.setPower(0);
-            else elbowMotor.setPower(power);
-        } else {
+        //Check if the elbow motor has moved past its previous position by the tolerance
+        if(Math.abs(elbowMotor.getCurrentPosition() - previousElbowPosition) > tolerance) {
             elbowTimer.reset();
+            previousElbowTarget = targetElbowPosition;
+            previousElbowPosition = elbowMotor.getCurrentPosition();
+            elbowMotor.setPower(power);
+        } else if(elbowTimer.seconds() > 1 && previousElbowTarget == targetElbowPosition) {
+            elbowMotor.setPower(0); //Stop the motor if the timer exceeds 1 second and the target hasn't changed
+        } else {
+            previousElbowTarget = targetElbowPosition;
             elbowMotor.setPower(power);
         }
     }
@@ -318,12 +337,16 @@ public class ArmSubsystem extends SubsystemBase {
     private void runLinearSlidePID() {
         double power = Range.clip(linearSlideController.calculate(linearSlideMotor.getCurrentPosition(), targetLinearSlidePosition), -maxElbowPower, maxLinearPower);
 
-        //If the power to the motors has been set above 0.5 for longer than five seconds it will shut off
-        if(Math.abs(power) > 0.5) {
-            if(linearSlideTimer.seconds() > 3) linearSlideMotor.setPower(0);
-            else linearSlideMotor.setPower(power);
-        } else {
+        //Check if the elbow motor has moved beyond the tolerance
+        if(Math.abs(linearSlideMotor.getCurrentPosition() - previousSlidePosition) > tolerance) {
             linearSlideTimer.reset();
+            previousSlideTarget = targetLinearSlidePosition;
+            previousSlidePosition = linearSlideMotor.getCurrentPosition();
+            linearSlideMotor.setPower(power);
+        } else if(linearSlideTimer.seconds() > 1 && previousSlideTarget == targetLinearSlidePosition) {
+            linearSlideMotor.setPower(0); //Stop the motor if the timer exceeds 1 second and the target hasn't changed
+        } else {
+            previousSlideTarget = targetLinearSlidePosition;
             linearSlideMotor.setPower(power);
         }
     }
