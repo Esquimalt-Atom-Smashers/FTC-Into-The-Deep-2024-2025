@@ -20,7 +20,7 @@ public class WristSubsystem extends SubsystemBase {
     public enum WristPosition {
         COLLAPSED(0.84),
         READY(0.15),
-        INTAKE(0.04),
+        INTAKE(0.00),
         OUTTAKE(0.67);
 
         public final double position;

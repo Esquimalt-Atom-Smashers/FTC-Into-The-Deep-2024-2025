@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.WristSubsystem;
 
 @TeleOp(name="TeleOp", group = "Real")
-public class SampleTeleOp extends OpMode {
+public class MainTeleOp extends OpMode {
     ArmSubsystem armSubsystem;
     WristSubsystem wristSubsystem;
     DriveSubsystem driveSubsystem;
@@ -26,6 +26,7 @@ public class SampleTeleOp extends OpMode {
         driveSubsystem = new DriveSubsystem(this);
 
         armSubsystem.setElbowMaxPower(0.5);
+        driveSubsystem.setUsingRoadRunner(false);
 
         bindOperatorControls();
         bindDriverControls();
@@ -42,10 +43,10 @@ public class SampleTeleOp extends OpMode {
         lowPosition.whenActive(() -> armSubsystem.getMoveArmToPositionCommand(ArmSubsystem.ArmPosition.LOW_OUTTAKE_POSITION, 0.3).schedule());
 
         Trigger linearControl = new Trigger(() -> Math.abs(gamepad2.right_stick_y) > 0.1);
-        linearControl.whileActiveContinuous(() -> armSubsystem.addToLinearSlideTarget((int) (gamepad2.right_stick_y * -5)));
+        linearControl.whileActiveContinuous(() -> armSubsystem.addToLinearSlideTarget((int) (gamepad2.right_stick_y * -15)));
 
         Trigger elbowControl = new Trigger(() -> Math.abs(gamepad2.left_stick_y) > 0.1);
-        elbowControl.whileActiveContinuous(() -> armSubsystem.addToElbowTarget((int) (gamepad2.left_stick_y * -5)));
+        elbowControl.whileActiveContinuous(() -> armSubsystem.addToElbowTarget((int) (gamepad2.left_stick_y * -15)));
 
         Trigger toggleClaw = new Trigger(() -> gamepad2.a);
         toggleClaw.whenActive(() -> wristSubsystem.toggleClaw());
@@ -55,12 +56,22 @@ public class SampleTeleOp extends OpMode {
 
         Trigger wristOuttake = new Trigger(() -> gamepad2.y);
         wristOuttake.whenActive(() -> wristSubsystem.setWristPosition(WristSubsystem.WristPosition.OUTTAKE));
+
+        Trigger wristReady = new Trigger(() -> gamepad2.b);
+        wristReady.whenActive(() -> wristSubsystem.setWristPosition(WristSubsystem.WristPosition.READY));
     }
 
     private void bindDriverControls() {
         RunCommand defaultDriveCommand = new RunCommand(() -> driveSubsystem.drive(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x));
         defaultDriveCommand.addRequirements(driveSubsystem);
         driveSubsystem.setDefaultCommand(defaultDriveCommand);
+
+        Trigger resetGyro = new Trigger(() -> gamepad1.back);
+        resetGyro.whenActive(() -> driveSubsystem.resetGyro());
+
+        Trigger speedVariationTrigger = new Trigger(() -> gamepad1.right_trigger > 0.1);
+        speedVariationTrigger.whileActiveContinuous(() -> driveSubsystem.setSpeedMultiplier(Math.abs(gamepad1.right_trigger - 1) * 0.4 + 0.2));
+        speedVariationTrigger.whenInactive(() -> driveSubsystem.setSpeedMultiplier(1));
     }
 
     @Override

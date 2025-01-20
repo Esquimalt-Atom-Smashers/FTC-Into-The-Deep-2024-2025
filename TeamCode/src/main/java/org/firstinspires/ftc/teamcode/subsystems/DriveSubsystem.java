@@ -1,7 +1,11 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import org.firstinspires.ftc.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.PoseVelocity2d;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -43,11 +47,13 @@ public class DriveSubsystem extends SubsystemBase {
     private final DcMotorEx frontRightMotor;
     public final DcMotorEx backLeftMotor;
     public final DcMotorEx backRightMotor;
+    //public final MecanumDrive mecanumDrive;
 
     private final BHI260IMU imu;
 
     private double speedMultiplier = 1.0;
     private boolean fieldCentric = true;
+    private boolean usingRoadRunner = true;
 
     public DriveSubsystem(OpMode opMode) {
         this.opMode = opMode;
@@ -61,6 +67,7 @@ public class DriveSubsystem extends SubsystemBase {
         frontRightMotor = hardwareMap.get(DcMotorEx.class, FRONT_RIGHT_MOTOR_NAME);
         backLeftMotor = hardwareMap.get(DcMotorEx.class, BACK_LEFT_MOTOR_NAME);
         backRightMotor = hardwareMap.get(DcMotorEx.class, BACK_RIGHT_MOTOR_NAME);
+        //mecanumDrive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 
         frontLeftMotor.setDirection(FRONT_LEFT_MOTOR_DIRECTION);
         frontRightMotor.setDirection(FRONT_RIGHT_MOTOR_DIRECTION);
@@ -77,8 +84,30 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     public void drive(double forward, double strafe, double turn) {
-        if(fieldCentric) driveFieldCentric(forward, strafe, turn);
+        if(fieldCentric && usingRoadRunner) driveFieldCentricRoadRunner(forward, strafe, turn);
+        else if(fieldCentric) driveFieldCentric(forward, strafe, turn);
+        else if(usingRoadRunner) driveRobotCentricRoadRunner(forward, strafe, turn);
         else driveRobotCentric(forward, strafe, turn);
+    }
+
+    private void driveRobotCentricRoadRunner(double forward, double strafe, double turn) {
+        forward = Range.clip(GamepadUtils.deadzone(forward), -1, 1);
+        strafe = Range.clip(GamepadUtils.deadzone(strafe), -1, 1);
+        turn = Range.clip(GamepadUtils.deadzone(turn), -1, 1);
+
+        //mecanumDrive.setDrivePowers(new PoseVelocity2d(new Vector2d(forward * speedMultiplier, strafe * speedMultiplier), turn * speedMultiplier));
+    }
+
+    private void driveFieldCentricRoadRunner(double forward, double strafe, double turn) {
+        forward = Range.clip(GamepadUtils.deadzone(forward), -1, 1);
+        strafe = Range.clip(GamepadUtils.deadzone(strafe), -1, 1);
+        turn = Range.clip(GamepadUtils.deadzone(turn), -1, 1);
+
+        double gyroRadians = Math.toRadians(-getHeading());
+        double fieldCentricStrafe = strafe * Math.cos(gyroRadians) - forward * Math.sin(gyroRadians);
+        double fieldCentricDrive = strafe * Math.sin(gyroRadians) + forward * Math.cos(gyroRadians);
+
+        //mecanumDrive.setDrivePowers(new PoseVelocity2d(new Vector2d(fieldCentricDrive * speedMultiplier, fieldCentricStrafe * speedMultiplier), turn * speedMultiplier));
     }
 
     private void driveFieldCentric(double forward, double strafe, double turn) {
@@ -115,8 +144,12 @@ public class DriveSubsystem extends SubsystemBase {
         imu.resetYaw();
     }
 
-    public void setFieldCentricOnOff(){
-        fieldCentric = !fieldCentric;
+    public void setUsingFieldCentric(boolean fieldCentric){
+        this.fieldCentric = fieldCentric;
+    }
+
+    public void setUsingRoadRunner(boolean usingRoadRunner){
+        this.usingRoadRunner = usingRoadRunner;
     }
 
     public void resetEncoders() {
@@ -135,11 +168,7 @@ public class DriveSubsystem extends SubsystemBase {
         return imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
     }
 
-    public double getSpeedMultiplier() {
-        return speedMultiplier;
-    }
-
-    public boolean getIsFieldCentric() {
-        return fieldCentric;
-    }
+//    public MecanumDrive getMecanumDrive() {
+//        //return mecanumDrive;
+//    }
 }

@@ -136,7 +136,7 @@ public class ArmSubsystem extends SubsystemBase {
         double previousElbowMaxPower = maxElbowPower;
         double previousLinearMaxPower = maxLinearPower;
 
-        if(elbowMotor.getCurrentPosition() <= (position.elbowPos) + 200 && elbowMotor.getCurrentPosition() >= (position.elbowPos - 200)) {
+        if(elbowMotor.getCurrentPosition() <= (position.elbowPos + 20) && elbowMotor.getCurrentPosition() >= (position.elbowPos - 20)) {
             return new SequentialCommandGroup(
                 new ArmToPositionCommand(this, position, maxPower),
                 new RunCommand(() -> {
@@ -158,7 +158,7 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
     public SequentialCommandGroup getMoveArmToPositionCommand(ArmPosition position) {
-        if(elbowMotor.getCurrentPosition() <= position.elbowPos + 200 && elbowMotor.getCurrentPosition() >= position.elbowPos - 200) {
+        if(elbowMotor.getCurrentPosition() <= position.elbowPos + 20 && elbowMotor.getCurrentPosition() >= position.elbowPos - 20) {
             return new SequentialCommandGroup(new RunCommand(() -> setTargetArmPosition(position)));
         } else {
             return new SequentialCommandGroup(
