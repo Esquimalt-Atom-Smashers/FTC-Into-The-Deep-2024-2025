@@ -53,7 +53,7 @@ public class ArmSubsystem extends SubsystemBase {
     private int previousElbowPosition = 0;
     private int previousSlidePosition = 0;
 
-    private int tolerance = 10;
+    private final int tolerance = 3;
 
 
     public enum ArmPosition {
@@ -210,6 +210,14 @@ public class ArmSubsystem extends SubsystemBase {
             previousElbowTarget = targetElbowPosition;
             elbowMotor.setPower(power);
         }
+
+//        if(Math.abs(power) > 0.5) {
+//            if(elbowTimer.seconds() > 3) elbowMotor.setPower(0);
+//            else elbowMotor.setPower(power);
+//        } else {
+//            elbowTimer.reset();
+//            elbowMotor.setPower(power);
+//        }
     }
 
     //Commands
@@ -349,6 +357,15 @@ public class ArmSubsystem extends SubsystemBase {
             previousSlideTarget = targetLinearSlidePosition;
             linearSlideMotor.setPower(power);
         }
+
+//        //If the power to the motors has been set above 0.5 for longer than five seconds it will shut off
+//        if(Math.abs(power) > 0.5) {
+//            if(linearSlideTimer.seconds() > 3) linearSlideMotor.setPower(0);
+//            else linearSlideMotor.setPower(power);
+//        } else {
+//            linearSlideTimer.reset();
+//            linearSlideMotor.setPower(power);
+//        }
     }
 
     @Override
