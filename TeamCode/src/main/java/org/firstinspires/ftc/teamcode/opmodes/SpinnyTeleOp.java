@@ -27,8 +27,6 @@ public class SpinnyTeleOp extends OpMode {
         spinningWristSubsystem = new SpinningWristSubsystem(this);
         driveSubsystem = new DriveSubsystem(this);
 
-        driveSubsystem.setUsingRoadRunner(false);
-
         bindOperatorControls();
         bindDriverControls();
     }
@@ -79,12 +77,15 @@ public class SpinnyTeleOp extends OpMode {
     private void bindDriverControls() {
         driveSubsystem.setSpeedMultiplier(0.5);
 
-        RunCommand defaultDriveCommand = new RunCommand(() -> driveSubsystem.drive(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x));
+        RunCommand defaultDriveCommand = new RunCommand(() -> driveSubsystem.drive(gamepad1.left_stick_x, -gamepad1.left_stick_y, -gamepad1.right_stick_x));
         defaultDriveCommand.addRequirements(driveSubsystem);
         driveSubsystem.setDefaultCommand(defaultDriveCommand);
 
         Trigger resetGyro = new Trigger(() -> gamepad1.back);
         resetGyro.whenActive(() -> driveSubsystem.resetGyro());
+
+        Trigger setFieldCentric = new Trigger(() -> gamepad1.start);
+        setFieldCentric.whenActive(() -> driveSubsystem.setUsingFieldCentric(!driveSubsystem.getUsingFieldCentric()));
 
         Trigger speedVariationTrigger = new Trigger(() -> gamepad1.right_trigger > 0);
         speedVariationTrigger.whileActiveContinuous(() -> driveSubsystem.setSpeedMultiplier(gamepad1.right_trigger * 0.5 + 0.5));

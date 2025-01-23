@@ -47,7 +47,7 @@ public class DriveSubsystem extends SubsystemBase {
     private final DcMotorEx frontRightMotor;
     public final DcMotorEx backLeftMotor;
     public final DcMotorEx backRightMotor;
-    //public final MecanumDrive mecanumDrive;
+    public final MecanumDrive mecanumDrive;
 
     private final BHI260IMU imu;
 
@@ -67,7 +67,7 @@ public class DriveSubsystem extends SubsystemBase {
         frontRightMotor = hardwareMap.get(DcMotorEx.class, FRONT_RIGHT_MOTOR_NAME);
         backLeftMotor = hardwareMap.get(DcMotorEx.class, BACK_LEFT_MOTOR_NAME);
         backRightMotor = hardwareMap.get(DcMotorEx.class, BACK_RIGHT_MOTOR_NAME);
-        //mecanumDrive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
+        mecanumDrive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
 
         frontLeftMotor.setDirection(FRONT_LEFT_MOTOR_DIRECTION);
         frontRightMotor.setDirection(FRONT_RIGHT_MOTOR_DIRECTION);
@@ -95,7 +95,7 @@ public class DriveSubsystem extends SubsystemBase {
         strafe = Range.clip(GamepadUtils.deadzone(strafe), -1, 1);
         turn = Range.clip(GamepadUtils.deadzone(turn), -1, 1);
 
-        //mecanumDrive.setDrivePowers(new PoseVelocity2d(new Vector2d(forward * speedMultiplier, strafe * speedMultiplier), turn * speedMultiplier));
+        mecanumDrive.setDrivePowers(new PoseVelocity2d(new Vector2d(forward * speedMultiplier, strafe * speedMultiplier), turn * speedMultiplier));
     }
 
     private void driveFieldCentricRoadRunner(double forward, double strafe, double turn) {
@@ -103,11 +103,11 @@ public class DriveSubsystem extends SubsystemBase {
         strafe = Range.clip(GamepadUtils.deadzone(strafe), -1, 1);
         turn = Range.clip(GamepadUtils.deadzone(turn), -1, 1);
 
-        double gyroRadians = Math.toRadians(-getHeading());
-        double fieldCentricStrafe = strafe * Math.cos(gyroRadians) - forward * Math.sin(gyroRadians);
-        double fieldCentricDrive = strafe * Math.sin(gyroRadians) + forward * Math.cos(gyroRadians);
+        double gyroRadians = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+        double fieldCentricStrafe = strafe * Math.cos(-gyroRadians) - forward * Math.sin(-gyroRadians);
+        double fieldCentricDrive = strafe * Math.sin(-gyroRadians) + forward * Math.cos(-gyroRadians);
 
-        //mecanumDrive.setDrivePowers(new PoseVelocity2d(new Vector2d(fieldCentricDrive * speedMultiplier, fieldCentricStrafe * speedMultiplier), turn * speedMultiplier));
+        mecanumDrive.setDrivePowers(new PoseVelocity2d(new Vector2d(fieldCentricDrive * speedMultiplier, fieldCentricStrafe * speedMultiplier), turn * speedMultiplier));
     }
 
     private void driveFieldCentric(double forward, double strafe, double turn) {
@@ -115,7 +115,7 @@ public class DriveSubsystem extends SubsystemBase {
         strafe = GamepadUtils.deadzone(strafe);
         turn = GamepadUtils.deadzone(turn);
 
-        double gyroRadians = Math.toRadians(-getHeading());
+        double gyroRadians = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
         double fieldCentricStrafe = strafe * Math.cos(gyroRadians) - forward * Math.sin(gyroRadians);
         double fieldCentricDrive = strafe * Math.sin(gyroRadians) + forward * Math.cos(gyroRadians);
 
@@ -152,6 +152,10 @@ public class DriveSubsystem extends SubsystemBase {
         this.usingRoadRunner = usingRoadRunner;
     }
 
+    public boolean getUsingFieldCentric(){
+        return fieldCentric;
+    }
+
     public void resetEncoders() {
         frontLeftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         frontRightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -168,7 +172,7 @@ public class DriveSubsystem extends SubsystemBase {
         return imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
     }
 
-//    public MecanumDrive getMecanumDrive() {
-//        //return mecanumDrive;
-//    }
+    public MecanumDrive getMecanumDrive() {
+        return mecanumDrive;
+    }
 }

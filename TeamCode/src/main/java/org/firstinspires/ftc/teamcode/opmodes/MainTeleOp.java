@@ -27,8 +27,6 @@ public class MainTeleOp extends OpMode {
         wristSubsystem = new WristSubsystem(this);
         driveSubsystem = new DriveSubsystem(this);
 
-        driveSubsystem.setUsingRoadRunner(false);
-
         bindOperatorControls();
         bindDriverControls();
     }
