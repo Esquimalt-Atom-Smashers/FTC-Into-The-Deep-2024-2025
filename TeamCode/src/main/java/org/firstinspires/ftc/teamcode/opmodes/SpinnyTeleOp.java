@@ -8,12 +8,12 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.subsystems.ArmSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.WristSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.SpinningWristSubsystem;
 
-@TeleOp(name="TeleOp (Claw Intake)", group = "Real")
-public class MainTeleOp extends OpMode {
+@TeleOp(name="TeleOp", group = "Real")
+public class SpinnyTeleOp extends OpMode {
     ArmSubsystem armSubsystem;
-    WristSubsystem wristSubsystem;
+    SpinningWristSubsystem spinningWristSubsystem;
     DriveSubsystem driveSubsystem;
 
     private boolean firstTime = true;
@@ -24,7 +24,7 @@ public class MainTeleOp extends OpMode {
         CommandScheduler.getInstance().cancelAll();
 
         armSubsystem = new ArmSubsystem(this);
-        wristSubsystem = new WristSubsystem(this);
+        spinningWristSubsystem = new SpinningWristSubsystem(this);
         driveSubsystem = new DriveSubsystem(this);
 
         driveSubsystem.setUsingRoadRunner(false);
@@ -34,24 +34,24 @@ public class MainTeleOp extends OpMode {
     }
 
     private void bindOperatorControls() {
-        armSubsystem.setElbowMaxPower(0.5);
         armSubsystem.setLinearMaxPower(0.5);
+        armSubsystem.setElbowMaxPower(0.5);
 
         Trigger highPosition = new Trigger(() -> gamepad2.dpad_up);
         highPosition.whenActive(() -> {
-            wristSubsystem.setWristPosition(WristSubsystem.WristPosition.READY);
+            spinningWristSubsystem.toPosition(SpinningWristSubsystem.WristPositions.OUTTAKE);
             armSubsystem.getMoveArmToPositionCommand(ArmSubsystem.ArmPosition.HIGH_OUTTAKE_POSITION, 0.8, 0.2).schedule();
         });
 
         Trigger intakePosition = new Trigger(() -> gamepad2.dpad_down);
         intakePosition.whenActive(() -> {
-            wristSubsystem.setWristPosition(WristSubsystem.WristPosition.READY);
+            spinningWristSubsystem.toPosition(SpinningWristSubsystem.WristPositions.OUTTAKE);
             armSubsystem.getMoveArmToPositionCommand(ArmSubsystem.ArmPosition.INTAKE_POSITION, 0.8, 0.2).schedule();
         });
 
         Trigger lowPosition = new Trigger(() -> gamepad2.dpad_right);
         lowPosition.whenActive(() -> {
-            wristSubsystem.setWristPosition(WristSubsystem.WristPosition.READY);
+            spinningWristSubsystem.toPosition(SpinningWristSubsystem.WristPositions.OUTTAKE);
             armSubsystem.getMoveArmToPositionCommand(ArmSubsystem.ArmPosition.LOW_OUTTAKE_POSITION, 0.8, 0.2).schedule();
         });
 
@@ -61,17 +61,19 @@ public class MainTeleOp extends OpMode {
         Trigger elbowControl = new Trigger(() -> Math.abs(gamepad2.left_stick_y) > 0);
         elbowControl.whileActiveContinuous(() -> armSubsystem.addToElbowTarget((int) (gamepad2.left_stick_y * -30)));
 
-        Trigger toggleClaw = new Trigger(() -> gamepad2.right_bumper);
-        toggleClaw.whenActive(() -> wristSubsystem.toggleClaw());
+        Trigger intake = new Trigger(() -> gamepad2.right_bumper);
+        intake.whenActive(() -> spinningWristSubsystem.intake());
+        intake.whenInactive(() -> spinningWristSubsystem.stopIntakeServo());
+
+        Trigger outtake = new Trigger(() -> gamepad2.left_bumper);
+        outtake.whenActive(() -> spinningWristSubsystem.outtake());
+        outtake.whenInactive(() -> spinningWristSubsystem.stopIntakeServo());
 
         Trigger wristIntake = new Trigger(() -> gamepad2.a);
-        wristIntake.whenActive(() -> wristSubsystem.setWristPosition(WristSubsystem.WristPosition.INTAKE));
+        wristIntake.whenActive(() -> spinningWristSubsystem.toPosition(SpinningWristSubsystem.WristPositions.INTAKE));
 
-        Trigger wristOuttake = new Trigger(() -> (gamepad2.y || gamepad2.x));
-        wristOuttake.whenActive(() -> wristSubsystem.setWristPosition(WristSubsystem.WristPosition.OUTTAKE));
-
-        Trigger wristReady = new Trigger(() -> gamepad2.b);
-        wristReady.whenActive(() -> wristSubsystem.setWristPosition(WristSubsystem.WristPosition.READY));
+        Trigger wristOuttake = new Trigger(() -> (gamepad2.b));
+        wristOuttake.whenActive(() -> spinningWristSubsystem.toPosition(SpinningWristSubsystem.WristPositions.OUTTAKE));
     }
 
     private void bindDriverControls() {
@@ -92,7 +94,7 @@ public class MainTeleOp extends OpMode {
     @Override
     public void loop() {
         if(firstTime) {
-            wristSubsystem.setWristPosition(WristSubsystem.WristPosition.COLLAPSED);
+            spinningWristSubsystem.toPosition(SpinningWristSubsystem.WristPositions.STOWED);
             firstTime = false;
         }
         CommandScheduler.getInstance().run();
