@@ -72,6 +72,8 @@ public class SpinnyTeleOp extends OpMode {
 
         Trigger wristOuttake = new Trigger(() -> (gamepad2.b));
         wristOuttake.whenActive(() -> spinningWristSubsystem.toPosition(SpinningWristSubsystem.WristPositions.OUTTAKE));
+        Trigger wristStorage = new Trigger(() -> (gamepad2.y));
+        wristStorage.whenActive(() -> spinningWristSubsystem.toPosition(SpinningWristSubsystem.WristPositions.STOWED));
     }
 
     private void bindDriverControls() {
