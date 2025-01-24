@@ -27,6 +27,8 @@ public class SpinnyTeleOp extends OpMode {
         spinningWristSubsystem = new SpinningWristSubsystem(this);
         driveSubsystem = new DriveSubsystem(this);
 
+        driveSubsystem.setUsingFieldCentric(false);
+
         bindOperatorControls();
         bindDriverControls();
     }
@@ -38,19 +40,19 @@ public class SpinnyTeleOp extends OpMode {
         Trigger highPosition = new Trigger(() -> gamepad2.dpad_up);
         highPosition.whenActive(() -> {
             spinningWristSubsystem.toPosition(SpinningWristSubsystem.WristPositions.OUTTAKE);
-            armSubsystem.getMoveArmToPositionCommand(ArmSubsystem.ArmPosition.HIGH_OUTTAKE_POSITION, 0.8, 0.2).schedule();
+            armSubsystem.getMoveArmToPositionCommand(ArmSubsystem.ArmPosition.HIGH_OUTTAKE_POSITION, 0.8, 0.4, 0.2).schedule();
         });
 
         Trigger intakePosition = new Trigger(() -> gamepad2.dpad_down);
         intakePosition.whenActive(() -> {
             spinningWristSubsystem.toPosition(SpinningWristSubsystem.WristPositions.OUTTAKE);
-            armSubsystem.getMoveArmToPositionCommand(ArmSubsystem.ArmPosition.INTAKE_POSITION, 0.8, 0.2).schedule();
+            armSubsystem.getMoveArmToPositionCommand(ArmSubsystem.ArmPosition.INTAKE_POSITION, 0.8, 0.4, 0.2).schedule();
         });
 
         Trigger lowPosition = new Trigger(() -> gamepad2.dpad_right);
         lowPosition.whenActive(() -> {
             spinningWristSubsystem.toPosition(SpinningWristSubsystem.WristPositions.OUTTAKE);
-            armSubsystem.getMoveArmToPositionCommand(ArmSubsystem.ArmPosition.LOW_OUTTAKE_POSITION, 0.8, 0.2).schedule();
+            armSubsystem.getMoveArmToPositionCommand(ArmSubsystem.ArmPosition.LOW_OUTTAKE_POSITION, 0.8, 0.4, 0.2).schedule();
         });
 
         Trigger linearControl = new Trigger(() -> Math.abs(gamepad2.right_stick_y) > 0);
@@ -85,9 +87,6 @@ public class SpinnyTeleOp extends OpMode {
 
         Trigger resetGyro = new Trigger(() -> gamepad1.back);
         resetGyro.whenActive(() -> driveSubsystem.resetGyro());
-
-        Trigger setFieldCentric = new Trigger(() -> gamepad1.start);
-        setFieldCentric.whenActive(() -> driveSubsystem.setUsingFieldCentric(!driveSubsystem.getUsingFieldCentric()));
 
         Trigger speedVariationTrigger = new Trigger(() -> gamepad1.right_trigger > 0);
         speedVariationTrigger.whileActiveContinuous(() -> driveSubsystem.setSpeedMultiplier(gamepad1.right_trigger * 0.5 + 0.5));

@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-
+@Config
 public class ArmSubsystem extends SubsystemBase {
     //Constants
     public static final String ELBOW_MOTOR_NAME = "sampElbow";
@@ -21,12 +21,12 @@ public class ArmSubsystem extends SubsystemBase {
     //public static final String SLIDE_LIMIT_SWITCH_NAME = "";
     public static final DcMotor.Direction ELBOW_DIRECTION = DcMotor.Direction.FORWARD;
     public static final DcMotorEx.Direction LINEAR_SLIDE_DIRECTION = DcMotor.Direction.REVERSE;
-    public static final double ELBOW_P = 0.013;
-    public static final double ELBOW_I = 0;
-    public static final double ELBOW_D = 0.0001;
-    public static final double SLIDE_P = 0.012;
-    public static final double SLIDE_I = 0;
-    public static final double SLIDE_D = 0.00015;
+    public static double ELBOW_P = 0.013;
+    public static double ELBOW_I = 0;
+    public static double ELBOW_D = 0.0001;
+    public static double SLIDE_P = 0.008;
+    public static double SLIDE_I = 0;
+    public static double SLIDE_D = 0.00015;
     public static final int SLIDE_MAX_POSITION = 1900; //(high bucket plus a buffer)
     public static final int SLIDE_MAX_POSITION_DOWN = 1370; //to keep it in the 42" extension limit
     //public static final int SLIDE_MAX_POSITION_DOWN_WRIST_DOWN = 1700; Currently not being used.
@@ -35,7 +35,7 @@ public class ArmSubsystem extends SubsystemBase {
     public static final int SLIDE_MIN_POSITION = 0;
     public static final int ELBOW_MIN_POSITION = 0;
     public static final int TICKS_PER_ELBOW_ROTATION = 2740;
-    public static final double POWER_TO_HOLD_ARM = 0.309; //0.263 with light intake
+    public static final double POWER_TO_HOLD_ARM = 0.263; //0.263 with light intake
     public static final double POWER_TO_HOLD_SLIDE = 0.09; //previously 0.104
     public static final int TOLERANCE = 25;
 
@@ -66,7 +66,7 @@ public class ArmSubsystem extends SubsystemBase {
     public enum ArmPosition {
         INTAKE_POSITION(0, 0),
         HIGH_OUTTAKE_POSITION(685, 1867),
-        LOW_OUTTAKE_POSITION(685, 980); //Check positions
+        LOW_OUTTAKE_POSITION(685, 500); //Check positions
 
         public final int elbowPos;
         public final int slidePos;
@@ -138,12 +138,11 @@ public class ArmSubsystem extends SubsystemBase {
 
     public void setTargetLinearSlidePosition(int target) {
         //targetLinearSlidePosition = isLimitSwitchPressed() && target <= linearSlideMotor.getCurrentPosition() ? SLIDE_MIN_POSITION : Range.clip(target, SLIDE_MIN_POSITION, SLIDE_MAX_POSITION);
-        if (targetElbowPosition<300){
+        if(targetElbowPosition < 300) {
             targetLinearSlidePosition = Range.clip(target, SLIDE_MIN_POSITION, SLIDE_MAX_POSITION_DOWN);
-        } else{
+        } else {
             targetLinearSlidePosition = Range.clip(target, SLIDE_MIN_POSITION, SLIDE_MAX_POSITION);
         }
-
     }
 
     public void setTargetArmPosition(int elbowTarget, int linearTarget) {
@@ -163,7 +162,7 @@ public class ArmSubsystem extends SubsystemBase {
         linearSlideMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
-    public SequentialCommandGroup getMoveArmToPositionCommand(ArmPosition position, double maxLinearPower, double maxElbowPower) {
+    public SequentialCommandGroup getMoveArmToPositionCommand(ArmPosition position, double maxLinearPower, double maxElbowPowerGoingUp, double maxElbowPowerGoingDown) {
         double previousElbowMaxPower = this.maxElbowPower;
         double previousLinearMaxPower = this.maxLinearPower;
 
@@ -178,7 +177,7 @@ public class ArmSubsystem extends SubsystemBase {
         } else {
             return new SequentialCommandGroup(
                     new SlideToPositionCommand(this, SLIDE_MIN_POSITION, maxLinearPower),
-                    new ElbowToPositionCommand(this, position.elbowPos, maxElbowPower),
+                    new ElbowToPositionCommand(this, position.elbowPos, (position.elbowPos < elbowMotor.getCurrentPosition()) ? maxElbowPowerGoingDown : maxElbowPowerGoingUp),
                     new SlideToPositionCommand(this, position.slidePos, maxLinearPower),
                     new RunCommand(() -> {
                         setLinearMaxPower(previousLinearMaxPower);
@@ -231,7 +230,7 @@ public class ArmSubsystem extends SubsystemBase {
         double pid = Range.clip(elbowController.calculate(elbowMotor.getCurrentPosition(), targetElbowPosition), -maxElbowPower, maxElbowPower);
         double feedForward = Math.cos(Math.toRadians(getElbowDegrees())) * POWER_TO_HOLD_ARM;
 
-        if(Math.abs(targetElbowPosition - ELBOW_MIN_POSITION) <= TOLERANCE) {
+        if(Math.abs(elbowMotor.getCurrentPosition() - ELBOW_MIN_POSITION) <= TOLERANCE) {
             feedForward = 0;
         }
 
@@ -288,6 +287,8 @@ public class ArmSubsystem extends SubsystemBase {
             previousMaxPower = armSubsystem.maxLinearPower;
             armSubsystem.setLinearMaxPower(maxPower);
             armSubsystem.setTargetLinearSlidePosition(target);
+            armSubsystem.linearSlideTimer.reset();
+            armSubsystem.slidePIDtimeout = false;
         }
 
         @Override
@@ -326,6 +327,8 @@ public class ArmSubsystem extends SubsystemBase {
             previousMaxPower = armSubsystem.maxElbowPower;
             armSubsystem.setElbowMaxPower(maxPower);
             armSubsystem.setTargetElbowPosition(target);
+            armSubsystem.elbowTimer.reset();
+            armSubsystem.elbowPIDtimeout = false;
         }
 
         @Override
@@ -378,6 +381,10 @@ public class ArmSubsystem extends SubsystemBase {
             armSubsystem.setElbowMaxPower(elbowMaxPower);
             armSubsystem.setLinearMaxPower(linearMaxPower);
             armSubsystem.setTargetArmPosition(position);
+            armSubsystem.linearSlideTimer.reset();
+            armSubsystem.elbowTimer.reset();
+            armSubsystem.elbowPIDtimeout = false;
+            armSubsystem.slidePIDtimeout = false;
         }
 
         @Override

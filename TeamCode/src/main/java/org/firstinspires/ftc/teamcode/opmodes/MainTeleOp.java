@@ -38,19 +38,19 @@ public class MainTeleOp extends OpMode {
         Trigger highPosition = new Trigger(() -> gamepad2.dpad_up);
         highPosition.whenActive(() -> {
             wristSubsystem.setWristPosition(WristSubsystem.WristPosition.READY);
-            armSubsystem.getMoveArmToPositionCommand(ArmSubsystem.ArmPosition.HIGH_OUTTAKE_POSITION, 0.8, 0.2).schedule();
+            armSubsystem.getMoveArmToPositionCommand(ArmSubsystem.ArmPosition.HIGH_OUTTAKE_POSITION, 0.8, 0.5, 0.2).schedule();
         });
 
         Trigger intakePosition = new Trigger(() -> gamepad2.dpad_down);
         intakePosition.whenActive(() -> {
             wristSubsystem.setWristPosition(WristSubsystem.WristPosition.READY);
-            armSubsystem.getMoveArmToPositionCommand(ArmSubsystem.ArmPosition.INTAKE_POSITION, 0.8, 0.2).schedule();
+            armSubsystem.getMoveArmToPositionCommand(ArmSubsystem.ArmPosition.INTAKE_POSITION, 0.8, 0.5, 0.2).schedule();
         });
 
         Trigger lowPosition = new Trigger(() -> gamepad2.dpad_right);
         lowPosition.whenActive(() -> {
             wristSubsystem.setWristPosition(WristSubsystem.WristPosition.READY);
-            armSubsystem.getMoveArmToPositionCommand(ArmSubsystem.ArmPosition.LOW_OUTTAKE_POSITION, 0.8, 0.2).schedule();
+            armSubsystem.getMoveArmToPositionCommand(ArmSubsystem.ArmPosition.LOW_OUTTAKE_POSITION, 0.8, 0.5, 0.2).schedule();
         });
 
         Trigger linearControl = new Trigger(() -> Math.abs(gamepad2.right_stick_y) > 0);
