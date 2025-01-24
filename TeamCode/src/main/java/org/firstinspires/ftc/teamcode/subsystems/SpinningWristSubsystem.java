@@ -10,9 +10,9 @@ public class SpinningWristSubsystem extends SubsystemBase {
     //Constants
     public static final String WRIST_SERVO_NAME = "sampWrist";
     public static final String INTAKE_SERVO_NAME = "sampClaw";
-    public static final double WRIST_INTAKE_POSITION = 1.0;
-    public static final double WRIST_STOWED_POSITION = 0.38;
-    public static final double WRIST_OUTTAKE_POSITION = 0.68;
+    public static final double WRIST_INTAKE_POSITION = .65;
+    public static final double WRIST_STOWED_POSITION = 0.51;
+    public static final double WRIST_OUTTAKE_POSITION = 0.3;
 
     private final Servo intakeServo;
     private final Servo wristServo;

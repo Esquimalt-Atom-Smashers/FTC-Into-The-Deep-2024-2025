@@ -60,7 +60,7 @@ public class ArmSubsystem extends SubsystemBase {
 
     public enum ArmPosition {
         INTAKE_POSITION(0, 0),
-        HIGH_OUTTAKE_POSITION(685, 2300),
+        HIGH_OUTTAKE_POSITION(685, 1869),
         LOW_OUTTAKE_POSITION(685, 980); //Check positions
 
         public final int elbowPos;
