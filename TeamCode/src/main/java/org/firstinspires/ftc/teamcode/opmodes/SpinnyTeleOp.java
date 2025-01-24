@@ -45,7 +45,7 @@ public class SpinnyTeleOp extends OpMode {
 
         Trigger intakePosition = new Trigger(() -> gamepad2.dpad_down);
         intakePosition.whenActive(() -> {
-            spinningWristSubsystem.toPosition(SpinningWristSubsystem.WristPositions.OUTTAKE);
+            spinningWristSubsystem.toPosition(SpinningWristSubsystem.WristPositions.STOWED);
             armSubsystem.getMoveArmToPositionCommand(ArmSubsystem.ArmPosition.INTAKE_POSITION, 0.8, 0.4, 0.2).schedule();
         });
 
