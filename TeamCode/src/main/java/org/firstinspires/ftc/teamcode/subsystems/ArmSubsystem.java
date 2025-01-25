@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 @Config
 public class ArmSubsystem extends SubsystemBase {
     //Constants
@@ -29,7 +30,7 @@ public class ArmSubsystem extends SubsystemBase {
     public static double SLIDE_D = 0.00015;
     public static final int SLIDE_MAX_POSITION = 1900; //(high bucket plus a buffer)
     public static final int SLIDE_MAX_POSITION_DOWN = 1370; //to keep it in the 42" extension limit
-    //public static final int SLIDE_MAX_POSITION_DOWN_WRIST_DOWN = 1700; Currently not being used.
+    public static final int SLIDE_MAX_POSITION_DOWN_WRIST_DOWN = 1700;
 
     public static final int ELBOW_MAX_POSITION = 685;
     public static final int SLIDE_MIN_POSITION = 0;
@@ -54,9 +55,15 @@ public class ArmSubsystem extends SubsystemBase {
     private final Telemetry telemetry;
     private final ElapsedTime elbowTimer;
     private final ElapsedTime linearSlideTimer;
+    private boolean elbowPIDtimeout = false;
+    private boolean slidePIDtimeout = false;
+
+    //Used for Periodic
     private boolean updateFirstCall; //Used to reset the timers on the first call of periodic
-    private boolean elbowPIDtimeout = false; //
-    private boolean slidePIDtimeout = false; //
+    private SpinningWristSubsystem.WristPositions previousWristPosition;
+
+    private SpinningWristSubsystem spinningWristSubsystem;
+    private boolean usingSpinningWristSubsystem = false;
 
     private int previousElbowTarget = 0;
     private int previousSlideTarget = 0;
@@ -77,8 +84,12 @@ public class ArmSubsystem extends SubsystemBase {
         }
     }
 
-    public ArmSubsystem(OpMode opMode) {
+    public ArmSubsystem(OpMode opMode, SpinningWristSubsystem spinningWristSubsystem) {
         telemetry = opMode.telemetry;
+
+        this.spinningWristSubsystem = spinningWristSubsystem;
+        usingSpinningWristSubsystem = true;
+        previousWristPosition = spinningWristSubsystem.getCurrentWristPosition();
 
         elbowMotor = opMode.hardwareMap.get(DcMotorEx.class, ELBOW_MOTOR_NAME);
         linearSlideMotor = opMode.hardwareMap.get(DcMotorEx.class, LINEAR_SLIDE_MOTOR_NAME);
@@ -112,114 +123,58 @@ public class ArmSubsystem extends SubsystemBase {
         linearSlideTimer.reset();
     }
 
-    public boolean getSlideAtTarget() {
-        return Math.abs(linearSlideMotor.getCurrentPosition() - targetLinearSlidePosition) <= TOLERANCE;
-    }
+    public ArmSubsystem(OpMode opMode) {
+        telemetry = opMode.telemetry;
+        this.spinningWristSubsystem = null;
+        usingSpinningWristSubsystem = false;
 
-    public void setElbowMaxPower(double power) {
-        maxElbowPower = Range.clip(power, -1.0, 1.0);
-    }
+        elbowMotor = opMode.hardwareMap.get(DcMotorEx.class, ELBOW_MOTOR_NAME);
+        linearSlideMotor = opMode.hardwareMap.get(DcMotorEx.class, LINEAR_SLIDE_MOTOR_NAME);
+        //slideLimitSwitch = opMode.hardwareMap.get(DigitalChannel.class, SLIDE_LIMIT_SWITCH_NAME);
 
-    public void setLinearMaxPower(double power) {
-        maxLinearPower = Range.clip(power, -1.0, 1.0);
-    }
+        //Motor Initialization
+        elbowMotor.setDirection(ELBOW_DIRECTION);
+        linearSlideMotor.setDirection(LINEAR_SLIDE_DIRECTION);
 
-    public boolean getElbowAtTarget() {
-        return Math.abs(elbowMotor.getCurrentPosition() - targetElbowPosition) <= TOLERANCE;
-    }
-
-    public void setTargetElbowPosition(int target) {
-        targetElbowPosition = Range.clip(target, ELBOW_MIN_POSITION, ELBOW_MAX_POSITION);
-    }
-
-    public double getElbowDegrees() {
-        return (double) elbowMotor.getCurrentPosition() / (double) TICKS_PER_ELBOW_ROTATION * 360.0;
-    }
-
-    public void setTargetLinearSlidePosition(int target) {
-        //targetLinearSlidePosition = isLimitSwitchPressed() && target <= linearSlideMotor.getCurrentPosition() ? SLIDE_MIN_POSITION : Range.clip(target, SLIDE_MIN_POSITION, SLIDE_MAX_POSITION);
-        if(targetElbowPosition < 300) {
-            targetLinearSlidePosition = Range.clip(target, SLIDE_MIN_POSITION, SLIDE_MAX_POSITION_DOWN);
-        } else {
-            targetLinearSlidePosition = Range.clip(target, SLIDE_MIN_POSITION, SLIDE_MAX_POSITION);
-        }
-    }
-
-    public void setTargetArmPosition(int elbowTarget, int linearTarget) {
-        setTargetElbowPosition(elbowTarget);
-        setTargetLinearSlidePosition(linearTarget);
-    }
-
-    public void setTargetArmPosition(ArmPosition armPosition) {
-        setTargetElbowPosition(armPosition.elbowPos);
-        setTargetLinearSlidePosition(armPosition.slidePos);
-    }
-
-    public void resetEncoders() {
+        elbowMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        linearSlideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         elbowMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         linearSlideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         elbowMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         linearSlideMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        //slideLimitSwitch.setMode(DigitalChannel.Mode.INPUT);
+
+        setTargetArmPosition(ELBOW_MIN_POSITION, SLIDE_MIN_POSITION);
+        setElbowMaxPower(1.0);
+        setLinearMaxPower(1.0);
+
+        elbowController = new PIDController(ELBOW_P, ELBOW_I, ELBOW_D);
+        linearSlideController = new PIDController(SLIDE_P, SLIDE_I, SLIDE_D);
+
+        updateFirstCall = true;
+
+        elbowTimer = new ElapsedTime();
+        linearSlideTimer = new ElapsedTime();
+        elbowTimer.reset();
+        linearSlideTimer.reset();
     }
 
-    public SequentialCommandGroup getMoveArmToPositionCommand(ArmPosition position, double maxLinearPower, double maxElbowPowerGoingUp, double maxElbowPowerGoingDown) {
-        double previousElbowMaxPower = this.maxElbowPower;
-        double previousLinearMaxPower = this.maxLinearPower;
+    //Physical Operations
 
-        if(Math.abs(elbowMotor.getCurrentPosition() - position.elbowPos) <= TOLERANCE) {
-            return new SequentialCommandGroup(
-                new ArmToPositionCommand(this, position, maxLinearPower, maxElbowPower),
-                new RunCommand(() -> {
-                    setLinearMaxPower(previousLinearMaxPower);
-                    setElbowMaxPower(previousElbowMaxPower);
-                })
-            );
-        } else {
-            return new SequentialCommandGroup(
-                    new SlideToPositionCommand(this, SLIDE_MIN_POSITION, maxLinearPower),
-                    new ElbowToPositionCommand(this, position.elbowPos, (position.elbowPos < elbowMotor.getCurrentPosition()) ? maxElbowPowerGoingDown : maxElbowPowerGoingUp),
-                    new SlideToPositionCommand(this, position.slidePos, maxLinearPower),
-                    new RunCommand(() -> {
-                        setLinearMaxPower(previousLinearMaxPower);
-                        setElbowMaxPower(previousElbowMaxPower);
-                    })
-            );
-        }
+    public void resetEncoders() {
+        resetElbowEncoder();
+        resetSlideEncoder();
     }
 
-    public SequentialCommandGroup getMoveArmToPositionCommand(ArmPosition position) {
-        if(Math.abs(elbowMotor.getCurrentPosition() - position.elbowPos) <= TOLERANCE) {
-            return new SequentialCommandGroup(new RunCommand(() -> setTargetArmPosition(position)));
-        } else {
-            return new SequentialCommandGroup(
-                    new SlideToPositionCommand(this, SLIDE_MIN_POSITION),
-                    new ElbowToPositionCommand(this, position.elbowPos),
-                    new SlideToPositionCommand(this, position.slidePos));
-        }
+    public void resetElbowEncoder() {
+        elbowMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        elbowMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
-    public void addToLinearSlideTarget(int input) {
-        setTargetLinearSlidePosition(targetLinearSlidePosition + input);
-    }
-
-    public void addToLinearSlideTarget(int input, boolean overrideLimits) {
-        if(overrideLimits) {
-            targetLinearSlidePosition += input;
-        } else {
-            setTargetLinearSlidePosition(targetLinearSlidePosition + input);
-        }
-    }
-
-    public void addToElbowTarget(int input) {
-        setTargetElbowPosition(targetElbowPosition + input);
-    }
-
-    public void addToElbowTarget(int input, boolean overrideLimits) {
-        if(overrideLimits) {
-            targetElbowPosition += input;
-        } else {
-            setTargetElbowPosition(targetElbowPosition + input);
-        }
+    public void resetSlideEncoder() {
+        linearSlideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        linearSlideMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
 //    private boolean isLimitSwitchPressed() {
@@ -250,17 +205,154 @@ public class ArmSubsystem extends SubsystemBase {
             elbowMotor.setPower(pid + feedForward);
             elbowPIDtimeout = false;
         }
+    }
 
-//        if(Math.abs(power) > 0.5) {
-//            if(elbowTimer.seconds() > 3) elbowMotor.setPower(0);
-//            else elbowMotor.setPower(power);
-//        } else {
-//            elbowTimer.reset();
-//            elbowMotor.setPower(power);
-//        }
+    private void runLinearSlidePID() {
+        double pid = Range.clip(linearSlideController.calculate(linearSlideMotor.getCurrentPosition(), targetLinearSlidePosition), -maxLinearPower, maxLinearPower);
+        double feedForward = Math.sin(Math.toRadians(getElbowDegrees())) * POWER_TO_HOLD_SLIDE *
+                ((double) linearSlideMotor.getCurrentPosition() / (double) (SLIDE_MAX_POSITION - SLIDE_MIN_POSITION)
+                        - (double) SLIDE_MIN_POSITION / (double) (SLIDE_MAX_POSITION - SLIDE_MIN_POSITION));
+
+        telemetry.addData("Linear Slide Feed Forward", feedForward);
+
+        //Check if the elbow motor has moved beyond the tolerance
+        if(Math.abs(linearSlideMotor.getCurrentPosition() - previousSlidePosition) > 2) {
+            linearSlideTimer.reset();
+            previousSlideTarget = targetLinearSlidePosition;
+            previousSlidePosition = linearSlideMotor.getCurrentPosition();
+            linearSlideMotor.setPower(pid + feedForward);
+            slidePIDtimeout = false;
+        } else if(linearSlideTimer.seconds() > 1 && previousSlideTarget == targetLinearSlidePosition) {
+            linearSlideMotor.setPower(feedForward); //Stop the motor if the timer exceeds 1 second and the target hasn't changed
+            //if(isLimitSwitchPressed()) resetSlideEncoder();
+            slidePIDtimeout = true;
+        } else {
+            linearSlideMotor.setPower(pid + feedForward);
+            slidePIDtimeout = false;
+        }
+    }
+
+    //Setters
+
+    public void setElbowMaxPower(double power) {
+        maxElbowPower = Range.clip(power, -1.0, 1.0);
+    }
+
+    public void setLinearMaxPower(double power) {
+        maxLinearPower = Range.clip(power, -1.0, 1.0);
+    }
+
+    public void setTargetLinearSlidePosition(int target) {
+        if(targetElbowPosition < 300 && !usingSpinningWristSubsystem) {
+            targetLinearSlidePosition = Range.clip(target, SLIDE_MIN_POSITION, SLIDE_MAX_POSITION_DOWN);
+        } else if(targetElbowPosition < 300) {
+            targetLinearSlidePosition = Range.clip(target, SLIDE_MIN_POSITION, (spinningWristSubsystem.getCurrentWristPosition() == SpinningWristSubsystem.WristPositions.OUTTAKE) ? SLIDE_MAX_POSITION_DOWN : SLIDE_MAX_POSITION_DOWN_WRIST_DOWN);
+        } else {
+            targetLinearSlidePosition = Range.clip(target, SLIDE_MIN_POSITION, SLIDE_MAX_POSITION);
+        }
+    }
+
+    public void setTargetElbowPosition(int target) {
+        targetElbowPosition = Range.clip(target, ELBOW_MIN_POSITION, ELBOW_MAX_POSITION);
+    }
+
+    public void setTargetArmPosition(int elbowTarget, int linearTarget) {
+        setTargetElbowPosition(elbowTarget);
+        setTargetLinearSlidePosition(linearTarget);
+    }
+
+    public void setTargetArmPosition(ArmPosition armPosition) {
+        setTargetElbowPosition(armPosition.elbowPos);
+        setTargetLinearSlidePosition(armPosition.slidePos);
+    }
+
+    public void addToLinearSlideTarget(int input) {
+        setTargetLinearSlidePosition(targetLinearSlidePosition + input);
+    }
+
+    public void addToLinearSlideTarget(int input, boolean overrideLimits) {
+        if(overrideLimits) {
+            targetLinearSlidePosition += input;
+        } else {
+            setTargetLinearSlidePosition(targetLinearSlidePosition + input);
+        }
+    }
+
+    public void addToElbowTarget(int input) {
+        setTargetElbowPosition(targetElbowPosition + input);
+    }
+
+    public void addToElbowTarget(int input, boolean overrideLimits) {
+        if(overrideLimits) {
+            targetElbowPosition += input;
+        } else {
+            setTargetElbowPosition(targetElbowPosition + input);
+        }
+    }
+
+    //Getters
+
+    public boolean getSlideAtTarget() {
+        return Math.abs(linearSlideMotor.getCurrentPosition() - targetLinearSlidePosition) <= TOLERANCE;
+    }
+
+    public boolean getElbowAtTarget() {
+        return Math.abs(elbowMotor.getCurrentPosition() - targetElbowPosition) <= TOLERANCE;
+    }
+
+    public double getElbowDegrees() {
+        return (double) elbowMotor.getCurrentPosition() / (double) TICKS_PER_ELBOW_ROTATION * 360.0;
+    }
+
+    public double getMaxElbowPower() {
+        return maxElbowPower;
+    }
+
+    public double getMaxLinearPower() {
+        return maxLinearPower;
+    }
+
+    public int getElbowPosition() {
+        return elbowMotor.getCurrentPosition();
     }
 
     //Commands
+
+    public SequentialCommandGroup getMoveArmToPositionCommand(ArmPosition position, double maxLinearPower, double maxElbowPowerGoingUp, double maxElbowPowerGoingDown) {
+        double previousElbowMaxPower = this.maxElbowPower;
+        double previousLinearMaxPower = this.maxLinearPower;
+
+        if(Math.abs(elbowMotor.getCurrentPosition() - position.elbowPos) <= TOLERANCE) {
+            return new SequentialCommandGroup(
+                    new ArmToPositionCommand(this, position, maxLinearPower, maxElbowPower),
+                    new RunCommand(() -> {
+                        setLinearMaxPower(previousLinearMaxPower);
+                        setElbowMaxPower(previousElbowMaxPower);
+                    })
+            );
+        } else {
+            return new SequentialCommandGroup(
+                    new SlideToPositionCommand(this, SLIDE_MIN_POSITION, maxLinearPower),
+                    new ElbowToPositionCommand(this, position.elbowPos, (position.elbowPos < elbowMotor.getCurrentPosition()) ? maxElbowPowerGoingDown : maxElbowPowerGoingUp),
+                    new SlideToPositionCommand(this, position.slidePos, maxLinearPower),
+                    new RunCommand(() -> {
+                        setLinearMaxPower(previousLinearMaxPower);
+                        setElbowMaxPower(previousElbowMaxPower);
+                    })
+            );
+        }
+    }
+
+    public SequentialCommandGroup getMoveArmToPositionCommand(ArmPosition position) {
+        if(Math.abs(elbowMotor.getCurrentPosition() - position.elbowPos) <= TOLERANCE) {
+            return new SequentialCommandGroup(new RunCommand(() -> setTargetArmPosition(position)));
+        } else {
+            return new SequentialCommandGroup(
+                    new SlideToPositionCommand(this, SLIDE_MIN_POSITION),
+                    new ElbowToPositionCommand(this, position.elbowPos),
+                    new SlideToPositionCommand(this, position.slidePos));
+        }
+    }
 
     public static class SlideToPositionCommand extends CommandBase {
         private final ArmSubsystem armSubsystem;
@@ -400,38 +492,7 @@ public class ArmSubsystem extends SubsystemBase {
         }
     }
 
-    private void runLinearSlidePID() {
-        double pid = Range.clip(linearSlideController.calculate(linearSlideMotor.getCurrentPosition(), targetLinearSlidePosition), -maxLinearPower, maxLinearPower);
-        double feedForward = Math.sin(Math.toRadians(getElbowDegrees())) * POWER_TO_HOLD_SLIDE *
-                ((double) linearSlideMotor.getCurrentPosition() / (double) (SLIDE_MAX_POSITION - SLIDE_MIN_POSITION)
-                        - (double) SLIDE_MIN_POSITION / (double) (SLIDE_MAX_POSITION - SLIDE_MIN_POSITION));
-
-        telemetry.addData("Linear Slide Feed Forward", feedForward);
-
-        //Check if the elbow motor has moved beyond the tolerance
-        if(Math.abs(linearSlideMotor.getCurrentPosition() - previousSlidePosition) > 2) {
-            linearSlideTimer.reset();
-            previousSlideTarget = targetLinearSlidePosition;
-            previousSlidePosition = linearSlideMotor.getCurrentPosition();
-            linearSlideMotor.setPower(pid + feedForward);
-            slidePIDtimeout = false;
-        } else if(linearSlideTimer.seconds() > 1 && previousSlideTarget == targetLinearSlidePosition) {
-            linearSlideMotor.setPower(feedForward); //Stop the motor if the timer exceeds 1 second and the target hasn't changed
-            slidePIDtimeout = true;
-        } else {
-            linearSlideMotor.setPower(pid + feedForward);
-            slidePIDtimeout = false;
-        }
-
-//        //If the power to the motors has been set above 0.5 for longer than five seconds it will shut off
-//        if(Math.abs(power) > 0.5) {
-//            if(linearSlideTimer.seconds() > 3) linearSlideMotor.setPower(0);
-//            else linearSlideMotor.setPower(power);
-//        } else {
-//            linearSlideTimer.reset();
-//            linearSlideMotor.setPower(power);
-//        }
-    }
+    //Periodic
 
     @Override
     public void periodic() {
@@ -439,6 +500,13 @@ public class ArmSubsystem extends SubsystemBase {
             elbowTimer.reset();
             linearSlideTimer.reset();
             updateFirstCall = false;
+        }
+
+        if(usingSpinningWristSubsystem && spinningWristSubsystem.getCurrentWristPosition() != previousWristPosition && targetLinearSlidePosition > SLIDE_MAX_POSITION_DOWN && targetElbowPosition < 300) {
+            setTargetLinearSlidePosition(targetLinearSlidePosition);
+            previousWristPosition = spinningWristSubsystem.getCurrentWristPosition();
+        } else if(usingSpinningWristSubsystem) {
+            previousWristPosition = spinningWristSubsystem.getCurrentWristPosition();
         }
 
         telemetry.addData("Elbow Position", elbowMotor.getCurrentPosition());

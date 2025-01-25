@@ -6,6 +6,7 @@ import com.arcrobotics.ftclib.command.button.Trigger;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.commands.CommandManager;
 import org.firstinspires.ftc.teamcode.subsystems.ArmSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.SpecimenArmSubsystem;
@@ -17,6 +18,7 @@ public class SpinnyTeleOp extends OpMode {
     SpinningWristSubsystem spinningWristSubsystem;
     DriveSubsystem driveSubsystem;
     SpecimenArmSubsystem specimenArmSubsystem;
+    CommandManager commandManager;
 
     private boolean firstTime = true;
 
@@ -25,10 +27,12 @@ public class SpinnyTeleOp extends OpMode {
         CommandScheduler.getInstance().reset();
         CommandScheduler.getInstance().cancelAll();
 
-        armSubsystem = new ArmSubsystem(this);
         spinningWristSubsystem = new SpinningWristSubsystem(this);
         driveSubsystem = new DriveSubsystem(this);
         specimenArmSubsystem = new SpecimenArmSubsystem(this);
+        armSubsystem = new ArmSubsystem(this, spinningWristSubsystem);
+
+        commandManager = new CommandManager(armSubsystem, driveSubsystem, specimenArmSubsystem, spinningWristSubsystem);
 
         driveSubsystem.setUsingFieldCentric(false);
 
@@ -40,8 +44,6 @@ public class SpinnyTeleOp extends OpMode {
         armSubsystem.setLinearMaxPower(0.5);
         armSubsystem.setElbowMaxPower(0.5);
 
-
-        //split
         Trigger readyScoreSpecimen = new Trigger(() -> gamepad2.dpad_left);
         readyScoreSpecimen.whenActive(() -> specimenArmSubsystem.readyScore());
 
@@ -55,10 +57,7 @@ public class SpinnyTeleOp extends OpMode {
         receiveSpecimen.whenActive(() -> specimenArmSubsystem.wallPosition());
 
         Trigger openClaw = new Trigger(() -> gamepad2.right_bumper);
-        openClaw.whenActive(() -> specimenArmSubsystem.openClaw());
-
-        Trigger closeClaw = new Trigger(() -> gamepad2.left_bumper);
-        closeClaw.whenActive(() -> specimenArmSubsystem.closeClaw());
+        openClaw.whenActive(() -> specimenArmSubsystem.toggleClaw());
 
         Trigger elbowControl = new Trigger(() -> Math.abs(gamepad2.left_stick_y) > 0);
         elbowControl.whileActiveContinuous(() -> armSubsystem.addToElbowTarget((int) (gamepad2.left_stick_y * -30)));
@@ -71,31 +70,21 @@ public class SpinnyTeleOp extends OpMode {
         defaultDriveCommand.addRequirements(driveSubsystem);
         driveSubsystem.setDefaultCommand(defaultDriveCommand);
 
-        Trigger resetGyro = new Trigger(() -> gamepad1.back);
+        Trigger resetGyro = new Trigger(() -> gamepad1.options);
         resetGyro.whenActive(() -> driveSubsystem.resetGyro());
 
         Trigger speedVariationTrigger = new Trigger(() -> gamepad1.right_trigger > 0);
         speedVariationTrigger.whileActiveContinuous(() -> driveSubsystem.setSpeedMultiplier(gamepad1.right_trigger * 0.5 + 0.5));
         speedVariationTrigger.whenInactive(() -> driveSubsystem.setSpeedMultiplier(0.5));
 
-        //split
         Trigger highPosition = new Trigger(() -> gamepad1.dpad_up);
-        highPosition.whenActive(() -> {
-            spinningWristSubsystem.toPosition(SpinningWristSubsystem.WristPositions.OUTTAKE);
-            armSubsystem.getMoveArmToPositionCommand(ArmSubsystem.ArmPosition.HIGH_OUTTAKE_POSITION, 0.8, 0.4, 0.25).schedule();
-        });
+        highPosition.whenActive(() -> commandManager.getToHighBasketPositionCommand().schedule());
 
         Trigger intakePosition = new Trigger(() -> gamepad1.dpad_down);
-        intakePosition.whenActive(() -> {
-            spinningWristSubsystem.toPosition(SpinningWristSubsystem.WristPositions.STOWED);
-            armSubsystem.getMoveArmToPositionCommand(ArmSubsystem.ArmPosition.INTAKE_POSITION, 0.8, 0.4, 0.25).schedule();
-        });
+        intakePosition.whenActive(() -> commandManager.getToHomePosition().schedule());
 
         Trigger lowPosition = new Trigger(() -> gamepad1.dpad_right);
-        lowPosition.whenActive(() -> {
-            spinningWristSubsystem.toPosition(SpinningWristSubsystem.WristPositions.OUTTAKE);
-            armSubsystem.getMoveArmToPositionCommand(ArmSubsystem.ArmPosition.LOW_OUTTAKE_POSITION, 0.8, 0.4, 0.25).schedule();
-        });
+        lowPosition.whenActive(() -> commandManager.getToLowBasketPosition().schedule());
 
         Trigger linearControl = new Trigger(() -> Math.abs(gamepad1.right_stick_y) > 0);
         linearControl.whileActiveContinuous(() -> armSubsystem.addToLinearSlideTarget((int) (gamepad1.right_stick_y * -30)));
@@ -119,8 +108,6 @@ public class SpinnyTeleOp extends OpMode {
 
         Trigger resetEncoders = new Trigger(() -> gamepad1.share);
         resetEncoders.whenActive(() -> armSubsystem.resetEncoders());
-
-
     }
 
     @Override
@@ -129,6 +116,7 @@ public class SpinnyTeleOp extends OpMode {
             spinningWristSubsystem.toPosition(SpinningWristSubsystem.WristPositions.STOWED);
             firstTime = false;
         }
+
         CommandScheduler.getInstance().run();
     }
 }
