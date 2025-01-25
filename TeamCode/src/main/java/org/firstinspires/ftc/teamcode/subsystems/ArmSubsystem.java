@@ -28,7 +28,7 @@ public class ArmSubsystem extends SubsystemBase {
     public static double SLIDE_I = 0;
     public static double SLIDE_D = 0.00015;
     public static final int SLIDE_MAX_POSITION = 1900; //(high bucket plus a buffer)
-    public static final int SLIDE_MAX_POSITION_DOWN = 1370; //to keep it in the 42" extension limit
+    public static final int SLIDE_MAX_POSITION_DOWN = 1200; //to keep it in the 42" extension limit
     //public static final int SLIDE_MAX_POSITION_DOWN_WRIST_DOWN = 1700; Currently not being used.
 
     public static final int ELBOW_MAX_POSITION = 685;
