@@ -19,8 +19,6 @@ import com.qualcomm.hardware.bosch.BHI260IMU;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import java.lang.Math;
 
-import org.firstinspires.ftc.teamcode.utils.GamepadUtils;
-
 public class DriveSubsystem extends SubsystemBase {
     //CONSTANTS
     static final String IMU_NAME = "imu";
@@ -91,17 +89,17 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     private void driveRobotCentricRoadRunner(double forward, double strafe, double turn) {
-        forward = Range.clip(GamepadUtils.deadzone(forward), -1, 1);
-        strafe = Range.clip(GamepadUtils.deadzone(strafe), -1, 1);
-        turn = Range.clip(GamepadUtils.deadzone(turn), -1, 1);
+        forward = Range.clip(forward, -1, 1);
+        strafe = Range.clip(strafe, -1, 1);
+        turn = Range.clip(turn, -1, 1);
 
         mecanumDrive.setDrivePowers(new PoseVelocity2d(new Vector2d(forward * speedMultiplier, strafe * speedMultiplier), turn * speedMultiplier));
     }
 
     private void driveFieldCentricRoadRunner(double forward, double strafe, double turn) {
-        forward = Range.clip(GamepadUtils.deadzone(forward), -1, 1);
-        strafe = Range.clip(GamepadUtils.deadzone(strafe), -1, 1);
-        turn = Range.clip(GamepadUtils.deadzone(turn), -1, 1);
+        forward = Range.clip(forward, -1, 1);
+        strafe = Range.clip(strafe, -1, 1);
+        turn = Range.clip(turn, -1, 1);
 
         double gyroRadians = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
         double fieldCentricStrafe = strafe * Math.cos(-gyroRadians) - forward * Math.sin(-gyroRadians);
@@ -111,10 +109,6 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     private void driveFieldCentric(double forward, double strafe, double turn) {
-        forward = GamepadUtils.deadzone(forward);
-        strafe = GamepadUtils.deadzone(strafe);
-        turn = GamepadUtils.deadzone(turn);
-
         double gyroRadians = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
         double fieldCentricStrafe = strafe * Math.cos(gyroRadians) - forward * Math.sin(gyroRadians);
         double fieldCentricDrive = strafe * Math.sin(gyroRadians) + forward * Math.cos(gyroRadians);
@@ -126,10 +120,6 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     private void driveRobotCentric(double forward, double strafe, double turn) {
-        forward = GamepadUtils.deadzone(forward);
-        strafe = GamepadUtils.deadzone(strafe);
-        turn = GamepadUtils.deadzone(turn);
-
         frontLeftMotor.setPower(Range.clip((forward + strafe + turn), -1, 1) * speedMultiplier);
         frontRightMotor.setPower(Range.clip((forward - strafe - turn), -1, 1) * speedMultiplier);
         backLeftMotor.setPower(Range.clip((forward - strafe + turn), -1, 1) * speedMultiplier);

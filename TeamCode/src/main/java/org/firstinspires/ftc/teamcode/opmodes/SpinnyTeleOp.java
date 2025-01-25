@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.SpecimenArmSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.SpinningWristSubsystem;
 
-@TeleOp(name="TeleOp", group = "Real")
+//@TeleOp(name="BadControlsTeleOp", group = "Real")
 public class SpinnyTeleOp extends OpMode {
     ArmSubsystem armSubsystem;
     SpinningWristSubsystem spinningWristSubsystem;
@@ -62,6 +62,15 @@ public class SpinnyTeleOp extends OpMode {
 
         Trigger elbowControl = new Trigger(() -> Math.abs(gamepad2.left_stick_y) > 0);
         elbowControl.whileActiveContinuous(() -> armSubsystem.addToElbowTarget((int) (gamepad2.left_stick_y * -30)));
+
+        Trigger linearControl = new Trigger(() -> Math.abs(gamepad1.right_stick_y) > 0);
+        linearControl.whileActiveContinuous(() -> armSubsystem.addToLinearSlideTarget((int) (gamepad1.right_stick_y * -30)));
+
+        Trigger elbowManualControl = new Trigger(() -> gamepad2.options);
+        elbowManualControl.whileActiveContinuous(() -> {
+            armSubsystem.addToElbowTarget((int) (gamepad2.left_stick_y * -30), true);
+            armSubsystem.addToLinearSlideTarget((int) (gamepad2.right_stick_y * -30), true);
+        });
     }
 
     private void bindDriverControls() {
@@ -96,9 +105,6 @@ public class SpinnyTeleOp extends OpMode {
             spinningWristSubsystem.toPosition(SpinningWristSubsystem.WristPositions.OUTTAKE);
             armSubsystem.getMoveArmToPositionCommand(ArmSubsystem.ArmPosition.LOW_OUTTAKE_POSITION, 0.8, 0.4, 0.25).schedule();
         });
-
-        Trigger linearControl = new Trigger(() -> Math.abs(gamepad1.right_stick_y) > 0);
-        linearControl.whileActiveContinuous(() -> armSubsystem.addToLinearSlideTarget((int) (gamepad1.right_stick_y * -30)));
 
         Trigger intake = new Trigger(() -> gamepad1.right_bumper);
         intake.whenActive(() -> spinningWristSubsystem.intake());

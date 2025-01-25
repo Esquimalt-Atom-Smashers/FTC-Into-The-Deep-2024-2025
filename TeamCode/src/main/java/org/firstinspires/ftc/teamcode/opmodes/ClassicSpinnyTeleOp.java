@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.SpecimenArmSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.SpinningWristSubsystem;
 
-@TeleOp(name="ClassicTeleOp", group = "Real")
+@TeleOp(name="TeleOp", group = "Real")
 public class ClassicSpinnyTeleOp extends OpMode {
     ArmSubsystem armSubsystem;
     SpinningWristSubsystem spinningWristSubsystem;
@@ -59,7 +59,7 @@ public class ClassicSpinnyTeleOp extends OpMode {
             armSubsystem.getMoveArmToPositionCommand(ArmSubsystem.ArmPosition.LOW_OUTTAKE_POSITION, 0.8, 0.4, 0.25).schedule();
         });
 
-        Trigger linearControl = new Trigger(() -> Math.abs(gamepad2.right_stick_y) > 0);
+        Trigger linearControl = new Trigger(() -> Math.abs(gamepad2.right_stick_y) > 0 && !gamepad2.options);
         linearControl.whileActiveContinuous(() -> armSubsystem.addToLinearSlideTarget((int) (gamepad2.right_stick_y * -30)));
 
         Trigger intake = new Trigger(() -> gamepad2.right_bumper);
@@ -82,8 +82,14 @@ public class ClassicSpinnyTeleOp extends OpMode {
         Trigger resetEncoders = new Trigger(() -> gamepad2.share);
         resetEncoders.whenActive(() -> armSubsystem.resetEncoders());
 
-        Trigger elbowControl = new Trigger(() -> Math.abs(gamepad2.left_stick_y) > 0);
+        Trigger elbowControl = new Trigger(() -> Math.abs(gamepad2.left_stick_y) > 0 && !gamepad2.options);
         elbowControl.whileActiveContinuous(() -> armSubsystem.addToElbowTarget((int) (gamepad2.left_stick_y * -30)));
+
+        Trigger elbowManualOverrideControl = new Trigger(() -> gamepad2.options);
+        elbowManualOverrideControl.whileActiveContinuous(() -> {
+            armSubsystem.addToElbowTarget((int) (gamepad2.left_stick_y * -30), true);
+            armSubsystem.addToLinearSlideTarget((int) (gamepad2.right_stick_y * -30), true);
+        });
     }
 
     private void bindDriverControls() {
@@ -101,16 +107,16 @@ public class ClassicSpinnyTeleOp extends OpMode {
         speedVariationTrigger.whenInactive(() -> driveSubsystem.setSpeedMultiplier(0.5));
 
         //split
-        Trigger readyScoreSpecimen = new Trigger(() -> gamepad1.dpad_left);
+        Trigger readyScoreSpecimen = new Trigger(() -> gamepad1.square);
         readyScoreSpecimen.whenActive(() -> specimenArmSubsystem.readyScore());
 
-        Trigger scoreSpecimen = new Trigger(() -> gamepad1.dpad_up);
+        Trigger scoreSpecimen = new Trigger(() -> gamepad1.triangle);
         scoreSpecimen.whenActive(() -> specimenArmSubsystem.scoreSpecimen());
 
-        Trigger intakeSpecimen = new Trigger(() -> gamepad1.dpad_right);
+        Trigger intakeSpecimen = new Trigger(() -> gamepad1.circle);
         intakeSpecimen.whenActive(() -> specimenArmSubsystem.liftPosition());
 
-        Trigger receiveSpecimen = new Trigger(() -> gamepad1.dpad_down);
+        Trigger receiveSpecimen = new Trigger(() -> gamepad1.cross);
         receiveSpecimen.whenActive(() -> specimenArmSubsystem.wallPosition());
 
         Trigger openClaw = new Trigger(() -> gamepad1.right_bumper);
