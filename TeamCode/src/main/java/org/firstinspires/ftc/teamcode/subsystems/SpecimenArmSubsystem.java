@@ -39,6 +39,8 @@ public class SpecimenArmSubsystem extends SubsystemBase {
 
     public void readyScore() {elbowServo.setPosition(0.7);} //not used
 
+    public void touchRung() {elbowServo.setPosition(1);}
+
     public void changeScoreSpecimenState() {
         if(elbowServo.getPosition() == 0.15 || elbowServo.getPosition() == 0) {
             if(scoringSpec) readyScore();

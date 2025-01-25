@@ -36,7 +36,7 @@ public class LeftBlueRungAuto extends LinearOpMode{
                         RevHubOrientationOnRobot.LogoFacingDirection.FORWARD,
                         RevHubOrientationOnRobot.UsbFacingDirection.UP)));
 
-
+        specimenArmSubsystem = new SpecimenArmSubsystem(this);
 
         frontRightMotor = hardwareMap.get(DcMotorEx.class, "frontRightMotor");
         frontLeftMotor = hardwareMap.get(DcMotorEx.class, "frontLeftMotor");
@@ -68,16 +68,16 @@ public class LeftBlueRungAuto extends LinearOpMode{
 
         //start facing ourselves
         driveByTime(0.1, 0, 0, 1);
-        specimenArmSubsystem.readyScore();
+        specimenArmSubsystem.touchRung();
         sleep(50);
 
         driveByTime(0, -0.5, 0, 0.7);
         sleep(50);
 
-        driveByTime(0, 0.5, 0, 1);
+        driveByTime(0, 0.5, 0, 0.9);
         sleep(50);
 
-        driveByTime(0.5, 0, 0, 1.5);
+        driveByTime(0.5, 0, 0, 1.7);
         sleep(50);
 
         driveByTime(0, 0.5, 0, 1);
