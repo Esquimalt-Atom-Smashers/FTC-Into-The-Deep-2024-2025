@@ -18,6 +18,7 @@ public class SpinnyTeleOp extends OpMode {
     SpinningWristSubsystem spinningWristSubsystem;
     DriveSubsystem driveSubsystem;
     SpecimenArmSubsystem specimenArmSubsystem;
+
     CommandManager commandManager;
 
     private boolean firstTime = true;
@@ -44,23 +45,47 @@ public class SpinnyTeleOp extends OpMode {
         armSubsystem.setLinearMaxPower(0.5);
         armSubsystem.setElbowMaxPower(0.5);
 
-        Trigger readyScoreSpecimen = new Trigger(() -> gamepad2.dpad_left);
-        readyScoreSpecimen.whenActive(() -> specimenArmSubsystem.readyScore());
+        //split
+        Trigger highPosition = new Trigger(() -> gamepad2.dpad_up);
+        highPosition.whenActive(() -> commandManager.getToHighBasketPositionCommand().schedule());
 
-        Trigger scoreSpecimen = new Trigger(() -> gamepad2.dpad_up);
-        scoreSpecimen.whenActive(() -> specimenArmSubsystem.scoreSpecimen());
+        Trigger intakePosition = new Trigger(() -> gamepad2.dpad_down);
+        intakePosition.whenActive(() -> commandManager.getToHomePosition().schedule());
 
-        Trigger intakeSpecimen = new Trigger(() -> gamepad2.dpad_right);
-        intakeSpecimen.whenActive(() -> specimenArmSubsystem.liftPosition());
+        Trigger lowPosition = new Trigger(() -> gamepad2.dpad_right);
+        lowPosition.whenActive(() -> commandManager.getToLowBasketPosition().schedule());
 
-        Trigger receiveSpecimen = new Trigger(() -> gamepad2.dpad_down);
-        receiveSpecimen.whenActive(() -> specimenArmSubsystem.wallPosition());
+        Trigger linearControl = new Trigger(() -> Math.abs(gamepad2.right_stick_y) > 0 && !gamepad2.options);
+        linearControl.whileActiveContinuous(() -> armSubsystem.addToLinearSlideTarget((int) (gamepad2.right_stick_y * -30)));
 
-        Trigger openClaw = new Trigger(() -> gamepad2.right_bumper);
-        openClaw.whenActive(() -> specimenArmSubsystem.toggleClaw());
+        Trigger intake = new Trigger(() -> gamepad2.right_bumper);
+        intake.whenActive(() -> spinningWristSubsystem.intake());
+        intake.whenInactive(() -> spinningWristSubsystem.stopIntakeServo());
 
-        Trigger elbowControl = new Trigger(() -> Math.abs(gamepad2.left_stick_y) > 0);
+        Trigger outtake = new Trigger(() -> gamepad2.left_bumper);
+        outtake.whenActive(() -> spinningWristSubsystem.outtake());
+        outtake.whenInactive(() -> spinningWristSubsystem.stopIntakeServo());
+
+        Trigger wristIntake = new Trigger(() -> gamepad2.a);
+        wristIntake.whenActive(() -> spinningWristSubsystem.toPosition(SpinningWristSubsystem.WristPositions.INTAKE));
+
+        Trigger wristOuttake = new Trigger(() -> (gamepad2.b));
+        wristOuttake.whenActive(() -> spinningWristSubsystem.toPosition(SpinningWristSubsystem.WristPositions.OUTTAKE));
+
+        Trigger wristStorage = new Trigger(() -> (gamepad2.y));
+        wristStorage.whenActive(() -> spinningWristSubsystem.toPosition(SpinningWristSubsystem.WristPositions.STOWED));
+
+        Trigger resetEncoders = new Trigger(() -> gamepad2.share);
+        resetEncoders.whenActive(() -> armSubsystem.resetEncoders());
+
+        Trigger elbowControl = new Trigger(() -> Math.abs(gamepad2.left_stick_y) > 0 && !gamepad2.options);
         elbowControl.whileActiveContinuous(() -> armSubsystem.addToElbowTarget((int) (gamepad2.left_stick_y * -30)));
+
+        Trigger elbowManualOverrideControl = new Trigger(() -> gamepad2.options);
+        elbowManualOverrideControl.whileActiveContinuous(() -> {
+            armSubsystem.addToElbowTarget((int) (gamepad2.left_stick_y * -30), true);
+            armSubsystem.addToLinearSlideTarget((int) (gamepad2.right_stick_y * -30), true);
+        });
     }
 
     private void bindDriverControls() {
@@ -70,44 +95,31 @@ public class SpinnyTeleOp extends OpMode {
         defaultDriveCommand.addRequirements(driveSubsystem);
         driveSubsystem.setDefaultCommand(defaultDriveCommand);
 
-        Trigger resetGyro = new Trigger(() -> gamepad1.options);
+        Trigger resetGyro = new Trigger(() -> gamepad1.back);
         resetGyro.whenActive(() -> driveSubsystem.resetGyro());
 
         Trigger speedVariationTrigger = new Trigger(() -> gamepad1.right_trigger > 0);
         speedVariationTrigger.whileActiveContinuous(() -> driveSubsystem.setSpeedMultiplier(gamepad1.right_trigger * 0.5 + 0.5));
         speedVariationTrigger.whenInactive(() -> driveSubsystem.setSpeedMultiplier(0.5));
 
-        Trigger highPosition = new Trigger(() -> gamepad1.dpad_up);
-        highPosition.whenActive(() -> commandManager.getToHighBasketPositionCommand().schedule());
+        //split
+        Trigger readyScoreSpecimen = new Trigger(() -> gamepad1.square);
+        readyScoreSpecimen.whenActive(() -> specimenArmSubsystem.readyScore());
 
-        Trigger intakePosition = new Trigger(() -> gamepad1.dpad_down);
-        intakePosition.whenActive(() -> commandManager.getToHomePosition().schedule());
+        Trigger scoreSpecimen = new Trigger(() -> gamepad1.triangle);
+        scoreSpecimen.whenActive(() -> specimenArmSubsystem.scoreSpecimen());
 
-        Trigger lowPosition = new Trigger(() -> gamepad1.dpad_right);
-        lowPosition.whenActive(() -> commandManager.getToLowBasketPosition().schedule());
+        Trigger intakeSpecimen = new Trigger(() -> gamepad1.circle);
+        intakeSpecimen.whenActive(() -> specimenArmSubsystem.liftPosition());
 
-        Trigger linearControl = new Trigger(() -> Math.abs(gamepad1.right_stick_y) > 0);
-        linearControl.whileActiveContinuous(() -> armSubsystem.addToLinearSlideTarget((int) (gamepad1.right_stick_y * -30)));
+        Trigger receiveSpecimen = new Trigger(() -> gamepad1.cross);
+        receiveSpecimen.whenActive(() -> specimenArmSubsystem.wallPosition());
 
-        Trigger intake = new Trigger(() -> gamepad1.right_bumper);
-        intake.whenActive(() -> spinningWristSubsystem.intake());
-        intake.whenInactive(() -> spinningWristSubsystem.stopIntakeServo());
+        Trigger openClaw = new Trigger(() -> gamepad1.right_bumper);
+        openClaw.whenActive(() -> specimenArmSubsystem.openClaw());
 
-        Trigger outtake = new Trigger(() -> gamepad1.left_bumper);
-        outtake.whenActive(() -> spinningWristSubsystem.outtake());
-        outtake.whenInactive(() -> spinningWristSubsystem.stopIntakeServo());
-
-        Trigger wristIntake = new Trigger(() -> gamepad1.a);
-        wristIntake.whenActive(() -> spinningWristSubsystem.toPosition(SpinningWristSubsystem.WristPositions.INTAKE));
-
-        Trigger wristOuttake = new Trigger(() -> (gamepad1.b));
-        wristOuttake.whenActive(() -> spinningWristSubsystem.toPosition(SpinningWristSubsystem.WristPositions.OUTTAKE));
-
-        Trigger wristStorage = new Trigger(() -> (gamepad1.y));
-        wristStorage.whenActive(() -> spinningWristSubsystem.toPosition(SpinningWristSubsystem.WristPositions.STOWED));
-
-        Trigger resetEncoders = new Trigger(() -> gamepad1.share);
-        resetEncoders.whenActive(() -> armSubsystem.resetEncoders());
+        Trigger closeClaw = new Trigger(() -> gamepad1.left_bumper);
+        closeClaw.whenActive(() -> specimenArmSubsystem.closeClaw());
     }
 
     @Override
@@ -116,7 +128,6 @@ public class SpinnyTeleOp extends OpMode {
             spinningWristSubsystem.toPosition(SpinningWristSubsystem.WristPositions.STOWED);
             firstTime = false;
         }
-
         CommandScheduler.getInstance().run();
     }
 }
