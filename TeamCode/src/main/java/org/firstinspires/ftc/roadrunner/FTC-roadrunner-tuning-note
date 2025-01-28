@@ -1,0 +1,9 @@
+ftc dashboard
+Motor direction debugger(1) and then dead wheel direction debugger(2)
+http://192.168.43.1:8080/dash (for manual feed forward tuner(5), manual feedback tuner(6))(cancel /dash can go to On bot)
+Forward ramp logger(3)
+http://192.168.43.1:8080/tuning/forward-ramp.html
+Angular ramp logger(4)
+http://192.168.43.1:8080/tuning/dead-wheel-angular-ramp.html
+
+finally spline test(7)
