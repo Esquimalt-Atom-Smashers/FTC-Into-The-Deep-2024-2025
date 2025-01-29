@@ -31,7 +31,7 @@ public class SpinnyTeleOp extends OpMode {
         spinningWristSubsystem = new SpinningWristSubsystem(this);
         driveSubsystem = new DriveSubsystem(this);
         specimenArmSubsystem = new SpecimenArmSubsystem(this);
-        armSubsystem = new ArmSubsystem(this, spinningWristSubsystem);
+        armSubsystem = new ArmSubsystem(this /*spinningWristSubsystem*/);
 
         commandManager = new CommandManager(armSubsystem, driveSubsystem, specimenArmSubsystem, spinningWristSubsystem);
 
@@ -45,7 +45,6 @@ public class SpinnyTeleOp extends OpMode {
         armSubsystem.setLinearMaxPower(0.5);
         armSubsystem.setElbowMaxPower(0.5);
 
-        //split
         Trigger highPosition = new Trigger(() -> gamepad2.dpad_up);
         highPosition.whenActive(() -> commandManager.getToHighBasketPositionCommand().schedule());
 
@@ -102,7 +101,6 @@ public class SpinnyTeleOp extends OpMode {
         speedVariationTrigger.whileActiveContinuous(() -> driveSubsystem.setSpeedMultiplier(gamepad1.right_trigger * 0.5 + 0.5));
         speedVariationTrigger.whenInactive(() -> driveSubsystem.setSpeedMultiplier(0.5));
 
-        //split
         Trigger readyScoreSpecimen = new Trigger(() -> gamepad1.square);
         readyScoreSpecimen.whenActive(() -> specimenArmSubsystem.readyScore());
 
