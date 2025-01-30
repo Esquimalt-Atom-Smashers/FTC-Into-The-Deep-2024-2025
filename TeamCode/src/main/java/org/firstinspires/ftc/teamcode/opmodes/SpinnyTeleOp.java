@@ -31,7 +31,7 @@ public class SpinnyTeleOp extends OpMode {
         spinningWristSubsystem = new SpinningWristSubsystem(this);
         driveSubsystem = new DriveSubsystem(this);
         specimenArmSubsystem = new SpecimenArmSubsystem(this);
-        armSubsystem = new ArmSubsystem(this /*spinningWristSubsystem*/);
+        armSubsystem = new ArmSubsystem(this, spinningWristSubsystem);
 
         commandManager = new CommandManager(armSubsystem, driveSubsystem, specimenArmSubsystem, spinningWristSubsystem);
 
