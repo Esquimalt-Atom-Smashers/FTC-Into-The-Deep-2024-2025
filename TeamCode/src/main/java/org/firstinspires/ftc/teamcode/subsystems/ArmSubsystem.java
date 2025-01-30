@@ -62,7 +62,7 @@ public class ArmSubsystem extends SubsystemBase {
 
     //Used for Periodic
     private boolean updateFirstCall; //Used to reset the timers on the first call of periodic
-    private SpinningWristSubsystem.WristPositions previousWristPosition;
+    private SpinningWristSubsystem.WristPosition previousWristPosition;
 
     private SpinningWristSubsystem spinningWristSubsystem;
     private boolean usingSpinningWristSubsystem = false;
@@ -248,7 +248,7 @@ public class ArmSubsystem extends SubsystemBase {
         if(targetElbowPosition < 300 && !usingSpinningWristSubsystem) {
             targetLinearSlidePosition = Range.clip(target, SLIDE_MIN_POSITION, SLIDE_MAX_POSITION_DOWN);
         } else if(targetElbowPosition < 300) {
-            targetLinearSlidePosition = Range.clip(target, SLIDE_MIN_POSITION, (spinningWristSubsystem.getCurrentWristPosition() == SpinningWristSubsystem.WristPositions.OUTTAKE) ? SLIDE_MAX_POSITION_DOWN : SLIDE_MAX_POSITION_DOWN_WRIST_DOWN);
+            targetLinearSlidePosition = Range.clip(target, SLIDE_MIN_POSITION, (spinningWristSubsystem.getCurrentWristPosition() == SpinningWristSubsystem.WristPosition.OUTTAKE) ? SLIDE_MAX_POSITION_DOWN : SLIDE_MAX_POSITION_DOWN_WRIST_DOWN);
         } else {
             targetLinearSlidePosition = Range.clip(target, SLIDE_MIN_POSITION, SLIDE_MAX_POSITION);
         }

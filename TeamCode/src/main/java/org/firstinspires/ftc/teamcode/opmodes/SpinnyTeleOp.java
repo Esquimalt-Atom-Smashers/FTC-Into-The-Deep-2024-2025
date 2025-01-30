@@ -66,13 +66,13 @@ public class SpinnyTeleOp extends OpMode {
         outtake.whenInactive(() -> spinningWristSubsystem.stopIntakeServo());
 
         Trigger wristIntake = new Trigger(() -> gamepad2.a);
-        wristIntake.whenActive(() -> spinningWristSubsystem.toPosition(SpinningWristSubsystem.WristPositions.INTAKE));
+        wristIntake.whenActive(() -> spinningWristSubsystem.toPosition(SpinningWristSubsystem.WristPosition.INTAKE));
 
         Trigger wristOuttake = new Trigger(() -> (gamepad2.b));
-        wristOuttake.whenActive(() -> spinningWristSubsystem.toPosition(SpinningWristSubsystem.WristPositions.OUTTAKE));
+        wristOuttake.whenActive(() -> spinningWristSubsystem.toPosition(SpinningWristSubsystem.WristPosition.OUTTAKE));
 
         Trigger wristStorage = new Trigger(() -> (gamepad2.y));
-        wristStorage.whenActive(() -> spinningWristSubsystem.toPosition(SpinningWristSubsystem.WristPositions.STOWED));
+        wristStorage.whenActive(() -> spinningWristSubsystem.toPosition(SpinningWristSubsystem.WristPosition.STOWED));
 
         Trigger resetEncoders = new Trigger(() -> gamepad2.share);
         resetEncoders.whenActive(() -> armSubsystem.resetEncoders());
@@ -123,7 +123,7 @@ public class SpinnyTeleOp extends OpMode {
     @Override
     public void loop() {
         if(firstTime) {
-            spinningWristSubsystem.toPosition(SpinningWristSubsystem.WristPositions.STOWED);
+            spinningWristSubsystem.toPosition(SpinningWristSubsystem.WristPosition.STOWED);
             firstTime = false;
         }
         CommandScheduler.getInstance().run();

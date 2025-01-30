@@ -1,9 +1,10 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import com.acmerobotics.dashboard.config.Config;
+import com.arcrobotics.ftclib.command.CommandBase;
 import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Servo;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class SpinningWristSubsystem extends SubsystemBase {
@@ -21,19 +22,19 @@ public class SpinningWristSubsystem extends SubsystemBase {
     //Additional Properties
     private final Telemetry telemetry;
 
-    public enum WristPositions {
+    public enum WristPosition {
         INTAKE(WRIST_INTAKE_POSITION),
         STOWED(WRIST_STOWED_POSITION),
         OUTTAKE(WRIST_OUTTAKE_POSITION);
 
         public double value;
 
-        WristPositions(double value) {
+        WristPosition(double value) {
             this.value = value;
         }
     }
 
-    private WristPositions currentWristPosition = WristPositions.STOWED;
+    private WristPosition currentWristPosition = WristPosition.STOWED;
 
     public SpinningWristSubsystem(OpMode opMode) {
         this.telemetry = opMode.telemetry;
@@ -56,14 +57,38 @@ public class SpinningWristSubsystem extends SubsystemBase {
         intakeServo.setPosition(0.5);
     }
 
-    public void toPosition(WristPositions position) {
+    public void toPosition(WristPosition position) {
         wristServo.setPosition(position.value);
         currentWristPosition = position;
     }
 
     //Getters
 
-    public WristPositions getCurrentWristPosition() {
+    public WristPosition getCurrentWristPosition() {
         return currentWristPosition;
+    }
+
+    //Commands
+
+    public static class MoveWristToPositionCommand extends CommandBase {
+        private final WristPosition position;
+        private final SpinningWristSubsystem spinningWristSubsystem;
+
+        public MoveWristToPositionCommand(SpinningWristSubsystem spinningWristSubsystem, WristPosition position) {
+            this.position = position;
+            this.spinningWristSubsystem = spinningWristSubsystem;
+
+            addRequirements(spinningWristSubsystem);
+        }
+
+        @Override
+        public void initialize() {
+            spinningWristSubsystem.toPosition(position);
+        }
+
+        @Override
+        public boolean isFinished() {
+            return spinningWristSubsystem.getCurrentWristPosition() == position;
+        }
     }
 }
