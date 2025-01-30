@@ -21,6 +21,7 @@ public class SpinningWristSubsystem extends SubsystemBase {
 
     //Additional Properties
     private final Telemetry telemetry;
+    private final ArmSubsystem armSubsystem;
 
     public enum WristPosition {
         INTAKE(WRIST_INTAKE_POSITION),
@@ -34,10 +35,15 @@ public class SpinningWristSubsystem extends SubsystemBase {
         }
     }
 
-    private WristPosition currentWristPosition = WristPosition.STOWED;
+    private WristPosition currentWristPosition;
+    private WristPosition targetWristPosition;
 
-    public SpinningWristSubsystem(OpMode opMode) {
+    public SpinningWristSubsystem(OpMode opMode, ArmSubsystem armSubsystem, WristPosition startingPosition) {
         this.telemetry = opMode.telemetry;
+        this.armSubsystem = armSubsystem;
+
+        targetWristPosition = startingPosition;
+        currentWristPosition = startingPosition;
 
         intakeServo = opMode.hardwareMap.get(Servo.class, INTAKE_SERVO_NAME);
         wristServo = opMode.hardwareMap.get(Servo.class, WRIST_SERVO_NAME);
@@ -58,8 +64,7 @@ public class SpinningWristSubsystem extends SubsystemBase {
     }
 
     public void toPosition(WristPosition position) {
-        wristServo.setPosition(position.value);
-        currentWristPosition = position;
+        targetWristPosition = position;
     }
 
     //Getters
@@ -89,6 +94,18 @@ public class SpinningWristSubsystem extends SubsystemBase {
         @Override
         public boolean isFinished() {
             return spinningWristSubsystem.getCurrentWristPosition() == position;
+        }
+    }
+
+    @Override
+    public void periodic() {
+        if((armSubsystem.getSlidePosition() - ArmSubsystem.WRIST_OUT_MAX_SLIDE_POSITION) <= ArmSubsystem.TOLERANCE) {
+            wristServo.setPosition(targetWristPosition.value);
+            currentWristPosition = targetWristPosition;
+            if(targetWristPosition != WristPosition.OUTTAKE) armSubsystem.removeWristOutMaxSlidePosition();
+        } else if(currentWristPosition == WristPosition.OUTTAKE || targetWristPosition != currentWristPosition) {
+            armSubsystem.addWristOutMaxSlidePosition();
+            armSubsystem.setTargetLinearSlidePosition(ArmSubsystem.WRIST_OUT_MAX_SLIDE_POSITION);
         }
     }
 }

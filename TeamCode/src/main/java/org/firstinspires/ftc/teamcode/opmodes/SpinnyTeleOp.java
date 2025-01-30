@@ -28,10 +28,10 @@ public class SpinnyTeleOp extends OpMode {
         CommandScheduler.getInstance().reset();
         CommandScheduler.getInstance().cancelAll();
 
-        spinningWristSubsystem = new SpinningWristSubsystem(this);
         driveSubsystem = new DriveSubsystem(this);
         specimenArmSubsystem = new SpecimenArmSubsystem(this);
-        armSubsystem = new ArmSubsystem(this, spinningWristSubsystem);
+        armSubsystem = new ArmSubsystem(this);
+        spinningWristSubsystem = new SpinningWristSubsystem(this, armSubsystem, SpinningWristSubsystem.WristPosition.STOWED);
 
         commandManager = new CommandManager(armSubsystem, driveSubsystem, specimenArmSubsystem, spinningWristSubsystem);
 
@@ -77,9 +77,6 @@ public class SpinnyTeleOp extends OpMode {
         Trigger resetEncoders = new Trigger(() -> gamepad2.share);
         resetEncoders.whenActive(() -> armSubsystem.resetEncoders());
 
-        Trigger elbowControl = new Trigger(() -> Math.abs(gamepad2.left_stick_y) > 0 && !gamepad2.options);
-        elbowControl.whileActiveContinuous(() -> armSubsystem.addToElbowTarget((int) (gamepad2.left_stick_y * -30)));
-
         Trigger elbowManualOverrideControl = new Trigger(() -> gamepad2.options);
         elbowManualOverrideControl.whileActiveContinuous(() -> {
             armSubsystem.addToElbowTarget((int) (gamepad2.left_stick_y * -30), true);
@@ -122,10 +119,6 @@ public class SpinnyTeleOp extends OpMode {
 
     @Override
     public void loop() {
-        if(firstTime) {
-            spinningWristSubsystem.toPosition(SpinningWristSubsystem.WristPosition.STOWED);
-            firstTime = false;
-        }
         CommandScheduler.getInstance().run();
     }
 }
