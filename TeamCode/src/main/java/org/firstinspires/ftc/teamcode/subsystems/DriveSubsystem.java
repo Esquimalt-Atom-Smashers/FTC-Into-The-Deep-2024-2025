@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
+
 import org.firstinspires.ftc.roadrunner.MecanumDrive;
 
 import com.acmerobotics.roadrunner.Pose2d;
@@ -14,16 +16,21 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.hardware.bosch.BHI260IMU;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import java.lang.Math;
 
 public class DriveSubsystem extends SubsystemBase {
+
+    OpMode opMode;
+    Telemetry telemetry;
     //Constants
     static final String IMU_NAME = "imu";
     static final IMU.Parameters IMU_PARAMETERS = new IMU.Parameters(
             new RevHubOrientationOnRobot(
-                    RevHubOrientationOnRobot.LogoFacingDirection.UP,
-                    RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD
+                    RevHubOrientationOnRobot.LogoFacingDirection.RIGHT,
+                    RevHubOrientationOnRobot.UsbFacingDirection.UP
             )
     );
     static final String FRONT_LEFT_MOTOR_NAME = "frontLeftMotor";
@@ -43,12 +50,20 @@ public class DriveSubsystem extends SubsystemBase {
     private final MecanumDrive mecanumDrive;
     private final BHI260IMU imu;
 
+    //Showing moving velocity
+    private double fieldCentricStrafe;
+    private double fieldCentricDrive;
+    private double turn;
+
     //Additional Properties
     private double speedMultiplier = 1.0;
     private boolean fieldCentric = true;
-    private boolean usingRoadRunner = true;
+    private boolean usingRoadRunner = false;
 
     public DriveSubsystem(OpMode opMode) {
+        this.opMode = opMode;
+        this.telemetry = opMode.telemetry;
+
         imu = opMode.hardwareMap.get(BHI260IMU.class, IMU_NAME);
         imu.initialize(IMU_PARAMETERS);
 
@@ -82,11 +97,17 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
     private void driveRobotCentricRoadRunner(double forward, double strafe, double turn) {
-        forward = Range.clip(forward, -1, 1);
-        strafe = Range.clip(strafe, -1, 1);
-        turn = Range.clip(turn, -1, 1);
+//        forward = Range.clip(forward, -1, 1);
+//        strafe = Range.clip(strafe, -1, 1);
+//        turn = Range.clip(turn, -1, 1);
 
-        mecanumDrive.setDrivePowers(new PoseVelocity2d(new Vector2d(forward * speedMultiplier, strafe * speedMultiplier), turn * speedMultiplier));
+        mecanumDrive.setDrivePowers(
+                new PoseVelocity2d(
+                        new Vector2d(
+                                forward * speedMultiplier,
+                                strafe * speedMultiplier),
+                        turn * speedMultiplier)
+        );
     }
 
     private void driveFieldCentricRoadRunner(double forward, double strafe, double turn) {
@@ -98,13 +119,22 @@ public class DriveSubsystem extends SubsystemBase {
         double fieldCentricStrafe = strafe * Math.cos(-gyroRadians) - forward * Math.sin(-gyroRadians);
         double fieldCentricDrive = strafe * Math.sin(-gyroRadians) + forward * Math.cos(-gyroRadians);
 
-        mecanumDrive.setDrivePowers(new PoseVelocity2d(new Vector2d(fieldCentricDrive * speedMultiplier, fieldCentricStrafe * speedMultiplier), turn * speedMultiplier));
+        mecanumDrive.setDrivePowers(
+                new PoseVelocity2d(
+                    new Vector2d(
+                            fieldCentricDrive * speedMultiplier,
+                            fieldCentricStrafe * speedMultiplier),
+                    turn * speedMultiplier)
+        );
+
     }
 
+    //untested
     private void driveFieldCentric(double forward, double strafe, double turn) {
         double gyroRadians = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
-        double fieldCentricStrafe = strafe * Math.cos(gyroRadians) - forward * Math.sin(gyroRadians);
-        double fieldCentricDrive = strafe * Math.sin(gyroRadians) + forward * Math.cos(gyroRadians);
+        this.fieldCentricStrafe = strafe * Math.cos(gyroRadians) - forward * Math.sin(gyroRadians);
+        this.fieldCentricDrive = strafe * Math.sin(gyroRadians) + forward * Math.cos(gyroRadians);
+        this.turn = turn;
 
         frontLeftMotor.setPower(Range.clip((fieldCentricDrive + fieldCentricStrafe + turn), -1, 1) * speedMultiplier);
         frontRightMotor.setPower(Range.clip((fieldCentricDrive - fieldCentricStrafe - turn), -1, 1) * speedMultiplier);
@@ -112,6 +142,7 @@ public class DriveSubsystem extends SubsystemBase {
         backRightMotor.setPower(Range.clip((fieldCentricDrive + fieldCentricStrafe - turn), -1, 1) * speedMultiplier);
     }
 
+    //untested
     private void driveRobotCentric(double forward, double strafe, double turn) {
         frontLeftMotor.setPower(Range.clip((forward + strafe + turn), -1, 1) * speedMultiplier);
         frontRightMotor.setPower(Range.clip((forward - strafe - turn), -1, 1) * speedMultiplier);
@@ -161,5 +192,14 @@ public class DriveSubsystem extends SubsystemBase {
 
     public MecanumDrive getMecanumDrive() {
         return mecanumDrive;
+    }
+
+    //Periodic
+
+    @Override
+    public void periodic() {
+        telemetry.addData("vX", fieldCentricStrafe);
+        telemetry.addData("vY", fieldCentricDrive);
+        telemetry.addData("vA", turn);
     }
 }

@@ -35,7 +35,7 @@ public class SpinnyTeleOp extends OpMode {
 
         commandManager = new CommandManager(armSubsystem, driveSubsystem, specimenArmSubsystem, spinningWristSubsystem);
 
-        driveSubsystem.setUsingFieldCentric(false);
+        //driveSubsystem.setUsingFieldCentric(false);
 
         bindOperatorControls();
         bindDriverControls();
@@ -87,7 +87,8 @@ public class SpinnyTeleOp extends OpMode {
     private void bindDriverControls() {
         driveSubsystem.setSpeedMultiplier(0.5);
 
-        RunCommand defaultDriveCommand = new RunCommand(() -> driveSubsystem.drive(gamepad1.left_stick_x, -gamepad1.left_stick_y, -gamepad1.right_stick_x));
+        RunCommand defaultDriveCommand = new RunCommand(() -> driveSubsystem.drive(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x));
+        //Altered driveSubsystem.drive(gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x)
         defaultDriveCommand.addRequirements(driveSubsystem);
         driveSubsystem.setDefaultCommand(defaultDriveCommand);
 
