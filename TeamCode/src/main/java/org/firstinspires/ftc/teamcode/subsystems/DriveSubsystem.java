@@ -58,7 +58,7 @@ public class DriveSubsystem extends SubsystemBase {
     //Additional Properties
     private double speedMultiplier = 1.0;
     private boolean fieldCentric = true;
-    private boolean usingRoadRunner = false;
+    private boolean usingRoadRunner = true;
 
     public DriveSubsystem(OpMode opMode) {
         this.opMode = opMode;
@@ -104,8 +104,8 @@ public class DriveSubsystem extends SubsystemBase {
         mecanumDrive.setDrivePowers(
                 new PoseVelocity2d(
                         new Vector2d(
-                                forward * speedMultiplier,
-                                strafe * speedMultiplier),
+                                strafe * speedMultiplier,
+                                forward * speedMultiplier),
                         turn * speedMultiplier)
         );
     }
@@ -122,8 +122,8 @@ public class DriveSubsystem extends SubsystemBase {
         mecanumDrive.setDrivePowers(
                 new PoseVelocity2d(
                     new Vector2d(
-                            fieldCentricDrive * speedMultiplier,
-                            fieldCentricStrafe * speedMultiplier),
+                            fieldCentricStrafe * speedMultiplier,
+                            fieldCentricDrive * speedMultiplier),
                     turn * speedMultiplier)
         );
 
