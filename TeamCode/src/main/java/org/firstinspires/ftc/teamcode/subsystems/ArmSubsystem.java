@@ -330,6 +330,29 @@ public class ArmSubsystem extends SubsystemBase {
         }
     }
 
+    public static class setArmMaxPowerCommand extends CommandBase {
+        private double elbowMaxPower;
+        private double linearSlideMaxPower;
+        private ArmSubsystem armSubsystem;
+
+        public setArmMaxPowerCommand(ArmSubsystem armSubsystem, double elbowMaxPower, double linearSlideMaxPower) {
+            this.armSubsystem = armSubsystem;
+            this.elbowMaxPower = elbowMaxPower;
+            this.linearSlideMaxPower = linearSlideMaxPower;
+            addRequirements(this.armSubsystem);
+        }
+
+        @Override
+        public void initialize() {
+            armSubsystem.setElbowMaxPower(elbowMaxPower);
+            armSubsystem.setLinearMaxPower(linearSlideMaxPower);
+        }
+        @Override
+        public boolean isFinished(){
+            return armSubsystem.getMaxElbowPower() == elbowMaxPower && armSubsystem.getMaxLinearPower() == linearSlideMaxPower;
+        }
+    }
+
     public static class SlideToPositionCommand extends CommandBase {
         private final ArmSubsystem armSubsystem;
         private final int target;

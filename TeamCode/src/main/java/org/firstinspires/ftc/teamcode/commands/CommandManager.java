@@ -99,10 +99,7 @@ public class CommandManager {
                     new SpinningWristSubsystem.MoveWristToPositionCommand(spinningWristSubsystem, (spinningWristSubsystem.getCurrentWristPosition().value > SpinningWristSubsystem.WristPosition.OUTTAKE.value) ? SpinningWristSubsystem.WristPosition.OUTTAKE : spinningWristSubsystem.getCurrentWristPosition()),
                     new ArmSubsystem.ArmToPositionCommand(armSubsystem, position, maxLinearPower, previousElbowMaxPower),
                     new SpinningWristSubsystem.MoveWristToPositionCommand(spinningWristSubsystem, SpinningWristSubsystem.WristPosition.STOWED),
-                    new RunCommand(() -> {
-                        armSubsystem.setLinearMaxPower(previousLinearMaxPower);
-                        armSubsystem.setElbowMaxPower(previousElbowMaxPower);
-                    })
+                    new ArmSubsystem.setArmMaxPowerCommand(armSubsystem, previousElbowMaxPower, previousLinearMaxPower)
             );
         } else {
             return new SequentialCommandGroup(
