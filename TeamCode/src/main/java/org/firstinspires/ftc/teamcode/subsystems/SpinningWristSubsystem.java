@@ -22,6 +22,7 @@ public class SpinningWristSubsystem extends SubsystemBase {
     //Additional Properties
     private final Telemetry telemetry;
     private final ArmSubsystem armSubsystem;
+    private boolean firstTime = true; //used in periodic
 
     public enum WristPosition {
         INTAKE(WRIST_INTAKE_POSITION),
@@ -103,9 +104,13 @@ public class SpinningWristSubsystem extends SubsystemBase {
             wristServo.setPosition(targetWristPosition.value);
             currentWristPosition = targetWristPosition;
             if(targetWristPosition != WristPosition.OUTTAKE) armSubsystem.removeWristOutMaxSlidePosition();
+            firstTime = true;
         } else if(currentWristPosition == WristPosition.OUTTAKE || targetWristPosition != currentWristPosition) {
             armSubsystem.addWristOutMaxSlidePosition();
-            armSubsystem.setTargetLinearSlidePosition(ArmSubsystem.WRIST_OUT_MAX_SLIDE_POSITION);
+            if(firstTime) {
+                armSubsystem.setTargetLinearSlidePosition(armSubsystem.getTargetLinearSlidePosition());
+                firstTime = false;
+            }
         }
     }
 }
