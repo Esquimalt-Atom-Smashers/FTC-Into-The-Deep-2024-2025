@@ -100,7 +100,7 @@ public class SpinningWristSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        if((armSubsystem.getSlidePosition() - ArmSubsystem.WRIST_OUT_MAX_SLIDE_POSITION) <= ArmSubsystem.TOLERANCE) {
+        if((armSubsystem.getSlidePosition() - ArmSubsystem.WRIST_OUT_MAX_SLIDE_POSITION) <= ArmSubsystem.TOLERANCE || armSubsystem.getTargetElbowPosition() > 300) {
             wristServo.setPosition(targetWristPosition.value);
             currentWristPosition = targetWristPosition;
             if(targetWristPosition != WristPosition.OUTTAKE) armSubsystem.removeWristOutMaxSlidePosition();
