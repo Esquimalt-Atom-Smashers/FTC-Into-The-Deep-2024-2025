@@ -105,8 +105,8 @@ public class SpinnyTeleOp extends OpMode {
         speedVariationTrigger.whileActiveContinuous(() -> driveSubsystem.setSpeedMultiplier(gamepad1.right_trigger * 0.5 + 0.5));
         speedVariationTrigger.whenInactive(() -> driveSubsystem.setSpeedMultiplier(0.5));
 
-        Trigger readyScoreSpecimen = new Trigger(() -> gamepad1.square);
-        readyScoreSpecimen.whenActive(() -> specimenArmSubsystem.readyScore());
+        Trigger putDown = new Trigger(() -> gamepad1.square);
+        putDown.whenActive(() -> specimenArmSubsystem.putDown());
 
         Trigger scoreSpecimen = new Trigger(() -> gamepad1.triangle);
         scoreSpecimen.whenActive(() -> specimenArmSubsystem.scoreSpecimen());

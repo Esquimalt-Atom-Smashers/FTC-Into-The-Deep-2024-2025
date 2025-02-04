@@ -198,8 +198,6 @@ public class DriveSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        telemetry.addData("vX", fieldCentricStrafe);
-        telemetry.addData("vY", fieldCentricDrive);
-        telemetry.addData("vA", turn);
+        telemetry.addData("fieldCentric",fieldCentric);
     }
 }

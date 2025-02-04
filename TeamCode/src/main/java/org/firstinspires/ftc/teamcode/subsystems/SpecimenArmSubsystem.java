@@ -52,43 +52,13 @@ public class SpecimenArmSubsystem extends SubsystemBase {
 
     public void wallPosition() {elbowServo.setPosition(.11);} //go to wall to grab specimen
 
-    public void liftPosition() {elbowServo.setPosition(0.07);} //pull away from wall (may not be needed)
+    public void liftPosition() {elbowServo.setPosition(0);} //pull away from wall (may not be needed)
 
     public void scoreSpecimen() {elbowServo.setPosition(0.86);} //score on high bar
 
-    public void readyScore() {elbowServo.setPosition(0.7);} //not used
+    public void putDown() {elbowServo.setPosition(0.36);}
 
     public void touchRung() {elbowServo.setPosition(1);}
-
-    public void changeScoreSpecimenState() {
-        if(elbowServo.getPosition() == 0.15 || elbowServo.getPosition() == 0) {
-            if(scoringSpec) readyScore();
-            else scoreSpecimen();
-        } else {
-            if(scoringSpec) {
-                readyScore();
-                scoringSpec = false;
-            } else {
-                scoreSpecimen();
-                scoringSpec = true;
-            }
-        }
-    }
-
-    public void changeGetSpecimenState() {
-        if(elbowServo.getPosition() == 0.95 || elbowServo.getPosition() == 0.7) {
-            if(scoringSpec) liftPosition();
-            else wallPosition();
-        } else {
-            if(specInClaw) {
-                liftPosition();
-                specInClaw = false;
-            } else {
-                wallPosition();
-                specInClaw = true;
-            }
-        }
-    }
 
     public void openClaw() {
         clawServo.setPosition(ClawPosition.OPEN.position);
