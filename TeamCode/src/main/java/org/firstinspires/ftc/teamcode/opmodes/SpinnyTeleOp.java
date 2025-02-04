@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.SpecimenArmSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.SpinningWristSubsystem;
 
-//@TeleOp(name="BadControlsTeleOp", group = "Real")
+@TeleOp(name="TeleOp", group = "Real")
 public class SpinnyTeleOp extends OpMode {
     ArmSubsystem armSubsystem;
     SpinningWristSubsystem spinningWristSubsystem;
@@ -107,7 +107,7 @@ public class SpinnyTeleOp extends OpMode {
 
         Trigger putDown = new Trigger(() -> gamepad1.square);
         putDown.whenActive(() -> specimenArmSubsystem.putDown());
-      
+
         Trigger scoreSpecimen = new Trigger(() -> gamepad1.triangle);
         scoreSpecimen.whenActive(() -> specimenArmSubsystem.scoreSpecimen());
 
