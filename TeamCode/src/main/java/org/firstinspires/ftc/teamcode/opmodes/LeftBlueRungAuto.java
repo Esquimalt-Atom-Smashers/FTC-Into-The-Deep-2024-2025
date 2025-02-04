@@ -77,7 +77,7 @@ public class LeftBlueRungAuto extends LinearOpMode{
         driveByTime(0, 0.5, 0, 0.9);
         sleep(50);
 
-        driveByTime(0.5, 0, 0, 1.7);
+        driveByTime(0.5, 0, 0, 1.5);
         sleep(50);
 
         driveByTime(0, 0.5, 0, 1);

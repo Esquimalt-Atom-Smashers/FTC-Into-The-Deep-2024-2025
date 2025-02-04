@@ -58,7 +58,7 @@ public class SpecimenArmSubsystem extends SubsystemBase {
 
     public void putDown() {elbowServo.setPosition(0.36);}
 
-    public void touchRung() {elbowServo.setPosition(1);}
+    public void touchRung() {elbowServo.setPosition(0.90);}
 
     public void openClaw() {
         clawServo.setPosition(ClawPosition.OPEN.position);
