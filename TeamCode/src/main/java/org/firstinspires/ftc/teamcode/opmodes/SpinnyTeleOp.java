@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.commands.CommandManager;
 import org.firstinspires.ftc.teamcode.subsystems.ArmSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.LEDSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.SpecimenArmSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.SpinningWristSubsystem;
 
@@ -18,6 +19,7 @@ public class SpinnyTeleOp extends OpMode {
     SpinningWristSubsystem spinningWristSubsystem;
     DriveSubsystem driveSubsystem;
     SpecimenArmSubsystem specimenArmSubsystem;
+    LEDSubsystem ledSubsystem;
 
     CommandManager commandManager;
 
@@ -32,6 +34,7 @@ public class SpinnyTeleOp extends OpMode {
         specimenArmSubsystem = new SpecimenArmSubsystem(this);
         armSubsystem = new ArmSubsystem(this);
         spinningWristSubsystem = new SpinningWristSubsystem(this, armSubsystem, SpinningWristSubsystem.WristPosition.STOWED);
+        ledSubsystem = new LEDSubsystem(this);
 
         commandManager = new CommandManager(armSubsystem, driveSubsystem, specimenArmSubsystem, spinningWristSubsystem);
 
