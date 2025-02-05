@@ -18,7 +18,7 @@ public final class RightBluePushAuto extends LinearOpMode {
 
     @Override
     public void runOpMode()  {
-        Pose2d beginPose = new Pose2d(41,65 , Math.toRadians(270));
+        Pose2d beginPose = new Pose2d(41,65 , Math.toRadians(180));
         MecanumDrive drive = new MecanumDrive(hardwareMap, beginPose);
 
         waitForStart();

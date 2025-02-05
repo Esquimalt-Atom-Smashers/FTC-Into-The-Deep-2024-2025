@@ -1,5 +1,9 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import androidx.annotation.NonNull;
+
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
 import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -79,5 +83,77 @@ public class SpecimenArmSubsystem extends SubsystemBase {
                 position = ClawPosition.OPEN;
                 break;
         }
+    }
+
+    //RR Action
+    public class ScoreSpecimen implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            scoreSpecimen();
+            return false;
+        }
+    }
+    public Action ScoreSpecimen(SpecimenArmSubsystem specimenArmSubsystem) {
+        return new ScoreSpecimen();
+    }
+
+    //Wall Pos
+    public class WallPos implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            wallPosition();
+            return false;
+        }
+    }
+    public Action WallPos(SpecimenArmSubsystem specimenArmSubsystem) {
+        return new WallPos();
+    }
+
+    //Lift Pos
+    public class LiftPos implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            liftPosition();
+            return false;
+        }
+    }
+    public Action LiftPos(SpecimenArmSubsystem specimenArmSubsystem) {
+        return new LiftPos();
+    }
+
+    //Put down
+    public class PutDown implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            putDown();
+            return false;
+        }
+    }
+    public Action PutDown(SpecimenArmSubsystem specimenArmSubsystem) {
+        return new PutDown();
+    }
+
+    //Open Claw
+    public class OpenClaw implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            openClaw();
+            return false;
+        }
+    }
+    public Action OpenClaw(SpecimenArmSubsystem specimenArmSubsystem) {
+        return new OpenClaw();
+    }
+
+    //Close claw
+    public class CloseClaw implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            closeClaw();
+            return false;
+        }
+    }
+    public Action CloseClaw(SpecimenArmSubsystem specimenArmSubsystem) {
+        return new CloseClaw();
     }
 }
