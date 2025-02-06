@@ -105,8 +105,8 @@ public class SpinnyTeleOp extends OpMode {
         robotCentric.whenActive(() -> driveSubsystem.setUsingFieldCentric(false));
 
         Trigger speedVariationTrigger = new Trigger(() -> gamepad1.right_trigger > 0);
-        speedVariationTrigger.whileActiveContinuous(() -> driveSubsystem.setSpeedMultiplier(gamepad1.right_trigger * 0.5 + 0.5));
-        speedVariationTrigger.whenInactive(() -> driveSubsystem.setSpeedMultiplier(0.5));
+        speedVariationTrigger.whileActiveContinuous(() -> driveSubsystem.setSpeedMultiplier(Math.abs(gamepad1.right_trigger - 1) * 0.4 + 0.2));
+        speedVariationTrigger.whenInactive(() -> driveSubsystem.setSpeedMultiplier(1));
 
         Trigger putDown = new Trigger(() -> gamepad1.square);
         putDown.whenActive(() -> specimenArmSubsystem.putDown());
