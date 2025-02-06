@@ -2,11 +2,19 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
 
+import androidx.annotation.NonNull;
+
 import org.firstinspires.ftc.roadrunner.MecanumDrive;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
+import com.arcrobotics.ftclib.command.Command;
+import com.arcrobotics.ftclib.command.CommandBase;
+import com.arcrobotics.ftclib.command.Subsystem;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -20,6 +28,9 @@ import com.qualcomm.hardware.bosch.BHI260IMU;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import java.lang.Math;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 public class DriveSubsystem extends SubsystemBase {
 
@@ -60,6 +71,11 @@ public class DriveSubsystem extends SubsystemBase {
     private boolean fieldCentric = true;
     private boolean usingRoadRunner = true;
 
+    //RR
+    private FtcDashboard dash;
+    private List<Action> runningActions;
+    private Pose2d currentPos;
+
     public DriveSubsystem(OpMode opMode) {
         this.opMode = opMode;
         this.telemetry = opMode.telemetry;
@@ -83,6 +99,10 @@ public class DriveSubsystem extends SubsystemBase {
         backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        //for RR
+        this.dash = FtcDashboard.getInstance();
+        runningActions = new ArrayList<>();
+
         resetGyro();
         resetEncoders();
     }
@@ -90,9 +110,9 @@ public class DriveSubsystem extends SubsystemBase {
     //Physical Operations
 
     public void drive(double forward, double strafe, double turn) {
-        if(fieldCentric && usingRoadRunner) driveFieldCentricRoadRunner(forward, strafe, turn);
-        else if(fieldCentric) driveFieldCentric(forward, strafe, turn);
-        else if(usingRoadRunner) driveRobotCentricRoadRunner(forward, strafe, turn);
+        if (fieldCentric && usingRoadRunner) driveFieldCentricRoadRunner(forward, strafe, turn);
+        else if (fieldCentric) driveFieldCentric(forward, strafe, turn);
+        else if (usingRoadRunner) driveRobotCentricRoadRunner(forward, strafe, turn);
         else driveRobotCentric(forward, strafe, turn);
     }
 
@@ -121,10 +141,10 @@ public class DriveSubsystem extends SubsystemBase {
 
         mecanumDrive.setDrivePowers(
                 new PoseVelocity2d(
-                    new Vector2d(
-                            fieldCentricStrafe * speedMultiplier,
-                            fieldCentricDrive * speedMultiplier),
-                    turn * speedMultiplier)
+                        new Vector2d(
+                                fieldCentricStrafe * speedMultiplier,
+                                fieldCentricDrive * speedMultiplier),
+                        turn * speedMultiplier)
         );
 
     }
@@ -172,17 +192,17 @@ public class DriveSubsystem extends SubsystemBase {
         speedMultiplier = Range.clip(multiplier, 0, 1);
     }
 
-    public void setUsingFieldCentric(boolean fieldCentric){
+    public void setUsingFieldCentric(boolean fieldCentric) {
         this.fieldCentric = fieldCentric;
     }
 
-    public void setUsingRoadRunner(boolean usingRoadRunner){
+    public void setUsingRoadRunner(boolean usingRoadRunner) {
         this.usingRoadRunner = usingRoadRunner;
     }
 
     //Getters
 
-    public boolean getUsingFieldCentric(){
+    public boolean getUsingFieldCentric() {
         return fieldCentric;
     }
 
@@ -198,6 +218,42 @@ public class DriveSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        telemetry.addData("fieldCentric",fieldCentric);
+        telemetry.addData("fieldCentric", fieldCentric);
+        mecanumDrive.updatePoseEstimate();
+        currentPos = new Pose2d(mecanumDrive.pose.position.x, mecanumDrive.pose.position.y, mecanumDrive.pose.heading.real);
     }
+
+    //RR action wrapper
+    public static class ActionCommand extends CommandBase {
+        private final Action action;
+        private boolean finished = false;
+
+        public ActionCommand(Action action) {
+            this.action = action;
+        }
+
+        @Override
+        public void execute() {
+            TelemetryPacket packet = new TelemetryPacket();
+            action.preview(packet.fieldOverlay());
+            finished = !action.run(packet);
+            FtcDashboard.getInstance().sendTelemetryPacket(packet);
+        }
+
+        @Override
+        public boolean isFinished() {
+            return finished;
+        }
+    }
+
+    public class ToBasket implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            mecanumDrive.actionBuilder(currentPos).
+                    strafeToLinearHeading(new Vector2d(0, 0), Math.toRadians(0));
+            return false;
+        }
+    }
+    public Action ToBasket(DriveSubsystem driveSubsystem) {return new ToBasket();}
+
 }

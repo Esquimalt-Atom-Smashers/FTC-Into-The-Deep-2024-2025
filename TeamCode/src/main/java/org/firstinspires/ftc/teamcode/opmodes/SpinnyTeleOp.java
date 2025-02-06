@@ -1,5 +1,6 @@
-package org.firstinspires.ftc.teamcode.opmodes;
+package org.firstinspires.ftc.teamcode.opModes;
 
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.command.RunCommand;
 import com.arcrobotics.ftclib.command.button.Trigger;
@@ -23,8 +24,7 @@ public class SpinnyTeleOp extends OpMode {
 
     CommandManager commandManager;
 
-    private boolean firstTime = true;
-
+    TelemetryPacket packet;
     @Override
     public void init() {
         CommandScheduler.getInstance().reset();
@@ -37,8 +37,6 @@ public class SpinnyTeleOp extends OpMode {
         ledSubsystem = new LEDSubsystem(this);
 
         commandManager = new CommandManager(armSubsystem, driveSubsystem, specimenArmSubsystem, spinningWristSubsystem);
-
-        //driveSubsystem.setUsingFieldCentric(false);
 
         bindOperatorControls();
         bindDriverControls();
@@ -93,6 +91,9 @@ public class SpinnyTeleOp extends OpMode {
         defaultDriveCommand.addRequirements(driveSubsystem);
         driveSubsystem.setDefaultCommand(defaultDriveCommand);
 
+        Trigger goToBasket = new Trigger(() -> gamepad1.start);
+        goToBasket.whenActive(() -> commandManager.drivebaseToBasket());
+
         Trigger resetGyro = new Trigger(() -> gamepad1.back);
         resetGyro.whenActive(() -> driveSubsystem.resetGyro());
 
@@ -127,6 +128,7 @@ public class SpinnyTeleOp extends OpMode {
 
     @Override
     public void loop() {
+        packet = new TelemetryPacket();
         CommandScheduler.getInstance().run();
     }
 }

@@ -30,7 +30,7 @@ public class CommandManager {
         double previousElbowMaxPower = armSubsystem.getMaxElbowPower();
         double previousLinearMaxPower = armSubsystem.getMaxLinearPower();
 
-        if(Math.abs(armSubsystem.getElbowPosition() - position.elbowPos) <= ArmSubsystem.TOLERANCE) {
+        if (Math.abs(armSubsystem.getElbowPosition() - position.elbowPos) <= ArmSubsystem.TOLERANCE) {
             return new SequentialCommandGroup(
                     new SpinningWristSubsystem.MoveWristToPositionCommand(spinningWristSubsystem, SpinningWristSubsystem.WristPosition.OUTTAKE),
                     new ArmSubsystem.ArmToPositionCommand(armSubsystem, position, maxLinearPower, previousElbowMaxPower),
@@ -62,7 +62,7 @@ public class CommandManager {
         double previousElbowMaxPower = armSubsystem.getMaxElbowPower();
         double previousLinearMaxPower = armSubsystem.getMaxLinearPower();
 
-        if(Math.abs(armSubsystem.getElbowPosition() - position.elbowPos) <= ArmSubsystem.TOLERANCE) {
+        if (Math.abs(armSubsystem.getElbowPosition() - position.elbowPos) <= ArmSubsystem.TOLERANCE) {
             return new SequentialCommandGroup(
                     new SpinningWristSubsystem.MoveWristToPositionCommand(spinningWristSubsystem, SpinningWristSubsystem.WristPosition.OUTTAKE),
                     new ArmSubsystem.ArmToPositionCommand(armSubsystem, position, maxLinearPower, previousElbowMaxPower),
@@ -94,7 +94,7 @@ public class CommandManager {
         double previousElbowMaxPower = armSubsystem.getMaxElbowPower();
         double previousLinearMaxPower = armSubsystem.getMaxLinearPower();
 
-        if(Math.abs(armSubsystem.getElbowPosition() - position.elbowPos) <= ArmSubsystem.TOLERANCE) {
+        if (Math.abs(armSubsystem.getElbowPosition() - position.elbowPos) <= ArmSubsystem.TOLERANCE) {
             return new SequentialCommandGroup(
                     new SpinningWristSubsystem.MoveWristToPositionCommand(spinningWristSubsystem, (spinningWristSubsystem.getCurrentWristPosition().value > SpinningWristSubsystem.WristPosition.OUTTAKE.value) ? SpinningWristSubsystem.WristPosition.OUTTAKE : spinningWristSubsystem.getCurrentWristPosition()),
                     new ArmSubsystem.ArmToPositionCommand(armSubsystem, position, maxLinearPower, previousElbowMaxPower),
@@ -117,5 +117,9 @@ public class CommandManager {
                     })
             );
         }
+    }
+
+    public SequentialCommandGroup drivebaseToBasket() {
+        return new SequentialCommandGroup(new DriveSubsystem.ActionCommand(driveSubsystem.ToBasket(driveSubsystem)));
     }
 }
