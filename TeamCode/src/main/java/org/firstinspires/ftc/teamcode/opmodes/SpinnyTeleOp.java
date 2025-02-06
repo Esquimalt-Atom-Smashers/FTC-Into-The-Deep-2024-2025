@@ -88,8 +88,6 @@ public class SpinnyTeleOp extends OpMode {
     }
 
     private void bindDriverControls() {
-        driveSubsystem.setSpeedMultiplier(0.5);
-
         RunCommand defaultDriveCommand = new RunCommand(() -> driveSubsystem.drive(-gamepad1.left_stick_y, gamepad1.left_stick_x, -gamepad1.right_stick_x));
         //Normal: driveSubsystem.drive(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x)
         defaultDriveCommand.addRequirements(driveSubsystem);
