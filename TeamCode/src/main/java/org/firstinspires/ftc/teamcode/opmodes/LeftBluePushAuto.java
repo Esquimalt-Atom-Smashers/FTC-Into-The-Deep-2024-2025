@@ -11,47 +11,54 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.subsystems.SpecimenArmSubsystem;
 
 @Autonomous(name = "LeftBluePushAuto", group = "Real")
 public final class LeftBluePushAuto extends LinearOpMode {
-    private  MecanumDrive drive;
+    private MecanumDrive drive;
+    private SpecimenArmSubsystem specimenArmSubsystem;
 
     @Override
     public void runOpMode()  {
-        Pose2d beginPose = new Pose2d(-16.5,65 , Math.toRadians(270));
+        Pose2d beginPose = new Pose2d(41,65 , Math.toRadians(90));
         MecanumDrive drive = new MecanumDrive(hardwareMap, beginPose);
+        this.specimenArmSubsystem = new SpecimenArmSubsystem(this);
 
         waitForStart();
 
+        specimenArmSubsystem.touchRung();
         Actions.runBlocking(
                 drive.actionBuilder(beginPose)
 
-                        .strafeToConstantHeading( new Vector2d(-35.75, 60) )
-                        .strafeToConstantHeading(new Vector2d(-35.75,30))
-
-                        .splineToConstantHeading(new Vector2d(-47.6,16),Math.toRadians(180))
-                        .strafeToConstantHeading(new Vector2d( -47.6, 63))
-
-                        .splineToConstantHeading(new Vector2d(-56.75,16),Math.toRadians(180))
-                        .strafeToConstantHeading(new Vector2d(-56.75,63))
+                        .strafeToConstantHeading( new Vector2d(60,55))
+                        //first yellow block
+                        .strafeToConstantHeading(new Vector2d(39,41))
+                        .splineToConstantHeading(new Vector2d(43,20),Math.toRadians(90))
+                        .splineToConstantHeading(new Vector2d(43,40),Math.toRadians(90))
+                        .splineToConstantHeading(new Vector2d(60,62.) , Math.toRadians(90))
+                        //second yellow block
+                        .strafeToConstantHeading(new Vector2d(39,41))
+                        .splineToConstantHeading(new Vector2d(56,20), Math.toRadians(90))
+                        .strafeToConstantHeading(new Vector2d(58,61))
+                        //third yellow
+                        .setTangent(Math.toRadians(270))
+                        .splineToLinearHeading(new Pose2d(47,41,Math.toRadians(90)), Math.toRadians(270))
+                        .splineToConstantHeading(new Vector2d(61.5,20),Math.toRadians(90))
+                        .strafeToConstantHeading(new Vector2d(61.5,60))
 
                         .setTangent(Math.toRadians(270))
-                        .strafeToConstantHeading(new Vector2d(-56,63))
-                        .splineToLinearHeading(new Pose2d(-62, 20, Math.toRadians(0)), Math.toRadians(90))
-                        .strafeToConstantHeading(new Vector2d(-62, 54))
-
-                        .splineToLinearHeading(new Pose2d(-48, 62 ,Math.toRadians(270)), Math.toRadians(180))
+                        .splineToLinearHeading(new Pose2d(20, 20, Math.toRadians(90)), Math.toRadians(180))
                         .build());
     }
 
-    public class updatePose implements Action {
+    public class TouchRung implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
-            drive.updatePoseEstimate();
+            specimenArmSubsystem.touchRung();
             return false;
         }
     }
-    public Action updatePose(MecanumDrive drive) {
-        return new updatePose();
+    public Action TouchRung(SpecimenArmSubsystem specimenArmSubsystem) {
+        return new TouchRung();
     }
 }
