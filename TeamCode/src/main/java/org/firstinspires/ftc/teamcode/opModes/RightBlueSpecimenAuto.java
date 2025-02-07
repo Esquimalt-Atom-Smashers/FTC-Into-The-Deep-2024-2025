@@ -1,6 +1,5 @@
-package org.firstinspires.ftc.teamcode.opmodes;
+package org.firstinspires.ftc.teamcode.opModes;
 
-import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
@@ -25,45 +24,45 @@ public final class RightBlueSpecimenAuto extends LinearOpMode {
         waitForStart();
 
         TrajectoryActionBuilder scoreFirstSpec = drive.actionBuilder(beginPose)
-                .strafeToLinearHeading(new Vector2d(0,26), Math.toRadians(180));
+                .strafeToLinearHeading(new Vector2d(-1,30), Math.toRadians(180));
 
         TrajectoryActionBuilder getSecSpec = scoreFirstSpec.endTrajectory().fresh()
                 .setTangent(Math.toRadians(90))
-                .splineToConstantHeading(new Vector2d(-28,30 + 7.125), Math.toRadians(270))
+                .splineToConstantHeading(new Vector2d(-28,40 + 7.125), Math.toRadians(270))
                 .strafeToConstantHeading(new Vector2d(-28, 18))
                 //got in position
                 .setTangent(270)
-                .splineToConstantHeading(new Vector2d(-37, 17 + 7.125), Math.toRadians(90))
-                .splineToConstantHeading(new Vector2d(-37, 24 + 7.125), Math.toRadians(90))
+                .splineToConstantHeading(new Vector2d(-38, 17 + 7.125), Math.toRadians(90))
+                .splineToConstantHeading(new Vector2d(-38, 24 + 7.125), Math.toRadians(90))
                 //controlled sample
-                .strafeToConstantHeading(new Vector2d(-57, 63))
-                .strafeToConstantHeading(new Vector2d(-45, 63));
+                .strafeToConstantHeading(new Vector2d(-57, 71))
+                .strafeToConstantHeading(new Vector2d(-45, 71));
 
         TrajectoryActionBuilder prepareScore1 = getSecSpec.endTrajectory().fresh()
                 .strafeToConstantHeading(new Vector2d(-45, 61));
 
         TrajectoryActionBuilder scoreSecSpec = getSecSpec.endTrajectory().fresh()
                 .setTangent(0)
-                .splineToConstantHeading(new Vector2d(2,26), Math.toRadians(270));
+                .splineToConstantHeading(new Vector2d(-4,30), Math.toRadians(270));
 
         TrajectoryActionBuilder getThirdSpec = scoreSecSpec.endTrajectory().fresh()
                 .setTangent(Math.toRadians(90))
-                .splineToConstantHeading(new Vector2d(-28,30 + 7.125), Math.toRadians(270))
+                .splineToConstantHeading(new Vector2d(-28,40 + 7.125), Math.toRadians(270))
                 .strafeToConstantHeading(new Vector2d(-28, 18))
                 .setTangent(270)
                 //got in pos
                 .splineToConstantHeading(new Vector2d(-47, 17 + 7.125), Math.toRadians(90))
                 .splineToConstantHeading(new Vector2d(-47, 24 + 7.125), Math.toRadians(90))
                 //controlled sample
-                .strafeToConstantHeading(new Vector2d(-57, 63))
-                .strafeToConstantHeading(new Vector2d(-45, 63));
+                .strafeToConstantHeading(new Vector2d(-57, 71))
+                .strafeToConstantHeading(new Vector2d(-45, 71));
 
         TrajectoryActionBuilder prepareScore2 = getThirdSpec.endTrajectory().fresh()
                 .strafeToConstantHeading(new Vector2d(-45, 61));
 
         TrajectoryActionBuilder scoreThirdSpec = prepareScore2.endTrajectory().fresh()
                 .setTangent(0)
-                .splineToConstantHeading(new Vector2d(2,26), Math.toRadians(270));
+                .splineToConstantHeading(new Vector2d(-8,30), Math.toRadians(270));
 
         Actions.runBlocking(
                 new SequentialAction(

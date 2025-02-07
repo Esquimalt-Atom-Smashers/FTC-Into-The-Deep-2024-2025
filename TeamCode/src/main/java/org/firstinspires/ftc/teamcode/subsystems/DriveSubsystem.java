@@ -250,7 +250,8 @@ public class DriveSubsystem extends SubsystemBase {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
             mecanumDrive.actionBuilder(currentPos).
-                    strafeToLinearHeading(new Vector2d(0, 0), Math.toRadians(0));
+                    strafeToLinearHeading(new Vector2d(0, 0), Math.toRadians(0))
+                    .build();
             return false;
         }
     }

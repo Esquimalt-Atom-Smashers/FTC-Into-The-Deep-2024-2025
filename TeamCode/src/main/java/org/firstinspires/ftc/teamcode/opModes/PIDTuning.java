@@ -1,13 +1,11 @@
-package org.firstinspires.ftc.teamcode.opmodes;
+package org.firstinspires.ftc.teamcode.opModes;
 
-import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.subsystems.ArmSubsystem;
 
-@TeleOp(name="PID Tuner", group = "Real")
+//@TeleOp(name="PID Tuner", group = "Real")
 public class PIDTuning extends OpMode {
     private ArmSubsystem armSubsystem;
     int armTarget;

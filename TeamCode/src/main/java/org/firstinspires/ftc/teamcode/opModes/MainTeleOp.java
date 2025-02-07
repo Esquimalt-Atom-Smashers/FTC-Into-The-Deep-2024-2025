@@ -1,16 +1,15 @@
-package org.firstinspires.ftc.teamcode.opmodes;
+package org.firstinspires.ftc.teamcode.opModes;
 
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.command.RunCommand;
 import com.arcrobotics.ftclib.command.button.Trigger;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.subsystems.ArmSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.WristSubsystem;
 
-@TeleOp(name="TeleOp (Claw Intake)", group = "Real")
+//@TeleOp(name="TeleOp (Claw Intake)", group = "Real")
 public class MainTeleOp extends OpMode {
     ArmSubsystem armSubsystem;
     WristSubsystem wristSubsystem;
