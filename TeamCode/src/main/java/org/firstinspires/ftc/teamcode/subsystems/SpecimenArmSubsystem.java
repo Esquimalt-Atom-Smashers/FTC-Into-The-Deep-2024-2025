@@ -93,7 +93,7 @@ public class SpecimenArmSubsystem extends SubsystemBase {
             return false;
         }
     }
-    public Action ScoreSpecimen(SpecimenArmSubsystem specimenArmSubsystem) {
+    public Action ScoreSpecimen() {
         return new ScoreSpecimen();
     }
 
@@ -105,7 +105,7 @@ public class SpecimenArmSubsystem extends SubsystemBase {
             return false;
         }
     }
-    public Action WallPos(SpecimenArmSubsystem specimenArmSubsystem) {
+    public Action WallPos() {
         return new WallPos();
     }
 
@@ -117,9 +117,7 @@ public class SpecimenArmSubsystem extends SubsystemBase {
             return false;
         }
     }
-    public Action LiftPos(SpecimenArmSubsystem specimenArmSubsystem) {
-        return new LiftPos();
-    }
+    public Action LiftPos() { return new LiftPos(); }
 
     //Put down
     public class PutDown implements Action {
@@ -129,7 +127,7 @@ public class SpecimenArmSubsystem extends SubsystemBase {
             return false;
         }
     }
-    public Action PutDown(SpecimenArmSubsystem specimenArmSubsystem) {
+    public Action PutDown() {
         return new PutDown();
     }
 
@@ -141,7 +139,7 @@ public class SpecimenArmSubsystem extends SubsystemBase {
             return false;
         }
     }
-    public Action OpenClaw(SpecimenArmSubsystem specimenArmSubsystem) {
+    public Action OpenClaw() {
         return new OpenClaw();
     }
 
@@ -153,7 +151,7 @@ public class SpecimenArmSubsystem extends SubsystemBase {
             return false;
         }
     }
-    public Action CloseClaw(SpecimenArmSubsystem specimenArmSubsystem) {
+    public Action CloseClaw() {
         return new CloseClaw();
     }
 }
