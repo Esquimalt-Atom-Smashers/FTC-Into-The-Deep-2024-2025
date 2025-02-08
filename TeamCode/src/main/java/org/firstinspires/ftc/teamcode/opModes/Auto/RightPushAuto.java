@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opModes;
+package org.firstinspires.ftc.teamcode.opModes.Auto;
 
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
@@ -33,11 +33,10 @@ public final class RightPushAuto extends LinearOpMode {
                         .strafeToConstantHeading(new Vector2d(-56.75,61))
 
                         .setTangent(Math.toRadians(270))
-                        .strafeToConstantHeading(new Vector2d(-56,61))
-                        .splineToLinearHeading(new Pose2d(-62, 20, Math.toRadians(0)), Math.toRadians(90))
-                        .strafeToConstantHeading(new Vector2d(-62, 54))
+                        .splineToConstantHeading(new Vector2d(-62, 20), Math.toRadians(180))
+                        .strafeToConstantHeading(new Vector2d(-62, 61))
 
-                        .splineToLinearHeading(new Pose2d(-48, 61 ,Math.toRadians(270)), Math.toRadians(180))
+                        .splineToLinearHeading(new Pose2d(-48, 61 ,Math.toRadians(180)), Math.toRadians(180))
                         .build());
     }
 }
