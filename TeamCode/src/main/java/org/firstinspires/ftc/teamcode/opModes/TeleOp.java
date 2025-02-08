@@ -91,7 +91,7 @@ public class TeleOp extends OpMode {
         driveSubsystem.setDefaultCommand(defaultDriveCommand);
 
         Trigger goToBasket = new Trigger(() -> gamepad1.start);
-        goToBasket.whenActive(() -> commandManager.drivebaseToBasket());
+        goToBasket.whenActive(() -> commandManager.drivebaseToBasket().schedule());
 
         Trigger resetGyro = new Trigger(() -> gamepad1.back);
         resetGyro.whenActive(() -> driveSubsystem.resetGyro());

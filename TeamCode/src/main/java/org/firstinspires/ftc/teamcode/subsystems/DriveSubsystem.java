@@ -227,10 +227,12 @@ public class DriveSubsystem extends SubsystemBase {
     public static class ActionCommand extends CommandBase {
         private final Action action;
         private boolean finished = false;
-
-        public ActionCommand(Action action) {
+        private DriveSubsystem driveSubsystem;
+        public ActionCommand(Action action, DriveSubsystem driveSubsystem) {
+            this.driveSubsystem = driveSubsystem;
             this.action = action;
         }
+
 
         @Override
         public void execute() {
@@ -238,6 +240,7 @@ public class DriveSubsystem extends SubsystemBase {
             action.preview(packet.fieldOverlay());
             finished = !action.run(packet);
             FtcDashboard.getInstance().sendTelemetryPacket(packet);
+            addRequirements(driveSubsystem);
         }
 
         @Override

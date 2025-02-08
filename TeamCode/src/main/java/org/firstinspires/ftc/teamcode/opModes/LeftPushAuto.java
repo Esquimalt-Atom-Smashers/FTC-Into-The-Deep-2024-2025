@@ -13,8 +13,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.SpecimenArmSubsystem;
 
-@Autonomous(name = "LeftBluePushAuto", group = "Real")
-public final class LeftBluePushAuto extends LinearOpMode {
+@Autonomous(name = "LeftPushAuto", group = "Real")
+public final class LeftPushAuto extends LinearOpMode {
     private MecanumDrive drive;
     private SpecimenArmSubsystem specimenArmSubsystem;
 
@@ -35,7 +35,7 @@ public final class LeftBluePushAuto extends LinearOpMode {
                         .strafeToConstantHeading(new Vector2d(39,41))
                         .splineToConstantHeading(new Vector2d(43,20),Math.toRadians(90))
                         .splineToConstantHeading(new Vector2d(43,40),Math.toRadians(90))
-                        .splineToConstantHeading(new Vector2d(60,62.) , Math.toRadians(90))
+                        .splineToConstantHeading(new Vector2d(60,60) , Math.toRadians(90))
                         //second yellow block
                         .strafeToConstantHeading(new Vector2d(39,41))
                         .splineToConstantHeading(new Vector2d(56,20), Math.toRadians(90))

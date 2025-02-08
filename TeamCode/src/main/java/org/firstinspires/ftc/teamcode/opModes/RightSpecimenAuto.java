@@ -11,8 +11,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.SpecimenArmSubsystem;
 
-@Autonomous(name = "RightBlueSpecimenAuto", group = "Real")
-public final class RightBlueSpecimenAuto extends LinearOpMode {
+@Autonomous(name = "RightSpecimenAuto", group = "Real")
+public final class RightSpecimenAuto extends LinearOpMode {
     private SpecimenArmSubsystem specimenArmSubsystem;
 
     @Override
