@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opModes.Auto;
+package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -11,18 +11,16 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.teamcode.subsystems.SpecimenArmSubsystem;
 
 
-@Autonomous(name = "LeftRungAuto", group = "Test")
-public class LeftRungAuto extends LinearOpMode{
+@Autonomous(name = "RightParkAuto", group = "Real")
+public class RightParkAuto extends LinearOpMode{
     private IMU imu;
     private DcMotorEx frontRightMotor;
     private DcMotorEx frontLeftMotor;
     private DcMotorEx backRightMotor;
     private DcMotorEx backLeftMotor;
 
-    private SpecimenArmSubsystem specimenArmSubsystem;
 
     private ElapsedTime timer;
 
@@ -35,8 +33,6 @@ public class LeftRungAuto extends LinearOpMode{
                 new RevHubOrientationOnRobot(
                         RevHubOrientationOnRobot.LogoFacingDirection.FORWARD,
                         RevHubOrientationOnRobot.UsbFacingDirection.UP)));
-
-        specimenArmSubsystem = new SpecimenArmSubsystem(this);
 
         frontRightMotor = hardwareMap.get(DcMotorEx.class, "frontRightMotor");
         frontLeftMotor = hardwareMap.get(DcMotorEx.class, "frontLeftMotor");
@@ -62,26 +58,13 @@ public class LeftRungAuto extends LinearOpMode{
 
         waitForStart();
 
-        imu.resetYaw();
         telemetry.addData("heading", getHeading());
         telemetry.update();
 
-        //start facing ourselves
-        driveByTime(0.1, 0, 0, 1);
-        specimenArmSubsystem.touchRung();
+        driveByTime(-0.1, 0, 0, 0.7);
         sleep(50);
 
-        driveByTime(0, -0.5, 0, 0.7);
-        sleep(50);
-
-        driveByTime(0, 0.5, 0, 0.9);
-        sleep(50);
-
-        driveByTime(0.5, 0, 0, 1.7);
-        sleep(50);
-
-        driveByTime(0, 0.5, 0, 1);
-
+        driveByTime(0,0.5,0, 2);
         sleep(1000);
 
 
