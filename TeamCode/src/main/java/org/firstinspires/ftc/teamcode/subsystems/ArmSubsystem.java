@@ -6,6 +6,7 @@ import com.arcrobotics.ftclib.command.RunCommand;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.arcrobotics.ftclib.controller.PIDController;
+import com.qualcomm.hardware.rev.RevTouchSensor;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -47,7 +48,7 @@ public class ArmSubsystem extends SubsystemBase {
     //Hardware Components
     private final DcMotorEx elbowMotor;
     private final DcMotorEx linearSlideMotor;
-    private final DigitalChannel slideLimitSwitch;
+    private final RevTouchSensor slideLimitSwitch;
     //private final DigitalChannel elbowLimitSwitch;
 
     //Additional Elements
@@ -93,7 +94,7 @@ public class ArmSubsystem extends SubsystemBase {
 
         elbowMotor = opMode.hardwareMap.get(DcMotorEx.class, ELBOW_MOTOR_NAME);
         linearSlideMotor = opMode.hardwareMap.get(DcMotorEx.class, LINEAR_SLIDE_MOTOR_NAME);
-        slideLimitSwitch = opMode.hardwareMap.get(DigitalChannel.class, SLIDE_LIMIT_SWITCH_NAME);
+        slideLimitSwitch = opMode.hardwareMap.get(RevTouchSensor.class, SLIDE_LIMIT_SWITCH_NAME);
         //elbowLimitSwitch = opMode.hardwareMap.get(DigitalChannel.class, ELBOW_LIMIT_SWITCH_NAME);
 
         //Motor Initialization
@@ -107,7 +108,6 @@ public class ArmSubsystem extends SubsystemBase {
         elbowMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         linearSlideMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        slideLimitSwitch.setMode(DigitalChannel.Mode.INPUT);
         //elbowLimitSwitch.setMode(DigitalChannel.Mode.INPUT);
 
         setTargetArmPosition(ELBOW_MIN_POSITION, SLIDE_MIN_POSITION);
@@ -143,7 +143,7 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
     private boolean isSlideLimitSwitchPressed() {
-        return !slideLimitSwitch.getState(); //true for pressed and false for not pressed
+        return slideLimitSwitch.getValue() == 1; //true for pressed and false for not pressed
     }
 
 //    private boolean isElbowLimitSwitchPressed() {
@@ -509,6 +509,7 @@ public class ArmSubsystem extends SubsystemBase {
         telemetry.addData("Arm Target", targetElbowPosition);
         telemetry.addData("Slide Target", targetLinearSlidePosition);
         telemetry.addData("Elbow Degrees", getElbowDegrees());
+        telemetry.addData("slideLimitSwitchPressed", slideLimitSwitchPressed);
 
         runElbowPID();
         runLinearSlidePID();
