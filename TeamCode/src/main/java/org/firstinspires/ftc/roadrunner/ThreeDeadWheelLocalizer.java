@@ -22,8 +22,8 @@ import org.firstinspires.ftc.roadrunner.messages.ThreeDeadWheelInputsMessage;
 public final class ThreeDeadWheelLocalizer implements Localizer {
     public static class Params {
         //distance between deadwheels 12 3/8 inches 23437 ticks
-        public double par0YTicks = -5772 ;//-10196.574205546232; // y position of the first parallel encoder (in tick units)
-        public double par1YTicks = 5772 ;//12020.981288140581; // y position of the second parallel encoder (in tick units)
+        public double par0YTicks = -5772 * (1-0.0025278) ;//-10196.574205546232; // y position of the first parallel encoder (in tick units)
+        public double par1YTicks = 5772 * (1-0.0025278) ;//12020.981288140581; // y position of the second parallel encoder (in tick units)
         public double perpXTicks = -2.591; // x position of the perpendicular encoder (in tick units) 2.75inch back of the center tested to be 2419.02471070168
     }
 

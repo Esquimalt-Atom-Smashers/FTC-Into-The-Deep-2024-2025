@@ -16,7 +16,7 @@ public class WristSubsystem extends SubsystemBase {
     private final Servo wristServo;
     private final Servo clawServo;
 
-    //Additional Elements
+    //Additional Properties
     public enum WristPosition {
         COLLAPSED(0.84),
         READY(0.15),
@@ -45,6 +45,8 @@ public class WristSubsystem extends SubsystemBase {
         wristServo = opMode.hardwareMap.get(Servo.class, WRIST_SERVO_NAME);
         clawServo = opMode.hardwareMap.get(Servo.class, CLAW_SERVO_NAME);
     }
+
+    //Physical Operations
 
     public void setWristPosition(double position) {
         wristServo.setPosition(Range.clip(position, 0.0, 1.0));
@@ -78,6 +80,8 @@ public class WristSubsystem extends SubsystemBase {
                 break;
         }
     }
+
+    //Getters
 
     public double getWristPosition() {
         return wristServo.getPosition();
