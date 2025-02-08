@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opModes.auto;
+package org.firstinspires.ftc.teamcode.opModes.Auto;
 
 import androidx.annotation.NonNull;
 
@@ -30,7 +30,7 @@ public final class LeftSampleAuto extends LinearOpMode {
     CommandManager commandManager;
     @Override
     public void runOpMode()  {
-        Pose2d beginPose = new Pose2d(-16.5,65 , Math.toRadians(180));
+        Pose2d beginPose = new Pose2d(41,65 , Math.toRadians(180));
         MecanumDrive drive = new MecanumDrive(hardwareMap, beginPose);
         CommandScheduler.getInstance().reset();
         CommandScheduler.getInstance().cancelAll();

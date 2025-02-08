@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opModes.Auto;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
@@ -18,7 +19,7 @@ public final class RightSpecimenAuto extends LinearOpMode {
 
     @Override
     public void runOpMode()  {
-        Pose2d beginPose = new Pose2d(-7.125,63.25 , Math.toRadians(90));
+        Pose2d beginPose = new Pose2d(-7.125,63.25 , Math.toRadians(180));
         MecanumDrive drive = new MecanumDrive(hardwareMap, beginPose);
         this.specimenArmSubsystem = new SpecimenArmSubsystem(this);
 
@@ -72,6 +73,7 @@ public final class RightSpecimenAuto extends LinearOpMode {
                                 specimenArmSubsystem.CloseClaw(),
                                 specimenArmSubsystem.ScoreSpecimen()
                         ),
+                        new SleepAction(0.1),
                         scoreFirstSpec.build(),
                         new ParallelAction(
                                 specimenArmSubsystem.OpenClaw(),
