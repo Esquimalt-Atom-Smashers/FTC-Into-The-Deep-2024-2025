@@ -30,7 +30,7 @@ public final class RightSpecimenAuto extends LinearOpMode {
 
         TrajectoryActionBuilder acquireThreeSamples = scoreFirstSpec.endTrajectory().fresh()
 
-                .strafeToConstantHeading( new Vector2d(-35.75, 60) )
+                .strafeToConstantHeading( new Vector2d(-35.75, 40) )
                 .strafeToConstantHeading(new Vector2d(-35.75,30))
 
                 .splineToConstantHeading(new Vector2d(-47.6,16),Math.toRadians(180))
