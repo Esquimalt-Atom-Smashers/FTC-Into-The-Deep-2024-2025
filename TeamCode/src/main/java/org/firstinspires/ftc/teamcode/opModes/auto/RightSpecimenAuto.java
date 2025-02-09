@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opModes.Auto;
+package org.firstinspires.ftc.teamcode.opModes.auto;
 
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
@@ -26,11 +26,11 @@ public final class RightSpecimenAuto extends LinearOpMode {
         waitForStart();
 
         TrajectoryActionBuilder scoreFirstSpec = drive.actionBuilder(beginPose)
-                .strafeToLinearHeading(new Vector2d(-1,30), Math.toRadians(180));
+                .strafeToLinearHeading(new Vector2d(-1,29), Math.toRadians(180));
 
         TrajectoryActionBuilder acquireThreeSamples = scoreFirstSpec.endTrajectory().fresh()
 
-                .strafeToConstantHeading( new Vector2d(-35.75, 40) )
+                .strafeToConstantHeading( new Vector2d(-35.75, 60) )
                 .strafeToConstantHeading(new Vector2d(-35.75,30))
 
                 .splineToConstantHeading(new Vector2d(-47.6,16),Math.toRadians(180))
@@ -45,26 +45,21 @@ public final class RightSpecimenAuto extends LinearOpMode {
                 .strafeToConstantHeading(new Vector2d(-62, 61));
 
         TrajectoryActionBuilder getSecSpec = acquireThreeSamples.endTrajectory().fresh()
-                .strafeToConstantHeading(new Vector2d(-57, 72))
-                .strafeToConstantHeading(new Vector2d(-45, 72));
+                .setTangent(270)
+                .splineToConstantHeading(new Vector2d(-50, 68),Math.toRadians(90))
+                .strafeToConstantHeading(new Vector2d(-40, 68));
 
-        TrajectoryActionBuilder preScoreSecSpec = getSecSpec.endTrajectory().fresh()
-                .strafeToConstantHeading(new Vector2d(-45, 61));
-
-        TrajectoryActionBuilder scoreSecSpec = preScoreSecSpec.endTrajectory().fresh()
+        TrajectoryActionBuilder scoreSecSpec = getSecSpec.endTrajectory().fresh()
                 .setTangent(0)
-                .splineToConstantHeading(new Vector2d(-4,30), Math.toRadians(270));
+                .splineToConstantHeading(new Vector2d(-14,30), Math.toRadians(270));
 
         TrajectoryActionBuilder getThirdSpec = scoreSecSpec.endTrajectory().fresh()
                 .strafeToConstantHeading(new Vector2d(-57, 71))
                 .strafeToConstantHeading(new Vector2d(-45, 71));
 
-        TrajectoryActionBuilder preScoreThirdSpec = getThirdSpec.endTrajectory().fresh()
-                .strafeToConstantHeading(new Vector2d(-45, 61));
-
-        TrajectoryActionBuilder scoreThirdSpec = preScoreThirdSpec.endTrajectory().fresh()
+        TrajectoryActionBuilder scoreThirdSpec = getThirdSpec.endTrajectory().fresh()
                 .setTangent(0)
-                .splineToConstantHeading(new Vector2d(-8,30), Math.toRadians(270));
+                .splineToConstantHeading(new Vector2d(-24,30), Math.toRadians(270));
 
         Actions.runBlocking(
                 new SequentialAction(
@@ -87,10 +82,7 @@ public final class RightSpecimenAuto extends LinearOpMode {
                             specimenArmSubsystem.WallPos()
                         ),
                         specimenArmSubsystem.CloseClaw(),
-                        new ParallelAction(
-                                preScoreSecSpec.build(),
-                                specimenArmSubsystem.LiftPos()
-                        ),
+                        new SleepAction(0.1),
                         new ParallelAction(
                                 scoreSecSpec.build(),
                                 specimenArmSubsystem.ScoreSpecimen()
@@ -98,19 +90,17 @@ public final class RightSpecimenAuto extends LinearOpMode {
                         //Third specimen
                         specimenArmSubsystem.OpenClaw(),
                         new ParallelAction(
-                                scoreThirdSpec.build(),
+                                getThirdSpec.build(),
                                 specimenArmSubsystem.WallPos(),
                                 specimenArmSubsystem.OpenClaw()
                         ),
                         specimenArmSubsystem.CloseClaw(),
-                        new ParallelAction(
-                                preScoreThirdSpec.build(),
-                                specimenArmSubsystem.LiftPos()
-                        ),
+                        new SleepAction(0.1),
                         new ParallelAction(
                                 scoreThirdSpec.build(),
                                 specimenArmSubsystem.ScoreSpecimen()
                         )
+
                 )
         );
     }
