@@ -49,9 +49,14 @@ public final class LeftSampleAuto extends LinearOpMode {
 
         Actions.runBlocking(
                 new ParallelAction(
-                        intoPos.build()
+                        //intoPos.build(),
+                        GoToHighBasketAction()
                 )
         );
+
+        while(!isStopRequested() || opModeIsActive()) {
+            CommandScheduler.getInstance().run();
+        }
     }
 
     public class GoToHighBasketAction implements Action {
