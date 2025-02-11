@@ -75,7 +75,9 @@ public final class LeftSampleAuto extends LinearOpMode {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
             commandManager.getToHighBasketPositionCommand().schedule();
-            return !(armSubsystem.getElbowAtTarget() && armSubsystem.getSlideAtTarget());
+//            spinningWristSubsystem.toPosition(SpinningWristSubsystem.WristPosition.OUTTAKE);
+//            armSubsystem.setTargetLinearSlidePosition(armSubsystem.);
+            return !armSubsystem.atHighBasketPosition();
         }
     }
     public Action GoToHighBasketAction() {
@@ -86,7 +88,7 @@ public final class LeftSampleAuto extends LinearOpMode {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
             commandManager.getToHomePosition().schedule();
-            return false;
+            return !armSubsystem.atIntakePosition();
         }
     }
     public Action GoToHomePositionAction() {

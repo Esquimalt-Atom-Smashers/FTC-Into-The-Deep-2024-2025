@@ -292,8 +292,11 @@ public class ArmSubsystem extends SubsystemBase {
         return targetElbowPosition;
     }
 
-    //Commands
+    public boolean atHighBasketPosition(){ return Math.abs(getElbowPosition() - ArmPosition.HIGH_OUTTAKE_POSITION.elbowPos) <= TOLERANCE && Math.abs(getSlidePosition() - ArmPosition.HIGH_OUTTAKE_POSITION.slidePos) <= TOLERANCE;}
 
+    public boolean atIntakePosition(){ return Math.abs(getElbowPosition() - ArmPosition.INTAKE_POSITION.elbowPos) <= TOLERANCE && Math.abs(getSlidePosition() - ArmPosition.INTAKE_POSITION.slidePos) <= TOLERANCE;}
+
+    //Commands
     public SequentialCommandGroup getMoveArmToPositionCommand(ArmPosition position, double maxLinearPower, double maxElbowPowerGoingUp, double maxElbowPowerGoingDown) {
         double previousElbowMaxPower = this.maxElbowPower;
         double previousLinearMaxPower = this.maxLinearPower;
