@@ -26,23 +26,22 @@ public final class RightSpecimenAuto extends LinearOpMode {
         waitForStart();
 
         TrajectoryActionBuilder scoreFirstSpec = drive.actionBuilder(beginPose)
-                .strafeToLinearHeading(new Vector2d(-1,29), Math.toRadians(180));
+                .strafeToLinearHeading(new Vector2d(5,29), Math.toRadians(180));
 
         TrajectoryActionBuilder acquireThreeSamples = scoreFirstSpec.endTrajectory().fresh()
+                .setTangent(Math.toRadians(135))
+                .splineToConstantHeading(new Vector2d(-35.75, 45), Math.toRadians(270))
+                .splineToConstantHeading(new Vector2d(-35.75,16), Math.toRadians(225))
 
-                .strafeToConstantHeading( new Vector2d(-35.75, 60) )
-                .strafeToConstantHeading(new Vector2d(-35.75,30))
+                .splineToConstantHeading(new Vector2d(-47.6,16),Math.toRadians(90))
+                .splineToConstantHeading(new Vector2d( -47.6, 61),Math.toRadians(270))
 
-                .splineToConstantHeading(new Vector2d(-47.6,16),Math.toRadians(180))
-                .strafeToConstantHeading(new Vector2d( -47.6, 61))
+                .splineToLinearHeading(new Pose2d(-56.75,16, Math.toRadians(180)),Math.toRadians(135))
+                .splineToConstantHeading(new Vector2d(-56.75,61),Math.toRadians(180))
+
                 .setTangent(Math.toRadians(270))
-
-                .splineToConstantHeading(new Vector2d(-56.75,16),Math.toRadians(180))
-                .strafeToConstantHeading(new Vector2d(-56.75,61))
-
-                .setTangent(Math.toRadians(270))
-                .splineToConstantHeading(new Vector2d(-62, 20), Math.toRadians(180))
-                .strafeToConstantHeading(new Vector2d(-62, 61));
+                .splineToLinearHeading(new Pose2d(-64, 18, Math.toRadians(180)), Math.toRadians(135))
+                .splineToConstantHeading(new Vector2d(-62, 61),Math.toRadians(180));
 
         TrajectoryActionBuilder getSecSpec = acquireThreeSamples.endTrajectory().fresh()
                 .setTangent(270)
@@ -51,15 +50,17 @@ public final class RightSpecimenAuto extends LinearOpMode {
 
         TrajectoryActionBuilder scoreSecSpec = getSecSpec.endTrajectory().fresh()
                 .setTangent(0)
-                .splineToConstantHeading(new Vector2d(-14,30), Math.toRadians(270));
+                .splineToConstantHeading(new Vector2d(-2,30), Math.toRadians(270));
 
         TrajectoryActionBuilder getThirdSpec = scoreSecSpec.endTrajectory().fresh()
-                .strafeToConstantHeading(new Vector2d(-57, 71))
+                .setTangent(Math.toRadians(90))
+                .splineToLinearHeading(new Pose2d(new Vector2d(-8,50),Math.toRadians(180)),Math.toRadians(180))
+                .splineToConstantHeading(new Vector2d(-57, 71), Math.toRadians(90))
                 .strafeToConstantHeading(new Vector2d(-45, 71));
 
         TrajectoryActionBuilder scoreThirdSpec = getThirdSpec.endTrajectory().fresh()
                 .setTangent(0)
-                .splineToConstantHeading(new Vector2d(-24,30), Math.toRadians(270));
+                .splineToConstantHeading(new Vector2d(-11,30), Math.toRadians(270));
 
         Actions.runBlocking(
                 new SequentialAction(
