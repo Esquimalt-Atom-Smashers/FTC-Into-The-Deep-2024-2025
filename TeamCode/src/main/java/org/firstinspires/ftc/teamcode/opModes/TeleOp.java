@@ -129,5 +129,7 @@ public class TeleOp extends OpMode {
     public void loop() {
         packet = new TelemetryPacket();
         CommandScheduler.getInstance().run();
+
+        telemetry.addData("action done", !(armSubsystem.getElbowAtTarget() && armSubsystem.getSlideAtTarget()));
     }
 }

@@ -6,6 +6,8 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
@@ -44,14 +46,24 @@ public final class LeftSampleAuto extends LinearOpMode {
 
         waitForStart();
 
-        TrajectoryActionBuilder intoPos = drive.actionBuilder(beginPose)
-                .strafeToConstantHeading( new Vector2d(59, 59) );
+        TrajectoryActionBuilder intoPos1 = drive.actionBuilder(beginPose)
+                .strafeToLinearHeading( new Vector2d(50, 50), Math.toRadians(135));
+
+        TrajectoryActionBuilder outtakePos1 = intoPos1.endTrajectory().fresh()
+                .strafeToLinearHeading( new Vector2d(55, 55), Math.toRadians(135));
+
+        TrajectoryActionBuilder intoPos2 = outtakePos1.endTrajectory().fresh()
+                .strafeToLinearHeading( new Vector2d(50, 50), Math.toRadians(135));
 
         Actions.runBlocking(
-                new ParallelAction(
-                        //intoPos.build(),
-                        GoToHighBasketAction()
-                )
+            new SequentialAction(
+                    intoPos1.build(),
+                    GoToHighBasketAction(),
+                    outtakePos1.build()
+//                    spinningWristSubsystem.Outtake()
+//                    intoPos2.build()
+                    //GoToHomePositionAction()
+            )
         );
 
         while(!isStopRequested() || opModeIsActive()) {
@@ -63,7 +75,7 @@ public final class LeftSampleAuto extends LinearOpMode {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
             commandManager.getToHighBasketPositionCommand().schedule();
-            return false;
+            return !(armSubsystem.getElbowAtTarget() && armSubsystem.getSlideAtTarget());
         }
     }
     public Action GoToHighBasketAction() {
