@@ -8,15 +8,16 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class LEDSubsystem extends SubsystemBase {
-    DcMotor ledMotor;
+    //DcMotor ledMotor;
     RevBlinkinLedDriver blinkIn;
     OpMode opMode;
     public LEDSubsystem(OpMode opMode) {
         this.opMode = opMode;
         HardwareMap hardwareMap = opMode.hardwareMap;
 
-        ledMotor = hardwareMap.get(DcMotor.class, "LED");
+        //ledMotor = hardwareMap.get(DcMotor.class, "LED");
         blinkIn = hardwareMap.get(RevBlinkinLedDriver.class, "blinkIn");
-        ledMotor.setPower(1);
+        //ledMotor.setPower(1);
+        blinkIn.setPattern(RevBlinkinLedDriver.BlinkinPattern.VIOLET);
     }
 }
