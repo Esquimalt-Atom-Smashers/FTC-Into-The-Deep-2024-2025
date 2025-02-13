@@ -23,8 +23,8 @@ public class ArmSubsystem extends SubsystemBase {
     //Constants
     public static final String ELBOW_MOTOR_NAME = "sampElbow";
     public static final String LINEAR_SLIDE_MOTOR_NAME = "sampSlide";
-    public static final String SLIDE_LIMIT_SWITCH_NAME = "armRetractionLimitSwitch";
-    //public static final String ELBOW_LIMIT_SWITCH_NAME = "";
+    public static final String SLIDE_LIMIT_SWITCH_NAME = "sampSlideLimitSwitch";
+    public static final String ELBOW_LIMIT_SWITCH_NAME = "sampElbowMagSwitch";
     public static final DcMotor.Direction ELBOW_DIRECTION = DcMotor.Direction.FORWARD;
     public static final DcMotorEx.Direction LINEAR_SLIDE_DIRECTION = DcMotor.Direction.REVERSE;
     public static double ELBOW_P = 0.013;
@@ -49,7 +49,7 @@ public class ArmSubsystem extends SubsystemBase {
     private final DcMotorEx elbowMotor;
     private final DcMotorEx linearSlideMotor;
     private final RevTouchSensor slideLimitSwitch;
-    //private final DigitalChannel elbowLimitSwitch;
+    private final DigitalChannel elbowLimitSwitch;
 
     //Additional Elements
     private final PIDController elbowController;
@@ -67,8 +67,6 @@ public class ArmSubsystem extends SubsystemBase {
 
     //Used for Periodic
     private boolean updateFirstCall; //Used to reset the timers on the first call of periodic
-    private boolean slideLimitSwitchPressed = false;
-    //private boolean elbowLimitSwitchPressed = false;
 
     private int previousElbowTarget = 0;
     private int previousSlideTarget = 0;
@@ -95,7 +93,7 @@ public class ArmSubsystem extends SubsystemBase {
         elbowMotor = opMode.hardwareMap.get(DcMotorEx.class, ELBOW_MOTOR_NAME);
         linearSlideMotor = opMode.hardwareMap.get(DcMotorEx.class, LINEAR_SLIDE_MOTOR_NAME);
         slideLimitSwitch = opMode.hardwareMap.get(RevTouchSensor.class, SLIDE_LIMIT_SWITCH_NAME);
-        //elbowLimitSwitch = opMode.hardwareMap.get(DigitalChannel.class, ELBOW_LIMIT_SWITCH_NAME);
+        elbowLimitSwitch = opMode.hardwareMap.get(DigitalChannel.class, ELBOW_LIMIT_SWITCH_NAME);
 
         //Motor Initialization
         elbowMotor.setDirection(ELBOW_DIRECTION);
@@ -108,7 +106,7 @@ public class ArmSubsystem extends SubsystemBase {
         elbowMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         linearSlideMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        //elbowLimitSwitch.setMode(DigitalChannel.Mode.INPUT);
+        elbowLimitSwitch.setMode(DigitalChannel.Mode.INPUT);
 
         setTargetArmPosition(ELBOW_MIN_POSITION, SLIDE_MIN_POSITION);
         setElbowMaxPower(1.0);
@@ -146,9 +144,9 @@ public class ArmSubsystem extends SubsystemBase {
         return slideLimitSwitch.getValue() == 1; //true for pressed and false for not pressed
     }
 
-//    private boolean isElbowLimitSwitchPressed() {
-//        return !elbowLimitSwitch.getState(); //true for pressed and false for not pressed
-//    }
+    private boolean isElbowLimitSwitchPressed() {
+        return !elbowLimitSwitch.getState(); //true for pressed and false for not pressed
+    }
 
     private void runElbowPID() {
         double pid = Range.clip(elbowController.calculate(elbowMotor.getCurrentPosition(), targetElbowPosition), -maxElbowPower, maxElbowPower);
@@ -489,27 +487,20 @@ public class ArmSubsystem extends SubsystemBase {
         }
 
         //Reset the linear slide encoders when the limit switch is pressed
-        if(isSlideLimitSwitchPressed() && !slideLimitSwitchPressed) {
+        if(isSlideLimitSwitchPressed()) {
             resetSlideEncoder();
-            slideLimitSwitchPressed = true;
-        } else if(!isSlideLimitSwitchPressed()) {
-            slideLimitSwitchPressed = false;
         }
 
         //Reset the elbow encoders when the limit switch is pressed
-//        if(isElbowLimitSwitchPressed() && !elbowLimitSwitchPressed) {
-//            resetElbowEncoder();
-//            elbowLimitSwitchPressed = true;
-//        } else if(!isElbowLimitSwitchPressed()) {
-//            elbowLimitSwitchPressed = false;
-//        }
+        if(isElbowLimitSwitchPressed()) {
+            resetElbowEncoder();
+        }
 
         telemetry.addData("Elbow Position", elbowMotor.getCurrentPosition());
         telemetry.addData("Linear Slide Position", linearSlideMotor.getCurrentPosition());
         telemetry.addData("Arm Target", targetElbowPosition);
         telemetry.addData("Slide Target", targetLinearSlidePosition);
         telemetry.addData("Elbow Degrees", getElbowDegrees());
-        telemetry.addData("slideLimitSwitchPressed", slideLimitSwitchPressed);
 
         runElbowPID();
         runLinearSlidePID();

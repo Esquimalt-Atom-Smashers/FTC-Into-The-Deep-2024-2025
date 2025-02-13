@@ -1,12 +1,15 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-//@TeleOp(name="FindElbowFeedForward", group = "Real")
+@TeleOp(name="FindElbowFeedForward", group = "Real")
+@Disabled
 public class FindElbowFeedForward extends OpMode {
     DcMotorEx elbowMotor;
     double powerToMotor = 0;

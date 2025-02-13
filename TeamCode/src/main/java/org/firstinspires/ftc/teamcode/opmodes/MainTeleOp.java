@@ -1,97 +1,129 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.command.RunCommand;
 import com.arcrobotics.ftclib.command.button.Trigger;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.commands.CommandManager;
 import org.firstinspires.ftc.teamcode.subsystems.ArmSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
-import org.firstinspires.ftc.teamcode.subsystems.WristSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.LEDSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.SpecimenArmSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.SpinningWristSubsystem;
 
-//@TeleOp(name="TeleOp (Claw Intake)", group = "Real")
+@TeleOp(name = "TeleOp", group = "AA(at arena)")
 public class MainTeleOp extends OpMode {
     ArmSubsystem armSubsystem;
-    WristSubsystem wristSubsystem;
+    SpinningWristSubsystem spinningWristSubsystem;
     DriveSubsystem driveSubsystem;
+    SpecimenArmSubsystem specimenArmSubsystem;
+    LEDSubsystem ledSubsystem;
 
-    private boolean firstTime = true;
+    CommandManager commandManager;
+
+    TelemetryPacket packet;
 
     @Override
     public void init() {
         CommandScheduler.getInstance().reset();
         CommandScheduler.getInstance().cancelAll();
 
-        armSubsystem = new ArmSubsystem(this);
-        wristSubsystem = new WristSubsystem(this);
         driveSubsystem = new DriveSubsystem(this);
+        specimenArmSubsystem = new SpecimenArmSubsystem(this);
+        armSubsystem = new ArmSubsystem(this);
+        spinningWristSubsystem = new SpinningWristSubsystem(this, armSubsystem, SpinningWristSubsystem.WristPosition.STOWED);
+        ledSubsystem = new LEDSubsystem(this);
+
+        commandManager = new CommandManager(armSubsystem, driveSubsystem, specimenArmSubsystem, spinningWristSubsystem);
 
         bindOperatorControls();
         bindDriverControls();
     }
 
     private void bindOperatorControls() {
-        armSubsystem.setElbowMaxPower(0.5);
         armSubsystem.setLinearMaxPower(0.5);
+        armSubsystem.setElbowMaxPower(0.5);
 
         Trigger highPosition = new Trigger(() -> gamepad2.dpad_up);
-        highPosition.whenActive(() -> {
-            wristSubsystem.setWristPosition(WristSubsystem.WristPosition.READY);
-            armSubsystem.getMoveArmToPositionCommand(ArmSubsystem.ArmPosition.HIGH_OUTTAKE_POSITION, 0.8, 0.5, 0.2).schedule();
-        });
+        highPosition.whenActive(() -> commandManager.getToHighBasketPositionCommand().schedule());
 
         Trigger intakePosition = new Trigger(() -> gamepad2.dpad_down);
-        intakePosition.whenActive(() -> {
-            wristSubsystem.setWristPosition(WristSubsystem.WristPosition.READY);
-            armSubsystem.getMoveArmToPositionCommand(ArmSubsystem.ArmPosition.INTAKE_POSITION, 0.8, 0.5, 0.2).schedule();
-        });
+        intakePosition.whenActive(() -> commandManager.getToHomePosition().schedule());
 
         Trigger lowPosition = new Trigger(() -> gamepad2.dpad_right);
-        lowPosition.whenActive(() -> {
-            wristSubsystem.setWristPosition(WristSubsystem.WristPosition.READY);
-            armSubsystem.getMoveArmToPositionCommand(ArmSubsystem.ArmPosition.LOW_OUTTAKE_POSITION, 0.8, 0.5, 0.2).schedule();
-        });
+        lowPosition.whenActive(() -> commandManager.getToLowBasketPosition().schedule());
 
-        Trigger linearControl = new Trigger(() -> Math.abs(gamepad2.right_stick_y) > 0);
+        Trigger linearControl = new Trigger(() -> Math.abs(gamepad2.right_stick_y) > 0 && !gamepad2.options);
         linearControl.whileActiveContinuous(() -> armSubsystem.addToLinearSlideTarget((int) (gamepad2.right_stick_y * -30)));
 
-        Trigger elbowControl = new Trigger(() -> Math.abs(gamepad2.left_stick_y) > 0);
-        elbowControl.whileActiveContinuous(() -> armSubsystem.addToElbowTarget((int) (gamepad2.left_stick_y * -30)));
+        Trigger intake = new Trigger(() -> gamepad2.right_bumper);
+        intake.whenActive(() -> spinningWristSubsystem.intake());
+        intake.whenInactive(() -> spinningWristSubsystem.stopIntakeServo());
 
-        Trigger toggleClaw = new Trigger(() -> gamepad2.right_bumper);
-        toggleClaw.whenActive(() -> wristSubsystem.toggleClaw());
+        Trigger outtake = new Trigger(() -> gamepad2.left_bumper);
+        outtake.whenActive(() -> spinningWristSubsystem.outtake());
+        outtake.whenInactive(() -> spinningWristSubsystem.stopIntakeServo());
 
         Trigger wristIntake = new Trigger(() -> gamepad2.a);
-        wristIntake.whenActive(() -> wristSubsystem.setWristPosition(WristSubsystem.WristPosition.INTAKE));
+        wristIntake.whenActive(() -> spinningWristSubsystem.toPosition(SpinningWristSubsystem.WristPosition.INTAKE));
 
-        Trigger wristOuttake = new Trigger(() -> (gamepad2.y || gamepad2.x));
-        wristOuttake.whenActive(() -> wristSubsystem.setWristPosition(WristSubsystem.WristPosition.OUTTAKE));
+        Trigger wristOuttake = new Trigger(() -> (gamepad2.b));
+        wristOuttake.whenActive(() -> spinningWristSubsystem.toPosition(SpinningWristSubsystem.WristPosition.OUTTAKE));
 
-        Trigger wristReady = new Trigger(() -> gamepad2.b);
-        wristReady.whenActive(() -> wristSubsystem.setWristPosition(WristSubsystem.WristPosition.READY));
+        Trigger wristStorage = new Trigger(() -> (gamepad2.y));
+        wristStorage.whenActive(() -> spinningWristSubsystem.toPosition(SpinningWristSubsystem.WristPosition.STOWED));
+
+        Trigger resetEncoders = new Trigger(() -> gamepad2.share);
+        resetEncoders.whenActive(() -> armSubsystem.resetEncoders());
+
+        Trigger elbowManualOverrideControl = new Trigger(() -> gamepad2.options);
+        elbowManualOverrideControl.whileActiveContinuous(() -> {
+            armSubsystem.addToElbowTarget((int) (gamepad2.left_stick_y * -30), true);
+            armSubsystem.addToLinearSlideTarget((int) (gamepad2.right_stick_y * -30), true);
+        });
     }
 
     private void bindDriverControls() {
-        driveSubsystem.setSpeedMultiplier(0.5);
+        RunCommand defaultDriveCommand = new RunCommand(() -> driveSubsystem.drive(-gamepad1.left_stick_y, gamepad1.left_stick_x, -gamepad1.right_stick_x));
 
-        RunCommand defaultDriveCommand = new RunCommand(() -> driveSubsystem.drive(gamepad1.left_stick_x, gamepad1.left_stick_y, gamepad1.right_stick_x));
         defaultDriveCommand.addRequirements(driveSubsystem);
         driveSubsystem.setDefaultCommand(defaultDriveCommand);
+
+        Trigger goToBasket = new Trigger(() -> gamepad1.start);
+        goToBasket.whenActive(() -> commandManager.drivebaseToBasket().schedule());
 
         Trigger resetGyro = new Trigger(() -> gamepad1.back);
         resetGyro.whenActive(() -> driveSubsystem.resetGyro());
 
         Trigger speedVariationTrigger = new Trigger(() -> gamepad1.right_trigger > 0);
-        speedVariationTrigger.whileActiveContinuous(() -> driveSubsystem.setSpeedMultiplier(gamepad1.right_trigger * 0.5 + 0.5));
-        speedVariationTrigger.whenInactive(() -> driveSubsystem.setSpeedMultiplier(0.5));
+        speedVariationTrigger.whileActiveContinuous(() -> driveSubsystem.setSpeedMultiplier(Math.abs(gamepad1.right_trigger - 1) * 0.4 + 0.2));
+        speedVariationTrigger.whenInactive(() -> driveSubsystem.setSpeedMultiplier(1));
+
+        Trigger putDown = new Trigger(() -> gamepad1.square);
+        putDown.whenActive(() -> specimenArmSubsystem.putDown());
+
+        Trigger scoreSpecimen = new Trigger(() -> gamepad1.triangle);
+        scoreSpecimen.whenActive(() -> specimenArmSubsystem.scoreSpecimen());
+
+        Trigger intakeSpecimen = new Trigger(() -> gamepad1.circle);
+        intakeSpecimen.whenActive(() -> specimenArmSubsystem.liftPosition());
+
+        Trigger receiveSpecimen = new Trigger(() -> gamepad1.cross);
+        receiveSpecimen.whenActive(() -> specimenArmSubsystem.wallPosition());
+
+        Trigger openClaw = new Trigger(() -> gamepad1.right_bumper);
+        openClaw.whenActive(() -> specimenArmSubsystem.openClaw());
+
+        Trigger closeClaw = new Trigger(() -> gamepad1.left_bumper);
+        closeClaw.whenActive(() -> specimenArmSubsystem.closeClaw());
     }
 
     @Override
     public void loop() {
-        if(firstTime) {
-            wristSubsystem.setWristPosition(WristSubsystem.WristPosition.COLLAPSED);
-            firstTime = false;
-        }
+        packet = new TelemetryPacket();
         CommandScheduler.getInstance().run();
     }
 }

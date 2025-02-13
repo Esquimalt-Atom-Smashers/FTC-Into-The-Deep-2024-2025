@@ -1,11 +1,14 @@
 package org.firstinspires.ftc.teamcode.opmodes;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-//@TeleOp(name="MotorShower", group = "Real")
+@TeleOp(name="MotorShower", group = "Real")
+@Disabled
 public class HardwarePositionViewer extends OpMode {
     DcMotorEx armMotor;
     DcMotorEx linearSlideMotor;
