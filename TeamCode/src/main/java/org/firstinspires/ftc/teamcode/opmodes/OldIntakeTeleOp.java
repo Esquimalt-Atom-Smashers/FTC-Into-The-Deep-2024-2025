@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.subsystems.ArmSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.WristSubsystem;
 
-@TeleOp(name="TeleOp (Claw Intake)", group = "Real")
+@TeleOp(name="TeleOp (Claw Intake)", group = "z. Test")
 @Disabled
 public class OldIntakeTeleOp extends OpMode {
     ArmSubsystem armSubsystem;

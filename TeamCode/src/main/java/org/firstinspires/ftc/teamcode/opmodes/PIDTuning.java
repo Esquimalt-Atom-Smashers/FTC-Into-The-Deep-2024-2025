@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.subsystems.ArmSubsystem;
 
-@TeleOp(name="PID Tuner", group = "Real")
+@TeleOp(name="PID Tuner", group = "Tuning")
 @Disabled
 public class PIDTuning extends OpMode {
     private ArmSubsystem armSubsystem;

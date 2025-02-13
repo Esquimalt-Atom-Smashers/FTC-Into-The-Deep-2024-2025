@@ -14,8 +14,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.subsystems.SpecimenArmSubsystem;
 
 
-@Autonomous(name = "LeftRungAuto", group = "Test")
-public class LeftRungAuto extends LinearOpMode{
+@Autonomous(name = "LeftParkAuto", group = "Park Auto")
+public class LeftParkAuto extends LinearOpMode{
     private IMU imu;
     private DcMotorEx frontRightMotor;
     private DcMotorEx frontLeftMotor;

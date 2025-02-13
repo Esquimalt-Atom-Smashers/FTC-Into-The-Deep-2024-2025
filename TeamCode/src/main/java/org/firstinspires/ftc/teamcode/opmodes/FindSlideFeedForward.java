@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-@TeleOp(name="FindSlideFeedForward", group = "Real")
+@TeleOp(name="FindSlideFeedForward", group = "RoadRunner")
 @Disabled
 public class FindSlideFeedForward extends OpMode {
     DcMotorEx slideMotor;

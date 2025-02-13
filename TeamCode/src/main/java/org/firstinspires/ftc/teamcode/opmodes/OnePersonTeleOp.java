@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.subsystems.LEDSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.SpecimenArmSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.SpinningWristSubsystem;
 
-@TeleOp(name = "TeleOp (one person)", group = "AA(at arena)")
+@TeleOp(name = "TeleOp (one person)", group = "Competition TeleOp")
 public class OnePersonTeleOp extends OpMode {
     ArmSubsystem armSubsystem;
     SpinningWristSubsystem spinningWristSubsystem;

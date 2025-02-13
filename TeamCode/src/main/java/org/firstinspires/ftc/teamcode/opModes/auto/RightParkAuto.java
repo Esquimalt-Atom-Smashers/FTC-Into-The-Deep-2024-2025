@@ -13,7 +13,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 
-@Autonomous(name = "RightParkAuto", group = "Real")
+@Autonomous(name = "RightParkAuto", group = "Park Auto")
 public class RightParkAuto extends LinearOpMode{
     private IMU imu;
     private DcMotorEx frontRightMotor;

@@ -22,7 +22,7 @@ import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.SpecimenArmSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.SpinningWristSubsystem;
 
-@Autonomous(name = "LeftSampleAuto", group = "Real")
+@Autonomous(name = "LeftSampleAuto", group = "Scoring Auto")
 public final class LeftSampleAuto extends LinearOpMode {
 
     DriveSubsystem driveSubsystem;
