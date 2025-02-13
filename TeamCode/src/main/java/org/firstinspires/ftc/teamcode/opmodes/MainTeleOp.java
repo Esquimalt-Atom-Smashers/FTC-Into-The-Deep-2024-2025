@@ -125,5 +125,7 @@ public class MainTeleOp extends OpMode {
     public void loop() {
         packet = new TelemetryPacket();
         CommandScheduler.getInstance().run();
+
+        telemetry.addData("action done", !(commandManager.getToHighBasketPositionCommand().isFinished()));
     }
 }

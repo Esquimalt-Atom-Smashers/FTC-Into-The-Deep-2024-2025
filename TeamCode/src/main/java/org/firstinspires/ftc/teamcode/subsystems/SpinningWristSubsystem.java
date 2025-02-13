@@ -1,5 +1,9 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import androidx.annotation.NonNull;
+
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
 import com.arcrobotics.ftclib.command.CommandBase;
 import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -113,4 +117,25 @@ public class SpinningWristSubsystem extends SubsystemBase {
             }
         }
     }
+
+    //RR actions
+    public class Intake implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            intake();
+            return false;
+        }
+    }
+    public Action Intake() {
+        return new Intake();
+    }
+
+    public class Outtake implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            outtake();
+            return false;
+        }
+    }
+    public Action Outtake() {return new Outtake();}
 }
