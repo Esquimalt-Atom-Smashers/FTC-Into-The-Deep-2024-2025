@@ -75,9 +75,7 @@ public final class LeftSampleAuto extends LinearOpMode {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
             commandManager.getToHighBasketPositionCommand().schedule();
-//            spinningWristSubsystem.toPosition(SpinningWristSubsystem.WristPosition.OUTTAKE);
-//            armSubsystem.setTargetLinearSlidePosition(armSubsystem.);
-            return !armSubsystem.atHighBasketPosition();
+            return !commandManager.getToHighBasketPositionCommand().isFinished();
         }
     }
     public Action GoToHighBasketAction() {
