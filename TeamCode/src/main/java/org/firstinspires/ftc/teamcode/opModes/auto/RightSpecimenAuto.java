@@ -29,38 +29,44 @@ public final class RightSpecimenAuto extends LinearOpMode {
                 .strafeToLinearHeading(new Vector2d(5,29), Math.toRadians(180));
 
         TrajectoryActionBuilder acquireThreeSamples = scoreFirstSpec.endTrajectory().fresh()
-                .setTangent(Math.toRadians(135))
-                .splineToConstantHeading(new Vector2d(-35.75, 45), Math.toRadians(270))
-                .splineToConstantHeading(new Vector2d(-35.75,16), Math.toRadians(225))
+                .strafeToConstantHeading( new Vector2d(-35.75, 60) )
+                .strafeToConstantHeading(new Vector2d(-35.75,30))
 
-                .splineToConstantHeading(new Vector2d(-47.6,16),Math.toRadians(90))
-                .splineToConstantHeading(new Vector2d( -47.6, 61),Math.toRadians(270))
-
-                .splineToLinearHeading(new Pose2d(-56.75,16, Math.toRadians(180)),Math.toRadians(135))
-                .splineToConstantHeading(new Vector2d(-56.75,61),Math.toRadians(180))
-
-                .setTangent(Math.toRadians(270))
-                .splineToLinearHeading(new Pose2d(-64, 18, Math.toRadians(180)), Math.toRadians(135))
-                .splineToConstantHeading(new Vector2d(-62, 61),Math.toRadians(180));
+                .splineToConstantHeading(new Vector2d(-47.6,17),Math.toRadians(180))
+                .strafeToConstantHeading(new Vector2d( -47.6, 61))
+                .strafeToLinearHeading(new Vector2d(-47.6, 48), Math.toRadians(180));
+//
+//                .splineToLinearHeading(new Pose2d(-56.75,16, Math.toRadians(180)),Math.toRadians(135))
+//                .splineToConstantHeading(new Vector2d(-56.75,61),Math.toRadians(180))
+//
+//                .setTangent(Math.toRadians(270))
+//                .splineToLinearHeading(new Pose2d(-64, 18, Math.toRadians(180)), Math.toRadians(135))
+//                .splineToConstantHeading(new Vector2d(-62, 61),Math.toRadians(180));
 
         TrajectoryActionBuilder getSecSpec = acquireThreeSamples.endTrajectory().fresh()
-                .setTangent(270)
+                .setTangent(Math.toRadians(270))
                 .splineToConstantHeading(new Vector2d(-50, 68),Math.toRadians(90))
-                .strafeToConstantHeading(new Vector2d(-40, 68));
+                .strafeToLinearHeading(new Vector2d(-40, 68), Math.toRadians(180));
 
         TrajectoryActionBuilder scoreSecSpec = getSecSpec.endTrajectory().fresh()
                 .setTangent(0)
-                .splineToConstantHeading(new Vector2d(-2,30), Math.toRadians(270));
+                .splineToConstantHeading(new Vector2d(-5,30), Math.toRadians(270));
 
-        TrajectoryActionBuilder getThirdSpec = scoreSecSpec.endTrajectory().fresh()
+        TrajectoryActionBuilder moveBack = scoreSecSpec.endTrajectory().fresh()
                 .setTangent(Math.toRadians(90))
-                .splineToLinearHeading(new Pose2d(new Vector2d(-8,50),Math.toRadians(180)),Math.toRadians(180))
-                .splineToConstantHeading(new Vector2d(-57, 71), Math.toRadians(90))
-                .strafeToConstantHeading(new Vector2d(-45, 71));
+                .splineToLinearHeading(new Pose2d(new Vector2d(-8,50),Math.toRadians(180)),Math.toRadians(90));
+
+        TrajectoryActionBuilder getThirdSpec = moveBack.endTrajectory().fresh()
+                .splineToConstantHeading(new Vector2d(-48, 70), Math.toRadians(90))
+                .strafeToConstantHeading(new Vector2d(-38, 70));
 
         TrajectoryActionBuilder scoreThirdSpec = getThirdSpec.endTrajectory().fresh()
                 .setTangent(0)
-                .splineToConstantHeading(new Vector2d(-11,30), Math.toRadians(270));
+                .splineToConstantHeading(new Vector2d(-8,30), Math.toRadians(270));
+
+        TrajectoryActionBuilder park = scoreThirdSpec.endTrajectory().fresh()
+                .setTangent(Math.toRadians(90))
+                .splineToConstantHeading(new Vector2d(-38, 70), Math.toRadians(180));
 
         Actions.runBlocking(
                 new SequentialAction(
@@ -71,10 +77,11 @@ public final class RightSpecimenAuto extends LinearOpMode {
                         ),
                         new SleepAction(0.1),
                         scoreFirstSpec.build(),
+                        acquireThreeSamples.build(),
+                        new SleepAction(0.2),
                         new ParallelAction(
                                 specimenArmSubsystem.OpenClaw(),
-                                specimenArmSubsystem.PutDown(),
-                                acquireThreeSamples.build()
+                                specimenArmSubsystem.PutDown()
                         ),
                         //Sec spec
                         new ParallelAction(
@@ -89,19 +96,23 @@ public final class RightSpecimenAuto extends LinearOpMode {
                                 specimenArmSubsystem.ScoreSpecimen()
                         ),
                         //Third specimen
-                        specimenArmSubsystem.OpenClaw(),
+                        new ParallelAction(
+                                moveBack.build(),
+                                specimenArmSubsystem.OpenClaw()
+                        ),
                         new ParallelAction(
                                 getThirdSpec.build(),
-                                specimenArmSubsystem.WallPos(),
-                                specimenArmSubsystem.OpenClaw()
+                                specimenArmSubsystem.WallPos()
                         ),
                         specimenArmSubsystem.CloseClaw(),
                         new SleepAction(0.1),
                         new ParallelAction(
                                 scoreThirdSpec.build(),
                                 specimenArmSubsystem.ScoreSpecimen()
-                        )
-
+                        ),
+                        //Park
+                        specimenArmSubsystem.OpenClaw(),
+                        park.build()
                 )
         );
     }
