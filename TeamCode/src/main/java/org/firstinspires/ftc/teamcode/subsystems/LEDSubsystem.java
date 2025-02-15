@@ -19,4 +19,12 @@ public class LEDSubsystem extends SubsystemBase {
         //ledMotor.setPower(1);
         blinkIn.setPattern(RevBlinkinLedDriver.BlinkinPattern.VIOLET);
     }
+
+    public void inSpecimenMode() {
+        blinkIn.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+    }
+
+    public void inSampleMode() {
+        blinkIn.setPattern(RevBlinkinLedDriver.BlinkinPattern.YELLOW);
+    }
 }

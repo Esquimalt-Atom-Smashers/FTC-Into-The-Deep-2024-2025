@@ -54,11 +54,11 @@ public class SpecimenArmSubsystem extends SubsystemBase {
         }
     }
 
-    public void wallPosition() {elbowServo.setPosition(.17);} //go to wall to grab specimen
+    public void wallPosition() {elbowServo.setPosition(.19);} //go to wall to grab specimen
 
-    public void liftPosition() {elbowServo.setPosition(0.13);} //pull away from wall (may not be needed)
+    public void liftPosition() {elbowServo.setPosition(0.16);} //pull away from wall (may not be needed)
 
-    public void scoreSpecimen() {elbowServo.setPosition(0.98);} //score on high bar
+    public void scoreSpecimen() {elbowServo.setPosition(0.94);} //score on high bar
 
     public void putDown() {elbowServo.setPosition(0.45);}
 
