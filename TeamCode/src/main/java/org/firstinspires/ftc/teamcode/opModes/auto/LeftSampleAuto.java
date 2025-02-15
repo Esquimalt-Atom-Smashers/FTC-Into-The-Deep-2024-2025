@@ -4,14 +4,16 @@ import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
-import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.arcrobotics.ftclib.command.CommandScheduler;
+import com.arcrobotics.ftclib.command.RunCommand;
+import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
@@ -30,6 +32,7 @@ public final class LeftSampleAuto extends LinearOpMode {
     ArmSubsystem armSubsystem;
     SpinningWristSubsystem spinningWristSubsystem;
     CommandManager commandManager;
+
     @Override
     public void runOpMode()  {
         Pose2d beginPose = new Pose2d(41,65 , Math.toRadians(180));
@@ -53,43 +56,84 @@ public final class LeftSampleAuto extends LinearOpMode {
                 .strafeToLinearHeading( new Vector2d(55, 55), Math.toRadians(135));
 
         TrajectoryActionBuilder intoPos2 = outtakePos1.endTrajectory().fresh()
-                .strafeToLinearHeading( new Vector2d(50, 50), Math.toRadians(135));
+                .strafeToLinearHeading( new Vector2d(50, 50), Math.toRadians(175));
 
         Actions.runBlocking(
-                new SequentialAction(
+            new ParallelAction(
+                    new SequentialAction(
                         intoPos1.build(),
-                        GoToHighBasketAction(),
-                        outtakePos1.build()
-//                    spinningWristSubsystem.Outtake()
-//                    intoPos2.build()
-                        //GoToHomePositionAction()
-                )
-        );
+                        getGoToHighBasketAction(),
+                        outtakePos1.build(),
+                        spinningWristSubsystem.getOuttakeAction(),
+                        intoPos2.build(),
+                        getGoToHomePositionAction(),
+                        getGoToHomePositionAction(),
+                        spinningWristSubsystem.getIntakeAction(),
+                        armSubsystem.getSlideToPositionAction(armSubsystem, 50)
+                    ),
+                    new RunFTCLibCommands()
+                    )
+            );
 
-        while(!isStopRequested() || opModeIsActive()) {
-            CommandScheduler.getInstance().run();
-        }
+//        SequentialCommandGroup runAuto = new SequentialCommandGroup(
+//                new RunCommand(() -> Actions.runBlocking(intoPos1.build())),
+//                commandManager.getToHighBasketPositionCommand(),
+//                new RunCommand(() -> Actions.runBlocking(
+//                    new SequentialAction(
+//                            outtakePos1.build(),
+//                            spinningWristSubsystem.getOuttakeAction(),
+//                            intoPos2.build())
+//                )),
+//                commandManager.getToHomePosition()
+//        );
+//        runAuto.schedule();
+//
+//        while(opModeIsActive() && !isStopRequested()) {
+//            CommandScheduler.getInstance().run();
+//        }
     }
 
     public class GoToHighBasketAction implements Action {
+        SequentialCommandGroup highBasketCommand = commandManager.getToHighBasketPositionCommand();
+        ArmSubsystem.ArmToPositionCommand armToPositionCommand = new ArmSubsystem.ArmToPositionCommand(armSubsystem, ArmSubsystem.ArmPosition.INTAKE_POSITION);
+
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
-            commandManager.getToHighBasketPositionCommand().schedule();
-            return !commandManager.getToHighBasketPositionCommand().isFinished();
+            if(!highBasketCommand.isScheduled()) highBasketCommand.schedule();
+
+            if(armSubsystem.getTargetLinearSlidePosition() == ArmSubsystem.ArmPosition.HIGH_OUTTAKE_POSITION.slidePos && armSubsystem.getTargetElbowPosition() == ArmSubsystem.ArmPosition.HIGH_OUTTAKE_POSITION.elbowPos) {
+                return !armToPositionCommand.isFinished();
+            } else return true;
         }
     }
-    public Action GoToHighBasketAction() {
+
+    public static class RunFTCLibCommands implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            CommandScheduler.getInstance().run();
+            return true;
+        }
+    }
+
+    public Action getGoToHighBasketAction() {
         return new GoToHighBasketAction();
     }
 
     public class GoToHomePositionAction implements Action {
+        SequentialCommandGroup homePositionCommand = commandManager.getToHomePosition();
+        ArmSubsystem.ArmToPositionCommand armToPositionCommand = new ArmSubsystem.ArmToPositionCommand(armSubsystem, ArmSubsystem.ArmPosition.INTAKE_POSITION);
+
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
-            commandManager.getToHomePosition().schedule();
-            return !armSubsystem.atIntakePosition();
+            if(!homePositionCommand.isScheduled()) homePositionCommand.schedule();
+
+            if(armSubsystem.getTargetLinearSlidePosition() == ArmSubsystem.ArmPosition.INTAKE_POSITION.slidePos && armSubsystem.getTargetElbowPosition() == ArmSubsystem.ArmPosition.INTAKE_POSITION.elbowPos) {
+                return !armToPositionCommand.isFinished();
+            } else return true;
         }
     }
-    public Action GoToHomePositionAction() {
+
+    public Action getGoToHomePositionAction() {
         return new GoToHomePositionAction();
     }
 }
