@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
 import com.arcrobotics.ftclib.command.CommandBase;
 import com.arcrobotics.ftclib.command.RunCommand;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
@@ -479,6 +481,26 @@ public class ArmSubsystem extends SubsystemBase {
         }
     }
 
+    //RR action
+    public class SlideToPositionAction implements Action {
+        TelemetryPacket packet;
+        ArmSubsystem armSubsystem;
+        int targetPosition;
+        public SlideToPositionAction (ArmSubsystem armSubsystem, int targetPosition) {
+            this.packet = packet;
+            this.armSubsystem = armSubsystem;
+            this.targetPosition = targetPosition;
+        }
+        @Override
+        public boolean run(TelemetryPacket packet){
+            setTargetLinearSlidePosition(targetPosition);
+            return !(targetPosition == armSubsystem.targetLinearSlidePosition);
+        }
+    }
+
+    public Action getSlideToPositionAction (ArmSubsystem armSubsystem, int targetPosition) {
+        return new SlideToPositionAction(armSubsystem, targetPosition);
+    }
     //Periodic
 
     @Override

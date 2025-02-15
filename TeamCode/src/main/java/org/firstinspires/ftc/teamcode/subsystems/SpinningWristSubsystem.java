@@ -8,6 +8,7 @@ import com.arcrobotics.ftclib.command.CommandBase;
 import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -126,16 +127,22 @@ public class SpinningWristSubsystem extends SubsystemBase {
             return false;
         }
     }
-    public Action Intake() {
+
+    public Action getIntakeAction() {
         return new Intake();
     }
 
     public class Outtake implements Action {
+        ElapsedTime timer = new ElapsedTime();
+
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
             outtake();
-            return false;
+            return timer.seconds() <= 2;
         }
     }
-    public Action Outtake() {return new Outtake();}
+
+    public Action getOuttakeAction() {
+        return new Outtake();
+    }
 }
