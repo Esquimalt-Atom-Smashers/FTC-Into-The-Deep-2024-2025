@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.subsystems.LEDSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.SpecimenArmSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.SpinningWristSubsystem;
 
-@TeleOp(name = "TeleOp", group = "Competition TeleOp")
+@TeleOp(name = "Competition TeleOp", group = "Real")
 public class MainTeleOp extends OpMode {
     ArmSubsystem armSubsystem;
     SpinningWristSubsystem spinningWristSubsystem;
@@ -58,7 +58,7 @@ public class MainTeleOp extends OpMode {
         lowPosition.whenActive(() -> commandManager.getToLowBasketPosition().schedule());
 
         Trigger linearControl = new Trigger(() -> Math.abs(gamepad2.right_stick_y) > 0 && !gamepad2.options);
-        linearControl.whileActiveContinuous(() -> armSubsystem.addToLinearSlideTarget((int) (gamepad2.right_stick_y * -30)));
+        linearControl.whileActiveContinuous(() -> armSubsystem.addToLinearSlideTarget((int) (gamepad2.right_stick_y * -50)));
 
         Trigger intake = new Trigger(() -> gamepad2.right_bumper);
         intake.whenActive(() -> spinningWristSubsystem.intake());
