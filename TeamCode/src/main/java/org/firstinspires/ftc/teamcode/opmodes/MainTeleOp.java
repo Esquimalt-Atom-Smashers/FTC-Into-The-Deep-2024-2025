@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.command.RunCommand;
 import com.arcrobotics.ftclib.command.button.Trigger;
@@ -15,6 +17,9 @@ import org.firstinspires.ftc.teamcode.subsystems.LEDSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.SpecimenArmSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.SpinningWristSubsystem;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @TeleOp(name = "Competition TeleOp", group = "Real")
 public class MainTeleOp extends OpMode {
     ArmSubsystem armSubsystem;
@@ -24,9 +29,6 @@ public class MainTeleOp extends OpMode {
     LEDSubsystem ledSubsystem;
 
     CommandManager commandManager;
-
-    TelemetryPacket packet;
-
     @Override
     public void init() {
         CommandScheduler.getInstance().reset();
@@ -93,9 +95,6 @@ public class MainTeleOp extends OpMode {
         defaultDriveCommand.addRequirements(driveSubsystem);
         driveSubsystem.setDefaultCommand(defaultDriveCommand);
 
-        Trigger goToBasket = new Trigger(() -> gamepad1.start);
-        goToBasket.whenActive(() -> commandManager.drivebaseToBasket().schedule());
-
         Trigger resetGyro = new Trigger(() -> gamepad1.back);
         resetGyro.whenActive(() -> driveSubsystem.resetGyro());
 
@@ -124,9 +123,6 @@ public class MainTeleOp extends OpMode {
 
     @Override
     public void loop() {
-        packet = new TelemetryPacket();
         CommandScheduler.getInstance().run();
-
-        telemetry.addData("action done", !(commandManager.getToHighBasketPositionCommand().isFinished()));
     }
 }
