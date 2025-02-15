@@ -102,7 +102,7 @@ public class CommandManager {
             return new SequentialCommandGroup(
                     new SpinningWristSubsystem.MoveWristToPositionCommand(spinningWristSubsystem, (spinningWristSubsystem.getCurrentWristPosition().value > SpinningWristSubsystem.WristPosition.OUTTAKE.value) ? SpinningWristSubsystem.WristPosition.OUTTAKE : spinningWristSubsystem.getCurrentWristPosition()),
                     new ArmSubsystem.ArmToPositionCommand(armSubsystem, position, maxLinearPower, previousElbowMaxPower),
-                    new SpinningWristSubsystem.MoveWristToPositionCommand(spinningWristSubsystem, SpinningWristSubsystem.WristPosition.STOWED),
+                    new SpinningWristSubsystem.MoveWristToPositionCommand(spinningWristSubsystem, SpinningWristSubsystem.WristPosition.OUTTAKE),
                     new RunCommand(() -> {
                         armSubsystem.setLinearMaxPower(previousLinearMaxPower);
                         armSubsystem.setElbowMaxPower(previousElbowMaxPower);
@@ -112,7 +112,7 @@ public class CommandManager {
             return new SequentialCommandGroup(
                     new SpinningWristSubsystem.MoveWristToPositionCommand(spinningWristSubsystem, (spinningWristSubsystem.getCurrentWristPosition().value > SpinningWristSubsystem.WristPosition.OUTTAKE.value) ? SpinningWristSubsystem.WristPosition.OUTTAKE : spinningWristSubsystem.getCurrentWristPosition()),
                     new ArmSubsystem.SlideToPositionCommand(armSubsystem, ArmSubsystem.SLIDE_MIN_POSITION, maxLinearPower),
-                    new SpinningWristSubsystem.MoveWristToPositionCommand(spinningWristSubsystem, SpinningWristSubsystem.WristPosition.STOWED),
+                    new SpinningWristSubsystem.MoveWristToPositionCommand(spinningWristSubsystem, SpinningWristSubsystem.WristPosition.OUTTAKE),
                     new ArmSubsystem.ElbowToPositionCommand(armSubsystem, position.elbowPos, (position.elbowPos < armSubsystem.getElbowPosition()) ? maxElbowPowerGoingDown : maxElbowPowerGoingUp),
                     new ArmSubsystem.SlideToPositionCommand(armSubsystem, position.slidePos, maxLinearPower),
                     new RunCommand(() -> {
