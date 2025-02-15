@@ -24,7 +24,7 @@ public class SpecimenArmSubsystem extends SubsystemBase {
 
     public enum ClawPosition {
         OPEN(0),
-        CLOSED(1);
+        CLOSED(0.3);
 
         public final double position;
 
@@ -54,11 +54,11 @@ public class SpecimenArmSubsystem extends SubsystemBase {
         }
     }
 
-    public void wallPosition() {elbowServo.setPosition(.18);} //go to wall to grab specimen
+    public void wallPosition() {elbowServo.setPosition(.15);} //go to wall to grab specimen
 
-    public void liftPosition() {elbowServo.setPosition(0.12);} //pull away from wall (may not be needed)
+    public void liftPosition() {elbowServo.setPosition(0.13);} //pull away from wall (may not be needed)
 
-    public void scoreSpecimen() {elbowServo.setPosition(0.95);} //score on high bar
+    public void scoreSpecimen() {elbowServo.setPosition(0.98);} //score on high bar
 
     public void putDown() {elbowServo.setPosition(0.45);}
 

@@ -75,6 +75,7 @@ public class DriveSubsystem extends SubsystemBase {
     private FtcDashboard dash;
     private List<Action> runningActions;
     private Pose2d currentPos;
+    private int TOLERANCE = 1;
 
     public DriveSubsystem(OpMode opMode) {
         this.opMode = opMode;
@@ -256,7 +257,8 @@ public class DriveSubsystem extends SubsystemBase {
             mecanumDrive.actionBuilder(currentPos).
                     strafeToLinearHeading(new Vector2d(0, 0), Math.toRadians(0))
                     .build();
-            return false;
+            mecanumDrive.updatePoseEstimate();
+            return !(Math.abs(mecanumDrive.pose.position.x) <= TOLERANCE && Math.abs(mecanumDrive.pose.position.y) <= TOLERANCE && Math.toDegrees(Math.abs(mecanumDrive.pose.heading.real)) <= TOLERANCE);
         }
     }
     public Action ToBasket(DriveSubsystem driveSubsystem) {return new ToBasket();}
