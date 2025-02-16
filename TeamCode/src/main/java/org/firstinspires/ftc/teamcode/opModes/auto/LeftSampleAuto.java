@@ -4,15 +4,14 @@ import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
-import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.arcrobotics.ftclib.command.CommandScheduler;
-import com.arcrobotics.ftclib.command.RunCommand;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -67,30 +66,12 @@ public final class LeftSampleAuto extends LinearOpMode {
                         spinningWristSubsystem.getOuttakeAction(),
                         intoPos2.build(),
                         getGoToHomePositionAction(),
-                        getGoToHomePositionAction(),
-                        spinningWristSubsystem.getIntakeAction(),
+                        new SleepAction(1),
                         armSubsystem.getSlideToPositionAction(armSubsystem, 50)
                     ),
                     new RunFTCLibCommands()
                     )
             );
-
-//        SequentialCommandGroup runAuto = new SequentialCommandGroup(
-//                new RunCommand(() -> Actions.runBlocking(intoPos1.build())),
-//                commandManager.getToHighBasketPositionCommand(),
-//                new RunCommand(() -> Actions.runBlocking(
-//                    new SequentialAction(
-//                            outtakePos1.build(),
-//                            spinningWristSubsystem.getOuttakeAction(),
-//                            intoPos2.build())
-//                )),
-//                commandManager.getToHomePosition()
-//        );
-//        runAuto.schedule();
-//
-//        while(opModeIsActive() && !isStopRequested()) {
-//            CommandScheduler.getInstance().run();
-//        }
     }
 
     public class GoToHighBasketAction implements Action {
