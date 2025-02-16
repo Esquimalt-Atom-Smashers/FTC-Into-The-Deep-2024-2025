@@ -77,6 +77,7 @@ public final class RightSpecimenAuto extends LinearOpMode {
                         ),
                         new SleepAction(0.1),
                         scoreFirstSpec.build(),
+                        specimenArmSubsystem.OpenClaw(),
                         acquireThreeSamples.build(),
                         new SleepAction(0.2),
                         new ParallelAction(
@@ -90,6 +91,7 @@ public final class RightSpecimenAuto extends LinearOpMode {
                                 specimenArmSubsystem.WallPos()
                         ),
                         specimenArmSubsystem.CloseClaw(),
+                        specimenArmSubsystem.LiftPos(),
                         new SleepAction(0.1),
                         new ParallelAction(
                                 scoreSecSpec.build(),
@@ -105,6 +107,7 @@ public final class RightSpecimenAuto extends LinearOpMode {
                                 specimenArmSubsystem.WallPos()
                         ),
                         specimenArmSubsystem.CloseClaw(),
+                        specimenArmSubsystem.LiftPos(),
                         new SleepAction(0.1),
                         new ParallelAction(
                                 scoreThirdSpec.build(),
