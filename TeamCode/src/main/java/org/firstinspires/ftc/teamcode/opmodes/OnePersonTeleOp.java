@@ -90,6 +90,9 @@ public class OnePersonTeleOp extends OpMode {
         Trigger lowPosition = new Trigger(() -> gamepad1.dpad_right && currentMode == ControlMode.SAMPLE_MODE);
         lowPosition.whenActive(() -> commandManager.getToLowBasketPosition().schedule());
 
+        Trigger removeFromChamber = new Trigger(() -> gamepad1.dpad_left && Math.abs(armSubsystem.getElbowPosition()) <= 25 && (currentMode == ControlMode.SAMPLE_MODE));
+        removeFromChamber.whenActive(() -> commandManager.getToHomePositionHorizontal().schedule());
+
         Trigger linearControl = new Trigger(() -> Math.abs(gamepad1.right_stick_y) > 0 && !gamepad1.options && currentMode == ControlMode.SAMPLE_MODE);
         linearControl.whileActiveContinuous(() -> armSubsystem.addToLinearSlideTarget((int) (gamepad1.right_stick_y * -50)));
 
