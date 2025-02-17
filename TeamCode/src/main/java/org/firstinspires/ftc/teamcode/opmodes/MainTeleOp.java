@@ -59,7 +59,7 @@ public class MainTeleOp extends OpMode {
         Trigger lowPosition = new Trigger(() -> gamepad2.dpad_right);
         lowPosition.whenActive(() -> commandManager.getToLowBasketPosition().schedule());
 
-        Trigger removeFromChamber = new Trigger(() -> gamepad2.dpad_left && Math.abs(armSubsystem.getElbowPosition()) <= 25);
+        Trigger removeFromChamber = new Trigger(() -> gamepad2.dpad_left && Math.abs(armSubsystem.getElbowPosition() - ArmSubsystem.ArmPosition.INTAKE_POSITION.elbowPos) <= 25);
         removeFromChamber.whenActive(() -> commandManager.getToHomePositionHorizontal().schedule());
 
         Trigger linearControl = new Trigger(() -> Math.abs(gamepad2.right_stick_y) > 0 && !gamepad2.options);
