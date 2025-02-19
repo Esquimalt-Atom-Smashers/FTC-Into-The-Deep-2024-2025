@@ -24,7 +24,7 @@ import org.firstinspires.ftc.teamcode.subsystems.SpecimenArmSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.SpinningWristSubsystem;
 
 @Autonomous(name = "LeftSampleAuto", group = "Scoring Auto")
-public final class LeftSampleAuto extends LinearOpMode {
+public class LeftSampleAuto extends LinearOpMode {
 
     DriveSubsystem driveSubsystem;
     SpecimenArmSubsystem specimenArmSubsystem;

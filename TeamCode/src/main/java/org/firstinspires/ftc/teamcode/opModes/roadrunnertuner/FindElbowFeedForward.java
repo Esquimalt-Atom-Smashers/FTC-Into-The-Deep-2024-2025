@@ -8,8 +8,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-@TeleOp(name="FindElbowFeedForward", group = "RoadRunner")
 @Disabled
+@TeleOp(name="FindElbowFeedForward", group = "RoadRunner")
 public class FindElbowFeedForward extends OpMode {
     DcMotorEx elbowMotor;
     double powerToMotor = 0;

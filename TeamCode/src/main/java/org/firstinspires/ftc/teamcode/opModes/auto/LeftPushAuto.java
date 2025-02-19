@@ -14,7 +14,7 @@ import org.firstinspires.ftc.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.SpecimenArmSubsystem;
 
 @Autonomous(name = "LeftPushAuto", group = "Push Auto")
-public final class LeftPushAuto extends LinearOpMode {
+public class LeftPushAuto extends LinearOpMode {
     private MecanumDrive drive;
     private SpecimenArmSubsystem specimenArmSubsystem;
 

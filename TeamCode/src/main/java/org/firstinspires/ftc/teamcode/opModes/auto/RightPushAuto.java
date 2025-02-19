@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.roadrunner.MecanumDrive;
 
 @Autonomous(name = "RightPushAuto", group = "Push Auto")
-public final class RightPushAuto extends LinearOpMode {
+public class RightPushAuto extends LinearOpMode {
     private  MecanumDrive drive;
 
     @Override

@@ -14,7 +14,7 @@ import org.firstinspires.ftc.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.SpecimenArmSubsystem;
 
 @Autonomous(name = "RightSpecimenAuto", group = "Scoring Auto")
-public final class RightSpecimenAuto extends LinearOpMode {
+public class RightSpecimenAuto extends LinearOpMode {
     private SpecimenArmSubsystem specimenArmSubsystem;
 
     @Override
