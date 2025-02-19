@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opmodes;
+package org.firstinspires.ftc.teamcode.opmodes.zoldprograms;
 
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.command.RunCommand;
@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.subsystems.WristSubsystem;
 
 @TeleOp(name="TeleOp (Claw Intake)", group = "z. Test")
 @Disabled
-public class OldIntakeTeleOp extends OpMode {
+public class ClawIntakeTeleOp extends OpMode {
     ArmSubsystem armSubsystem;
     WristSubsystem wristSubsystem;
     DriveSubsystem driveSubsystem;

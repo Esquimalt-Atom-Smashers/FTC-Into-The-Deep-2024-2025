@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opmodes;
+package org.firstinspires.ftc.teamcode.opmodes.testandtuning;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
@@ -20,7 +20,8 @@ import org.firstinspires.ftc.teamcode.subsystems.SpinningWristSubsystem;
 import java.util.ArrayList;
 import java.util.List;
 
-//@TeleOp(name = "Competition TeleOp", group = "Real")
+@Disabled
+@TeleOp(name = "Roadrunner TeleOp", group = "Test TeleOp")
 public class RRTeleOp extends OpMode {
     ArmSubsystem armSubsystem;
     SpinningWristSubsystem spinningWristSubsystem;
