@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opmodes.roadrunnertuner;
+package org.firstinspires.ftc.teamcode.opmodes.testandtuning;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -9,19 +9,19 @@ import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @Disabled
-@TeleOp(name="FindSlideFeedForward", group = "RoadRunner")
-public class FindSlideFeedForward extends OpMode {
-    DcMotorEx slideMotor;
+@TeleOp(name="FindElbowFeedForward", group = "Tuning")
+public class FindElbowFeedForward extends OpMode {
+    DcMotorEx elbowMotor;
     double powerToMotor = 0;
 
     @Override
     public void init() {
-        slideMotor = hardwareMap.get(DcMotorEx.class, "sampSlide");
+        elbowMotor = hardwareMap.get(DcMotorEx.class, "sampElbow");
 
-        slideMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        slideMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-        slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        slideMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        elbowMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        elbowMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        elbowMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        elbowMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
     @Override
@@ -30,9 +30,9 @@ public class FindSlideFeedForward extends OpMode {
         if(gamepad1.b) powerToMotor -= 0.001;
 
         powerToMotor = Range.clip(powerToMotor, -1, 1);
-        slideMotor.setPower(powerToMotor);
+        elbowMotor.setPower(powerToMotor);
 
         telemetry.addData("Power to motor", powerToMotor);
-        telemetry.addData("Position", slideMotor.getCurrentPosition());
+        telemetry.addData("Position", elbowMotor.getCurrentPosition());
     }
 }
