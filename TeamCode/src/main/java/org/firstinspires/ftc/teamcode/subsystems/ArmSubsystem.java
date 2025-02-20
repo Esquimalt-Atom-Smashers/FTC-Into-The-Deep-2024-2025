@@ -493,8 +493,10 @@ public class ArmSubsystem extends SubsystemBase {
         }
         @Override
         public boolean run(TelemetryPacket packet){
-            setTargetLinearSlidePosition(targetPosition);
-            return !(targetPosition == armSubsystem.targetLinearSlidePosition);
+            if (getTargetLinearSlidePosition() != targetPosition && Math.abs(getElbowPosition() - ArmPosition.INTAKE_POSITION.elbowPos) <= TOLERANCE && Math.abs(getSlidePosition() - ArmPosition.INTAKE_POSITION.slidePos) <= TOLERANCE) {
+                setTargetLinearSlidePosition(targetPosition);
+            }
+            return !(targetPosition == armSubsystem.targetLinearSlidePosition && Math.abs(targetPosition - armSubsystem.getSlidePosition()) <= TOLERANCE);
         }
     }
 

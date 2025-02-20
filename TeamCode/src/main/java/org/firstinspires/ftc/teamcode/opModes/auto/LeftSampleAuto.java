@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.InstantAction;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
@@ -65,11 +66,13 @@ public class LeftSampleAuto extends LinearOpMode {
                         outtakePos1.build(),
                         spinningWristSubsystem.getOuttakeAction(),
                         intoPos2.build(),
-                        getGoToHomePositionAction(),
-                        new SleepAction(1),
-                        armSubsystem.getSlideToPositionAction(armSubsystem, 50)
+                        new InstantAction(() -> commandManager.getToHomePosition().schedule())
+//                        getGoToHomePositionAction()
+//                        new SleepAction(1),
+//                        armSubsystem.getSlideToPositionAction(armSubsystem, 50)
                     ),
-                    new RunFTCLibCommands()
+                    new RunFTCLibCommands(),
+                    new InstantAction(() -> telemetry.update())
                     )
             );
     }
@@ -102,15 +105,17 @@ public class LeftSampleAuto extends LinearOpMode {
 
     public class GoToHomePositionAction implements Action {
         SequentialCommandGroup homePositionCommand = commandManager.getToHomePosition();
-        ArmSubsystem.ArmToPositionCommand armToPositionCommand = new ArmSubsystem.ArmToPositionCommand(armSubsystem, ArmSubsystem.ArmPosition.INTAKE_POSITION);
+//        ArmSubsystem.ArmToPositionCommand armToPositionCommand = new ArmSubsystem.ArmToPositionCommand(armSubsystem, ArmSubsystem.ArmPosition.INTAKE_POSITION);
 
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
             if(!homePositionCommand.isScheduled()) homePositionCommand.schedule();
 
-            if(armSubsystem.getTargetLinearSlidePosition() == ArmSubsystem.ArmPosition.INTAKE_POSITION.slidePos && armSubsystem.getTargetElbowPosition() == ArmSubsystem.ArmPosition.INTAKE_POSITION.elbowPos) {
-                return !armToPositionCommand.isFinished();
-            } else return true;
+//            if(armSubsystem.getTargetLinearSlidePosition() == ArmSubsystem.ArmPosition.INTAKE_POSITION.slidePos && armSubsystem.getTargetElbowPosition() == ArmSubsystem.ArmPosition.INTAKE_POSITION.elbowPos) {
+//                return !armToPositionCommand.isFinished();
+//            } else return true;
+
+            return true;
         }
     }
 
