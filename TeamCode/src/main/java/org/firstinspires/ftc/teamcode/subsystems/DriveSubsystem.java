@@ -220,6 +220,7 @@ public class DriveSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         telemetry.addData("fieldCentric", fieldCentric);
+        telemetry.addData("IMU", imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
         mecanumDrive.updatePoseEstimate();
         currentPos = new Pose2d(mecanumDrive.pose.position.x, mecanumDrive.pose.position.y, mecanumDrive.pose.heading.real);
     }
