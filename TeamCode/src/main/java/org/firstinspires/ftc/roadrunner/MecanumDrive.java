@@ -303,7 +303,7 @@ public final class MecanumDrive {
                 t = Actions.now() - beginTs;
             }
 
-            if (t >= timeTrajectory.duration+correctionTime) {//added correction time, should add an exception for if it is at position
+            if (t >= timeTrajectory.duration + correctionTime) {//added correction time, should add an exception for if it is at position
                 leftFront.setPower(0);
                 leftBack.setPower(0);
                 rightBack.setPower(0);

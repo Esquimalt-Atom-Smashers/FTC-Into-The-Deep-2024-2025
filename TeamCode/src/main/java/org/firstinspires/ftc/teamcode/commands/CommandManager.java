@@ -42,8 +42,9 @@ public class CommandManager {
         } else {
             return new SequentialCommandGroup(
                     new ArmSubsystem.SlideToPositionCommand(armSubsystem, ArmSubsystem.SLIDE_MIN_POSITION, maxLinearPower),
-                    new SpinningWristSubsystem.MoveWristToPositionCommand(spinningWristSubsystem, SpinningWristSubsystem.WristPosition.OUTTAKE),
+                    new SpinningWristSubsystem.MoveWristToPositionCommand(spinningWristSubsystem, SpinningWristSubsystem.WristPosition.INTAKE),
                     new ArmSubsystem.ElbowToPositionCommand(armSubsystem, position.elbowPos, (position.elbowPos < armSubsystem.getElbowPosition()) ? maxElbowPowerGoingDown : maxElbowPowerGoingUp),
+                    new SpinningWristSubsystem.MoveWristToPositionCommand(spinningWristSubsystem, SpinningWristSubsystem.WristPosition.OUTTAKE),
                     new ArmSubsystem.SlideToPositionCommand(armSubsystem, position.slidePos, maxLinearPower),
                     new RunCommand(() -> {
                         armSubsystem.setLinearMaxPower(previousLinearMaxPower);
@@ -74,8 +75,9 @@ public class CommandManager {
         } else {
             return new SequentialCommandGroup(
                     new ArmSubsystem.SlideToPositionCommand(armSubsystem, ArmSubsystem.SLIDE_MIN_POSITION, maxLinearPower),
-                    new SpinningWristSubsystem.MoveWristToPositionCommand(spinningWristSubsystem, SpinningWristSubsystem.WristPosition.OUTTAKE),
+                    new SpinningWristSubsystem.MoveWristToPositionCommand(spinningWristSubsystem, SpinningWristSubsystem.WristPosition.INTAKE),
                     new ArmSubsystem.ElbowToPositionCommand(armSubsystem, position.elbowPos, (position.elbowPos < armSubsystem.getElbowPosition()) ? maxElbowPowerGoingDown : maxElbowPowerGoingUp),
+                    new SpinningWristSubsystem.MoveWristToPositionCommand(spinningWristSubsystem, SpinningWristSubsystem.WristPosition.OUTTAKE),
                     new ArmSubsystem.SlideToPositionCommand(armSubsystem, position.slidePos, maxLinearPower),
                     new RunCommand(() -> {
                         armSubsystem.setLinearMaxPower(previousLinearMaxPower);
@@ -134,9 +136,6 @@ public class CommandManager {
                     armSubsystem.setElbowMaxPower(previousElbowMaxPower);
                 })
         );
-//        } else {
-//            return null;
-//        }
     }
 
     public SequentialCommandGroup drivebaseToBasket() {

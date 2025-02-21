@@ -2,16 +2,23 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import androidx.annotation.NonNull;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.arcrobotics.ftclib.command.SubsystemBase;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Servo;
 
+@Config
 public class SpecimenArmSubsystem extends SubsystemBase {
     //Constants
     public static final String ELBOW_SERVO_NAME = "specElbow";
     public static final String CLAW_SERVO_NAME = "specClaw";
+    public static double WALL_POSITION = 0.2;
+    public static double LIFT_POSITION = 0.16;
+    public static double SCORE_SPECIMEN_POSITION = 0.95;
+    public static double PUT_DOWN_POSITION = 0.46;
+    public static double TOUCH_RUNG_POSITION = 0.12;
 
     //Hardware Components
     private Servo elbowServo;
@@ -54,15 +61,15 @@ public class SpecimenArmSubsystem extends SubsystemBase {
         }
     }
 
-    public void wallPosition() {elbowServo.setPosition(.20);} //go to wall to grab specimen
+    public void wallPosition() {elbowServo.setPosition(WALL_POSITION);} //go to wall to grab specimen
 
-    public void liftPosition() {elbowServo.setPosition(0.16);} //pull away from wall (may not be needed)
+    public void liftPosition() {elbowServo.setPosition(LIFT_POSITION);} //pull away from wall (may not be needed)
 
-    public void scoreSpecimen() {elbowServo.setPosition(0.92);} //score on high bar
+    public void scoreSpecimen() {elbowServo.setPosition(SCORE_SPECIMEN_POSITION);} //score on high bar
 
-    public void putDown() {elbowServo.setPosition(0.45);}
+    public void putDown() {elbowServo.setPosition(PUT_DOWN_POSITION);}
 
-    public void touchRung() {elbowServo.setPosition(0.1);}
+    public void touchRung() {elbowServo.setPosition(TOUCH_RUNG_POSITION);}
 
     public void openClaw() {
         clawServo.setPosition(ClawPosition.OPEN.position);
