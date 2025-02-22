@@ -135,11 +135,15 @@ public class ArmSubsystem extends SubsystemBase {
     public void resetElbowEncoder() {
         elbowMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         elbowMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        setTargetElbowPosition(targetElbowPosition);
     }
 
     public void resetSlideEncoder() {
         linearSlideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         linearSlideMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        setTargetLinearSlidePosition(targetLinearSlidePosition);
     }
 
     private boolean isSlideLimitSwitchPressed() {
@@ -307,6 +311,7 @@ public class ArmSubsystem extends SubsystemBase {
     public boolean atIntakePosition(){ return Math.abs(getElbowPosition() - ArmPosition.INTAKE_POSITION.elbowPos) <= TOLERANCE && Math.abs(getSlidePosition() - ArmPosition.INTAKE_POSITION.slidePos) <= TOLERANCE;}
 
     //Commands
+
     public SequentialCommandGroup getMoveArmToPositionCommand(ArmPosition position, double maxLinearPower, double maxElbowPowerGoingUp, double maxElbowPowerGoingDown) {
         double previousElbowMaxPower = this.maxElbowPower;
         double previousLinearMaxPower = this.maxLinearPower;
@@ -482,6 +487,7 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
     //RR action
+
     public class SlideToPositionAction implements Action {
         TelemetryPacket packet;
         ArmSubsystem armSubsystem;
@@ -491,6 +497,7 @@ public class ArmSubsystem extends SubsystemBase {
         int startPoint;
         int currentPoint;
         ElapsedTime timer = new ElapsedTime();
+
         public SlideToPositionAction (ArmSubsystem armSubsystem, int targetPosition) {
             this.packet = packet;
             this.armSubsystem = armSubsystem;
@@ -501,6 +508,7 @@ public class ArmSubsystem extends SubsystemBase {
             this.currentPoint = startPoint;
             timer.reset();
         }
+
         @Override
         public boolean run(TelemetryPacket packet){
 //            if (armSubsystem.getTargetLinearSlidePosition() != targetPosition && Math.abs(armSubsystem.getElbowPosition() - ArmPosition.INTAKE_POSITION.elbowPos) <= TOLERANCE) {
@@ -526,6 +534,7 @@ public class ArmSubsystem extends SubsystemBase {
     public Action getSlideToPositionAction (ArmSubsystem armSubsystem, int targetPosition) {
         return new SlideToPositionAction(armSubsystem, targetPosition);
     }
+
     //Periodic
 
     @Override
