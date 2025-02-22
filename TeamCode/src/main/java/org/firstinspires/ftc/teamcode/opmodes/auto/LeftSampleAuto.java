@@ -75,10 +75,9 @@ public class LeftSampleAuto extends LinearOpMode {
                             new InstantAction(() -> armSubsystem.setLinearMaxPower(0.5)),
                             armSubsystem.getSlideToPositionAction(armSubsystem, 950),
                             new SleepAction(0.5),
-                            outtakePos2.build(),
                             getGoToHighBasketAction(),
+                            outtakePos2.build(),
                             spinningWristSubsystem.getOuttakeAction()
-
                     ),
                     new RunFTCLibCommands()
             )
@@ -87,14 +86,13 @@ public class LeftSampleAuto extends LinearOpMode {
 
     public class GoToHighBasketAction implements Action {
         SequentialCommandGroup highBasketCommand = commandManager.getToHighBasketPositionCommand();
-        ArmSubsystem.ArmToPositionCommand armToPositionCommand = new ArmSubsystem.ArmToPositionCommand(armSubsystem, ArmSubsystem.ArmPosition.INTAKE_POSITION);
 
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
             if(!highBasketCommand.isScheduled()) highBasketCommand.schedule();
 
             if(armSubsystem.getTargetLinearSlidePosition() == ArmSubsystem.ArmPosition.HIGH_OUTTAKE_POSITION.slidePos && armSubsystem.getTargetElbowPosition() == ArmSubsystem.ArmPosition.HIGH_OUTTAKE_POSITION.elbowPos) {
-                return !armToPositionCommand.isFinished();
+                return !(armSubsystem.getSlideAtTarget() && armSubsystem.getElbowAtTarget());
             } else return true;
         }
     }

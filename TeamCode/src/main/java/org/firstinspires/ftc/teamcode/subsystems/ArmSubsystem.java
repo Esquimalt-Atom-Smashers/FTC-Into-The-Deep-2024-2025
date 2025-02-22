@@ -36,7 +36,7 @@ public class ArmSubsystem extends SubsystemBase {
     public static double SLIDE_I = 0;
     public static double SLIDE_D = 0.00015;
     public static final int SLIDE_MAX_POSITION = 1900; //(high bucket plus a buffer)
-    public static final int SLIDE_MAX_POSITION_DOWN = 1700;
+    public static final int SLIDE_MAX_POSITION_DOWN = 1500;
     public static final int WRIST_OUT_MAX_SLIDE_POSITION = 1370;
 
     public static final int ELBOW_MAX_POSITION = 685;
@@ -88,6 +88,8 @@ public class ArmSubsystem extends SubsystemBase {
             this.slidePos = slidePos;
         }
     }
+
+    private ArmPosition armPosition = ArmPosition.INTAKE_POSITION;
 
     public ArmSubsystem(OpMode opMode) {
         telemetry = opMode.telemetry;
@@ -280,6 +282,10 @@ public class ArmSubsystem extends SubsystemBase {
 
     public double getElbowDegrees() {
         return (double) elbowMotor.getCurrentPosition() / (double) TICKS_PER_ELBOW_ROTATION * 360.0;
+    }
+
+    public ArmPosition getArmPosition() {
+        return armPosition;
     }
 
     public double getMaxElbowPower() {
@@ -493,7 +499,7 @@ public class ArmSubsystem extends SubsystemBase {
         ArmSubsystem armSubsystem;
         int targetPosition;
         double previousMaxPower;
-        int rate = 30;
+        int TICKS_PER_DECISECONDS = 60;
         int startPoint;
         int currentPoint;
         ElapsedTime timer = new ElapsedTime();
@@ -514,11 +520,11 @@ public class ArmSubsystem extends SubsystemBase {
 //            if (armSubsystem.getTargetLinearSlidePosition() != targetPosition && Math.abs(armSubsystem.getElbowPosition() - ArmPosition.INTAKE_POSITION.elbowPos) <= TOLERANCE) {
 //                armSubsystem.setLinearMaxPower(0.05);
             if (targetPosition > startPoint && timer.seconds() >= 0.1) {
-                currentPoint = currentPoint + rate;
+                currentPoint = currentPoint + TICKS_PER_DECISECONDS;
                 armSubsystem.setTargetLinearSlidePosition(Range.clip((currentPoint), startPoint, targetPosition));
                 timer.reset();
             } else if (targetPosition < startPoint && timer.seconds() >= 0.1) {
-                currentPoint = currentPoint - rate;
+                currentPoint = currentPoint - TICKS_PER_DECISECONDS;
                 armSubsystem.setTargetLinearSlidePosition(Range.clip((currentPoint), targetPosition, startPoint));
                 timer.reset();
 
@@ -554,6 +560,11 @@ public class ArmSubsystem extends SubsystemBase {
         if(isElbowLimitSwitchPressed()) {
             resetElbowEncoder();
         }
+
+        //Update armPosition
+        if(getTargetElbowPosition() == ArmPosition.INTAKE_POSITION.elbowPos) armPosition = ArmPosition.INTAKE_POSITION;
+        else if(getTargetElbowPosition() == ArmPosition.HIGH_OUTTAKE_POSITION.elbowPos) armPosition = ArmPosition.HIGH_OUTTAKE_POSITION;
+        else if(getTargetElbowPosition() == ArmPosition.LOW_OUTTAKE_POSITION.elbowPos) armPosition = ArmPosition.LOW_OUTTAKE_POSITION;
 
         telemetry.addData("Elbow Position", elbowMotor.getCurrentPosition());
         telemetry.addData("Linear Slide Position", linearSlideMotor.getCurrentPosition());

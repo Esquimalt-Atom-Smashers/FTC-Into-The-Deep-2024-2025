@@ -27,7 +27,7 @@ public class RightSpecimenAuto extends LinearOpMode {
         waitForStart();
 
         TrajectoryActionBuilder scoreFirstSpec = drive.actionBuilder(beginPose)
-                .strafeToLinearHeading(new Vector2d(5,29), Math.toRadians(180));
+                .strafeToLinearHeading(new Vector2d(5,28), Math.toRadians(180));
 
         TrajectoryActionBuilder acquireThreeSamples = scoreFirstSpec.endTrajectory().fresh()
                 .strafeToConstantHeading( new Vector2d(-35.75, 53) )

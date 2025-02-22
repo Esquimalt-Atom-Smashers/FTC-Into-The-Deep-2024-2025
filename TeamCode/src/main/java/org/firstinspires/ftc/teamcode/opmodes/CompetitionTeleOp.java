@@ -52,7 +52,7 @@ public class CompetitionTeleOp extends OpMode {
         Trigger lowPosition = new Trigger(() -> gamepad2.dpad_right);
         lowPosition.whenActive(() -> commandManager.getToLowBasketPosition().schedule());
 
-        Trigger removeFromChamber = new Trigger(() -> gamepad2.dpad_left && Math.abs(armSubsystem.getElbowPosition() - ArmSubsystem.ArmPosition.INTAKE_POSITION.elbowPos) <= 25);
+        Trigger removeFromChamber = new Trigger(() -> gamepad2.dpad_left /*&& Math.abs(armSubsystem.getElbowPosition() - ArmSubsystem.ArmPosition.INTAKE_POSITION.elbowPos) <= 25*/ && armSubsystem.getArmPosition() == ArmSubsystem.ArmPosition.INTAKE_POSITION);
         removeFromChamber.whenActive(() -> commandManager.getToHomePositionHorizontal().schedule());
 
         Trigger linearControl = new Trigger(() -> Math.abs(gamepad2.right_stick_y) > 0 && !gamepad2.options);
@@ -72,7 +72,7 @@ public class CompetitionTeleOp extends OpMode {
         Trigger wristOuttake = new Trigger(() -> (gamepad2.b));
         wristOuttake.whenActive(() -> spinningWristSubsystem.toPosition(SpinningWristSubsystem.WristPosition.OUTTAKE));
 
-        Trigger wristStorage = new Trigger(() -> (gamepad2.y));
+        Trigger wristStorage = new Trigger(() -> (gamepad2.y && armSubsystem.getArmPosition() == ArmSubsystem.ArmPosition.INTAKE_POSITION));
         wristStorage.whenActive(() -> spinningWristSubsystem.toPosition(SpinningWristSubsystem.WristPosition.STOWED));
 
         Trigger resetEncoders = new Trigger(() -> gamepad2.share);
