@@ -121,10 +121,19 @@ public class SpinningWristSubsystem extends SubsystemBase {
 
     //RR actions
     public class Intake implements Action {
+        ElapsedTime timer = new ElapsedTime();
+        boolean firstrun = true;
+
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
+            if(firstrun) {
+                timer.reset();
+                firstrun = false;
+            }
+
             intake();
-            return false;
+
+            return timer.seconds() <= 2;
         }
     }
 
@@ -134,10 +143,21 @@ public class SpinningWristSubsystem extends SubsystemBase {
 
     public class Outtake implements Action {
         ElapsedTime timer = new ElapsedTime();
+        boolean firstrun = true;
+
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
+            if(firstrun) {
+                timer.reset();
+                firstrun = false;
+            }
+
             outtake();
-            return timer.seconds() <= 2;
+
+            if(timer.seconds() > 2) {
+                stopIntakeServo();
+                return false;
+            } else return true;
         }
     }
 

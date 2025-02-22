@@ -65,7 +65,6 @@ public class LeftSampleAuto extends LinearOpMode {
                             outtakePos1.build(),
                             new SleepAction(0.5),
                             spinningWristSubsystem.getOuttakeAction(),
-                            new SleepAction(1),
                             intoPos2.build(),
                             //sec samp
                             new InstantAction(() -> commandManager.getToHomePosition().schedule()),
@@ -77,8 +76,9 @@ public class LeftSampleAuto extends LinearOpMode {
                             new SleepAction(0.5),
                             getGoToHighBasketAction(),
                             outtakePos2.build(),
-                            spinningWristSubsystem.getOuttakeAction()
-                    ),
+                            spinningWristSubsystem.getOuttakeAction(),
+                            new InstantAction(() -> commandManager.getToHomePosition().schedule())
+                            ),
                     new RunFTCLibCommands()
             )
         );
