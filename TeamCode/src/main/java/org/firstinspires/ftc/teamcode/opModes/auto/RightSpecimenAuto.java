@@ -30,7 +30,7 @@ public class RightSpecimenAuto extends LinearOpMode {
                 .strafeToLinearHeading(new Vector2d(5,29), Math.toRadians(180));
 
         TrajectoryActionBuilder acquireThreeSamples = scoreFirstSpec.endTrajectory().fresh()
-                .strafeToConstantHeading( new Vector2d(-35.75, 48) )
+                .strafeToConstantHeading( new Vector2d(-35.75, 53) )
                 .strafeToConstantHeading(new Vector2d(-35.75,30))
 
                 .splineToConstantHeading(new Vector2d(-47.6,17), Math.toRadians(180))
@@ -39,8 +39,8 @@ public class RightSpecimenAuto extends LinearOpMode {
 
         TrajectoryActionBuilder getSecSpec = acquireThreeSamples.endTrajectory().fresh()
                 .setTangent(Math.toRadians(270))
-                .splineToConstantHeading(new Vector2d(-50, 71), Math.toRadians(90))
-                .strafeToLinearHeading(new Vector2d(-40, 72), Math.toRadians(184));
+                .splineToConstantHeading(new Vector2d(-55, 71), Math.toRadians(90))
+                .strafeToLinearHeading(new Vector2d(-40, 71), Math.toRadians(184));
 
         TrajectoryActionBuilder preScoreSec = getSecSpec.endTrajectory().fresh()
                 .strafeToLinearHeading(new Vector2d(-40, 60), Math.toRadians(180));
@@ -54,8 +54,8 @@ public class RightSpecimenAuto extends LinearOpMode {
                 .splineToLinearHeading(new Pose2d(new Vector2d(-8,50),Math.toRadians(180)),Math.toRadians(90));
 
         TrajectoryActionBuilder getThirdSpec = moveBack.endTrajectory().fresh()
-                .splineToConstantHeading(new Vector2d(-48, 71), Math.toRadians(90))
-                .strafeToLinearHeading(new Vector2d(-38, 72), Math.toRadians(184));
+                .splineToConstantHeading(new Vector2d(-55, 71), Math.toRadians(90))
+                .strafeToLinearHeading(new Vector2d(-40, 71), Math.toRadians(184));
 
         TrajectoryActionBuilder preScoreThird = getThirdSpec.endTrajectory().fresh()
                 .strafeToLinearHeading(new Vector2d(-40, 60), Math.toRadians(180));
@@ -72,8 +72,7 @@ public class RightSpecimenAuto extends LinearOpMode {
                 new SequentialAction(
                         //First spec
                         specimenArmSubsystem.CloseClaw(),
-                        specimenArmSubsystem.ScoreSpecimen()
-                        ,
+                        specimenArmSubsystem.ScoreSpecimen(),
                         scoreFirstSpec.build(),
                         specimenArmSubsystem.OpenClaw(),
                         acquireThreeSamples.build(),

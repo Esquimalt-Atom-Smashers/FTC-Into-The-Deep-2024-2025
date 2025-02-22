@@ -134,7 +134,6 @@ public class SpinningWristSubsystem extends SubsystemBase {
 
     public class Outtake implements Action {
         ElapsedTime timer = new ElapsedTime();
-
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
             outtake();
@@ -144,5 +143,27 @@ public class SpinningWristSubsystem extends SubsystemBase {
 
     public Action getOuttakeAction() {
         return new Outtake();
+    }
+
+    public class ToPosition implements Action {
+        SpinningWristSubsystem spinningWristSubsystem;
+        WristPosition target;
+        public ToPosition(SpinningWristSubsystem spinningWristSubsystem, WristPosition target) {
+            this.spinningWristSubsystem = spinningWristSubsystem;
+            this.target = target;
+        }
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            if(Math.abs(armSubsystem.getElbowPosition() - ArmSubsystem.ArmPosition.INTAKE_POSITION.elbowPos) <= ArmSubsystem.TOLERANCE) {
+                spinningWristSubsystem.toPosition(target);
+                return false;
+            } else {
+                return true;
+            }
+        }
+    }
+
+    public Action getToPositionAction(SpinningWristSubsystem spinningWristSubsystem, WristPosition target) {
+        return new ToPosition(spinningWristSubsystem, target);
     }
 }

@@ -49,32 +49,40 @@ public class LeftSampleAuto extends LinearOpMode {
 
         waitForStart();
 
-        TrajectoryActionBuilder intoPos1 = drive.actionBuilder(beginPose)
-                .strafeToLinearHeading( new Vector2d(50, 50), Math.toRadians(135));
-
-        TrajectoryActionBuilder outtakePos1 = intoPos1.endTrajectory().fresh()
-                .strafeToLinearHeading( new Vector2d(55, 55), Math.toRadians(135));
+        TrajectoryActionBuilder outtakePos1 = drive.actionBuilder(beginPose)
+                .strafeToLinearHeading( new Vector2d(53, 58), Math.toRadians(135));
 
         TrajectoryActionBuilder intoPos2 = outtakePos1.endTrajectory().fresh()
-                .strafeToLinearHeading( new Vector2d(50, 50), Math.toRadians(175));
+                .strafeToLinearHeading( new Vector2d(45.5, 50), Math.toRadians(180));
+
+        TrajectoryActionBuilder outtakePos2 = intoPos2.endTrajectory().fresh()
+                .strafeToLinearHeading( new Vector2d(53, 58), Math.toRadians(135));
 
         Actions.runBlocking(
             new ParallelAction(
                     new SequentialAction(
-                        intoPos1.build(),
-                        getGoToHighBasketAction(),
-                        outtakePos1.build(),
-                        spinningWristSubsystem.getOuttakeAction(),
-                        intoPos2.build(),
-                        new InstantAction(() -> commandManager.getToHomePosition().schedule())
-//                        getGoToHomePositionAction()
-//                        new SleepAction(1),
-//                        armSubsystem.getSlideToPositionAction(armSubsystem, 50)
+                            getGoToHighBasketAction(),
+                            outtakePos1.build(),
+                            new SleepAction(0.5),
+                            spinningWristSubsystem.getOuttakeAction(),
+                            new SleepAction(1),
+                            intoPos2.build(),
+                            //sec samp
+                            new InstantAction(() -> commandManager.getToHomePosition().schedule()),
+                            spinningWristSubsystem.getIntakeAction(),
+                            spinningWristSubsystem.getToPositionAction(spinningWristSubsystem, SpinningWristSubsystem.WristPosition.INTAKE),
+                            new SleepAction(1),
+                            new InstantAction(() -> armSubsystem.setLinearMaxPower(0.5)),
+                            armSubsystem.getSlideToPositionAction(armSubsystem, 950),
+                            new SleepAction(0.5),
+                            outtakePos2.build(),
+                            getGoToHighBasketAction(),
+                            spinningWristSubsystem.getOuttakeAction()
+
                     ),
-                    new RunFTCLibCommands(),
-                    new InstantAction(() -> telemetry.update())
-                    )
-            );
+                    new RunFTCLibCommands()
+            )
+        );
     }
 
     public class GoToHighBasketAction implements Action {
@@ -103,23 +111,24 @@ public class LeftSampleAuto extends LinearOpMode {
         return new GoToHighBasketAction();
     }
 
-    public class GoToHomePositionAction implements Action {
-        SequentialCommandGroup homePositionCommand = commandManager.getToHomePosition();
+//    public class GoToHomePositionAction implements Action {
+//        SequentialCommandGroup homePositionCommand = commandManager.getToHomePosition();
 //        ArmSubsystem.ArmToPositionCommand armToPositionCommand = new ArmSubsystem.ArmToPositionCommand(armSubsystem, ArmSubsystem.ArmPosition.INTAKE_POSITION);
 
-        @Override
-        public boolean run(@NonNull TelemetryPacket packet) {
-            if(!homePositionCommand.isScheduled()) homePositionCommand.schedule();
-
-//            if(armSubsystem.getTargetLinearSlidePosition() == ArmSubsystem.ArmPosition.INTAKE_POSITION.slidePos && armSubsystem.getTargetElbowPosition() == ArmSubsystem.ArmPosition.INTAKE_POSITION.elbowPos) {
-//                return !armToPositionCommand.isFinished();
-//            } else return true;
-
-            return true;
-        }
-    }
-
-    public Action getGoToHomePositionAction() {
-        return new GoToHomePositionAction();
-    }
+//        @Override
+//        public boolean run(@NonNull TelemetryPacket packet) {
+//            if(!homePositionCommand.isScheduled()) homePositionCommand.schedule();
+//
+////            if(armSubsystem.getTargetLinearSlidePosition() == ArmSubsystem.ArmPosition.INTAKE_POSITION.slidePos && armSubsystem.getTargetElbowPosition() == ArmSubsystem.ArmPosition.INTAKE_POSITION.elbowPos) {
+////                return !armToPositionCommand.isFinished();
+////            } else return true;
+//
+//            return true;
+//        }
+//    }
+//
+//    public Action getGoToHomePositionAction() {
+//        return new GoToHomePositionAction();
+//    }
+    //I am happy -Bosco 21/2
 }

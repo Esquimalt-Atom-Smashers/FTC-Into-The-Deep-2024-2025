@@ -486,16 +486,39 @@ public class ArmSubsystem extends SubsystemBase {
         TelemetryPacket packet;
         ArmSubsystem armSubsystem;
         int targetPosition;
+        double previousMaxPower;
+        int rate = 30;
+        int startPoint;
+        int currentPoint;
+        ElapsedTime timer = new ElapsedTime();
         public SlideToPositionAction (ArmSubsystem armSubsystem, int targetPosition) {
             this.packet = packet;
             this.armSubsystem = armSubsystem;
             this.targetPosition = targetPosition;
+            this.previousMaxPower = armSubsystem.getMaxLinearPower();
+            this.startPoint = armSubsystem.getSlidePosition();
+
+            this.currentPoint = startPoint;
+            timer.reset();
         }
         @Override
         public boolean run(TelemetryPacket packet){
-            if (getTargetLinearSlidePosition() != targetPosition && Math.abs(getElbowPosition() - ArmPosition.INTAKE_POSITION.elbowPos) <= TOLERANCE && Math.abs(getSlidePosition() - ArmPosition.INTAKE_POSITION.slidePos) <= TOLERANCE) {
-                setTargetLinearSlidePosition(targetPosition);
+//            if (armSubsystem.getTargetLinearSlidePosition() != targetPosition && Math.abs(armSubsystem.getElbowPosition() - ArmPosition.INTAKE_POSITION.elbowPos) <= TOLERANCE) {
+//                armSubsystem.setLinearMaxPower(0.05);
+            if (targetPosition > startPoint && timer.seconds() >= 0.1) {
+                currentPoint = currentPoint + rate;
+                armSubsystem.setTargetLinearSlidePosition(Range.clip((currentPoint), startPoint, targetPosition));
+                timer.reset();
+            } else if (targetPosition < startPoint && timer.seconds() >= 0.1) {
+                currentPoint = currentPoint - rate;
+                armSubsystem.setTargetLinearSlidePosition(Range.clip((currentPoint), targetPosition, startPoint));
+                timer.reset();
+
             }
+//            }
+//            if (targetPosition == armSubsystem.targetLinearSlidePosition && Math.abs(targetPosition - armSubsystem.getSlidePosition()) <= TOLERANCE) {
+//                armSubsystem.setLinearMaxPower(previousMaxPower);
+//            } else {return true;}
             return !(targetPosition == armSubsystem.targetLinearSlidePosition && Math.abs(targetPosition - armSubsystem.getSlidePosition()) <= TOLERANCE);
         }
     }
