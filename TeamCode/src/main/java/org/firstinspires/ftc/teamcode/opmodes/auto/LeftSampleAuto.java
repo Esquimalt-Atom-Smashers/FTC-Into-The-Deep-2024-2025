@@ -50,13 +50,25 @@ public class LeftSampleAuto extends LinearOpMode {
         waitForStart();
 
         TrajectoryActionBuilder outtakePos1 = drive.actionBuilder(beginPose)
-                .strafeToLinearHeading( new Vector2d(53, 58), Math.toRadians(135));
+                .strafeToLinearHeading(new Vector2d(53, 58), Math.toRadians(135));
 
-        TrajectoryActionBuilder intoPos2 = outtakePos1.endTrajectory().fresh()
-                .strafeToLinearHeading( new Vector2d(45.5, 50), Math.toRadians(180));
+        TrajectoryActionBuilder intakeSamp2 = outtakePos1.endTrajectory().fresh()
+                .strafeToLinearHeading(new Vector2d(45.5, 50), Math.toRadians(180));
 
-        TrajectoryActionBuilder outtakePos2 = intoPos2.endTrajectory().fresh()
-                .strafeToLinearHeading( new Vector2d(53, 58), Math.toRadians(135));
+        TrajectoryActionBuilder outtakePos2 = intakeSamp2.endTrajectory().fresh()
+                .strafeToLinearHeading(new Vector2d(53, 58), Math.toRadians(135));
+
+        TrajectoryActionBuilder intakeSamp3 = outtakePos2.endTrajectory().fresh()
+                .strafeToLinearHeading(new Vector2d(55.5, 50), Math.toRadians(180));
+
+        TrajectoryActionBuilder outtakePos3 = intakeSamp3.endTrajectory().fresh()
+                .strafeToLinearHeading(new Vector2d(53, 58), Math.toRadians(135));
+
+        TrajectoryActionBuilder intakeSamp4 = outtakePos3.endTrajectory().fresh()
+                .strafeToLinearHeading(new Vector2d(42.17, 40.33), Math.toRadians(225));
+
+        TrajectoryActionBuilder outtakePos4 = intakeSamp4.endTrajectory().fresh()
+                .strafeToLinearHeading(new Vector2d(53, 58), Math.toRadians(135));
 
         Actions.runBlocking(
             new ParallelAction(
@@ -65,17 +77,41 @@ public class LeftSampleAuto extends LinearOpMode {
                             outtakePos1.build(),
                             new SleepAction(0.5),
                             spinningWristSubsystem.getOuttakeAction(),
-                            intoPos2.build(),
-                            //sec samp
+                    //Second Sample
+                            intakeSamp2.build(),
                             new InstantAction(() -> commandManager.getToHomePosition().schedule()),
                             spinningWristSubsystem.getIntakeAction(),
                             spinningWristSubsystem.getToPositionAction(spinningWristSubsystem, SpinningWristSubsystem.WristPosition.INTAKE),
-                            new SleepAction(1),
+                            //new SleepAction(1),
                             new InstantAction(() -> armSubsystem.setLinearMaxPower(0.5)),
                             armSubsystem.getSlideToPositionAction(armSubsystem, 950),
-                            new SleepAction(0.5),
+                            new SleepAction(1),
                             getGoToHighBasketAction(),
                             outtakePos2.build(),
+                            spinningWristSubsystem.getOuttakeAction(),
+                    //Third Sample
+                            intakeSamp3.build(),
+                            new InstantAction(() -> commandManager.getToHomePosition().schedule()),
+                            spinningWristSubsystem.getIntakeAction(),
+                            spinningWristSubsystem.getToPositionAction(spinningWristSubsystem, SpinningWristSubsystem.WristPosition.INTAKE),
+                            //new SleepAction(1),
+                            new InstantAction(() -> armSubsystem.setLinearMaxPower(0.5)),
+                            armSubsystem.getSlideToPositionAction(armSubsystem, 950),
+                            new SleepAction(1),
+                            getGoToHighBasketAction(),
+                            outtakePos3.build(),
+                            spinningWristSubsystem.getOuttakeAction(),
+                    //Fourth Sample
+                            intakeSamp4.build(),
+                            new InstantAction(() -> commandManager.getToHomePosition().schedule()),
+                            spinningWristSubsystem.getIntakeAction(),
+                            spinningWristSubsystem.getToPositionAction(spinningWristSubsystem, SpinningWristSubsystem.WristPosition.INTAKE),
+                            //new SleepAction(1),
+                            new InstantAction(() -> armSubsystem.setLinearMaxPower(0.5)),
+                            armSubsystem.getSlideToPositionAction(armSubsystem, 950),
+                            new SleepAction(1),
+                            getGoToHighBasketAction(),
+                            outtakePos4.build(),
                             spinningWristSubsystem.getOuttakeAction(),
                             new InstantAction(() -> commandManager.getToHomePosition().schedule())
                             ),

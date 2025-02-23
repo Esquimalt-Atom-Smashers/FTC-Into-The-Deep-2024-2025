@@ -504,7 +504,7 @@ public class ArmSubsystem extends SubsystemBase {
         int currentPoint;
         ElapsedTime timer = new ElapsedTime();
 
-        public SlideToPositionAction (ArmSubsystem armSubsystem, int targetPosition) {
+        public SlideToPositionAction(ArmSubsystem armSubsystem, int targetPosition) {
             this.packet = packet;
             this.armSubsystem = armSubsystem;
             this.targetPosition = targetPosition;
@@ -527,7 +527,6 @@ public class ArmSubsystem extends SubsystemBase {
                 currentPoint = currentPoint - TICKS_PER_DECISECONDS;
                 armSubsystem.setTargetLinearSlidePosition(Range.clip((currentPoint), targetPosition, startPoint));
                 timer.reset();
-
             }
 //            }
 //            if (targetPosition == armSubsystem.targetLinearSlidePosition && Math.abs(targetPosition - armSubsystem.getSlidePosition()) <= TOLERANCE) {

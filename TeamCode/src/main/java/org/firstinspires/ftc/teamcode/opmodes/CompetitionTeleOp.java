@@ -72,7 +72,7 @@ public class CompetitionTeleOp extends OpMode {
         Trigger wristOuttake = new Trigger(() -> (gamepad2.b));
         wristOuttake.whenActive(() -> spinningWristSubsystem.toPosition(SpinningWristSubsystem.WristPosition.OUTTAKE));
 
-        Trigger wristStorage = new Trigger(() -> (gamepad2.y && armSubsystem.getArmPosition() == ArmSubsystem.ArmPosition.INTAKE_POSITION));
+        Trigger wristStorage = new Trigger(() -> (gamepad2.y));
         wristStorage.whenActive(() -> spinningWristSubsystem.toPosition(SpinningWristSubsystem.WristPosition.STOWED));
 
         Trigger resetEncoders = new Trigger(() -> gamepad2.share);

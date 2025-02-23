@@ -70,7 +70,7 @@ public class SpinningWristSubsystem extends SubsystemBase {
     }
 
     public void toPosition(WristPosition position) {
-        targetWristPosition = position;
+        if(armSubsystem.getArmPosition() == ArmSubsystem.ArmPosition.INTAKE_POSITION) targetWristPosition = position;
     }
 
     //Getters
@@ -121,19 +121,10 @@ public class SpinningWristSubsystem extends SubsystemBase {
 
     //RR actions
     public class Intake implements Action {
-        ElapsedTime timer = new ElapsedTime();
-        boolean firstrun = true;
-
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
-            if(firstrun) {
-                timer.reset();
-                firstrun = false;
-            }
-
             intake();
-
-            return timer.seconds() <= 2;
+            return false;
         }
     }
 
